@@ -1,0 +1,59 @@
+.treatment-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+}
+
+.card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 1rem 0;
+}
+
+.treatment-list {
+  list-style: none;
+  margin: 0 0 1.25rem 0;
+  padding: 0;
+}
+
+.treatment-item {
+  padding: 0.5rem 0;
+  font-size: 0.9375rem;
+  color: #374151;
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.drug-name {
+  font-weight: 600;
+  color: var(--pg-primary);
+}
+
+.substance {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.cta-btn {
+  display: block;
+  width: 100%;
+  padding: 0.625rem 1rem;
+  background: var(--pg-primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  text-align: center;
+  text-decoration: none;
+
+  &:hover {
+    background: #1649b8;
+  }
+}

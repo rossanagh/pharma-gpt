@@ -1,0 +1,72 @@
+.page-content {
+  padding: 1.5rem;
+  max-width: 900px;
+}
+
+h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+}
+
+.lead {
+  color: #6b7280;
+  margin: 0 0 1.5rem 0;
+}
+
+.interactions-table {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+}
+
+th {
+  background: #f9fafb;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+td {
+  font-size: 0.9375rem;
+  color: #111827;
+}
+
+tr:not(:last-child) td {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.badge-ridicat {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.badge-moderat {
+  background: #fef9c3;
+  color: #ca8a04;
+}
+
+.badge-scăzut {
+  background: #f0fdf4;
+  color: #16a34a;
+}

@@ -1,0 +1,9 @@
+{
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.import.maven.enabled": true,
+  "java.settings": {
+    "org.eclipse.jdt.core.compiler.source": "17",
+    "org.eclipse.jdt.core.compiler.compliance": "17",
+    "org.eclipse.jdt.core.compiler.codegen.targetPlatform": "17"
+  }
+}

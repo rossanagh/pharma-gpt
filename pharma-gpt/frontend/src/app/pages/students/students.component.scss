@@ -1,0 +1,30 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+/* O singură coloană — fără banda de noutăți */
+.pharma-landing .students-top {
+  grid-template-columns: 1fr;
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.pharma-landing .students-lead {
+  max-width: 36rem;
+  margin: 1.25rem auto 0;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--text2);
+}
+
+.pharma-landing .students-lead a {
+  color: var(--blue);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.pharma-landing .students-lead a:hover {
+  text-decoration: underline;
+}

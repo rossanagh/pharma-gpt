@@ -1,0 +1,7 @@
+# Copiază la: src/main/resources/application-local.properties (gitignored)
+#
+# OpenAI (opțional dacă folosești deja OPENAI_API_KEY în mediu):
+openai.api-key=
+#
+# Opțional: aceeași sursă ca producția — de obicei folosești variabilele SPRING_DATASOURCE_*
+# în IDE sau în PowerShell, nu neapărat aici.

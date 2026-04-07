@@ -1,0 +1,110 @@
+<div class="dm-page">
+  <div class="left list-col">
+    <div class="panel-title">Conversații</div>
+
+    <div class="list-col-body">
+    <div class="search">
+      <input
+        type="text"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event); onSearchChange()"
+        name="search"
+        placeholder="Caută după nume / parafă..."
+      />
+      @if (searching()) {
+        <div class="hint">Caut...</div>
+      }
+      @if (searchResults().length) {
+        <div class="results">
+          @for (u of searchResults(); track u.id) {
+            <button type="button" class="result" (click)="startConversationWith(u)">
+              <div class="name">
+                @if (u.online) {
+                  <span class="online-dot" title="Online" aria-label="Utilizator online"></span>
+                }
+                {{ u.firstName }} {{ u.lastName }}
+              </div>
+              <div class="meta">
+                @if (u.parafa) { <span class="pill">Parafă: {{ u.parafa }}</span> }
+                @if (u.providerType) { <span class="pill">{{ u.providerType }}</span> }
+                @if (u.specialty) { <span class="pill">{{ u.specialty }}</span> }
+              </div>
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="conversations">
+      @if (loadingConversations()) {
+        <div class="hint">Se încarcă...</div>
+      } @else {
+        @for (c of conversations(); track c.id) {
+          <button
+            type="button"
+            class="conv"
+            [class.active]="selected()?.id === c.id"
+            (click)="openConversation(c)"
+          >
+            <div class="name">
+              @if (c.peer?.online) {
+                <span class="online-dot" title="Online"></span>
+              }
+              {{ c.peer?.firstName }} {{ c.peer?.lastName }}
+            </div>
+            <div class="preview">
+              {{ c.lastMessage?.content || '—' }}
+            </div>
+          </button>
+        }
+      }
+    </div>
+    </div>
+  </div>
+
+  <div class="right chat-col">
+    <div class="chat-eyebrow">Chat</div>
+    @if (!selected()) {
+      <div class="empty">
+        Selectează o conversație sau caută un utilizator.
+      </div>
+    } @else {
+      <div class="thread-header">
+        <div class="title">
+          @if (selected()?.peer?.online) {
+            <span class="online-dot" title="Online" aria-label="Utilizator online"></span>
+          }
+          {{ peerName() }}
+        </div>
+        @if (selected()?.peer?.specialty) {
+          <div class="subtitle">{{ selected()?.peer?.specialty }}</div>
+        }
+      </div>
+
+      <div class="messages">
+        @if (loadingMessages()) {
+          <div class="hint">Se încarcă mesajele...</div>
+        } @else {
+          @for (m of messages(); track m.id) {
+            <div class="msg" [class.out]="selected()?.peer?.id !== m.senderUserId">
+              <div class="bubble">{{ m.content }}</div>
+            </div>
+          }
+        }
+      </div>
+
+      <form class="composer" (ngSubmit)="send()">
+        <input
+          type="text"
+          [ngModel]="draft()"
+          (ngModelChange)="draft.set($event)"
+          name="draft"
+          placeholder="Scrie un mesaj..."
+          [disabled]="sending()"
+        />
+        <button type="submit" [disabled]="sending() || !draft().trim() || !selected()?.peer">Trimite</button>
+      </form>
+    }
+  </div>
+</div>
+

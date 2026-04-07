@@ -1,0 +1,33 @@
+.main-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--pg-canvas, #f1f5f9);
+}
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+.layout-body {
+  display: flex;
+  flex: 1;
+  margin-top: 64px;
+  min-height: calc(100vh - 64px);
+}
+
+.content-area {
+  flex: 1;
+  margin-left: 260px;
+  overflow-x: hidden;
+}
+
+@media (max-width: 1024px) {
+  .content-area {
+    margin-left: 72px;
+  }
+}

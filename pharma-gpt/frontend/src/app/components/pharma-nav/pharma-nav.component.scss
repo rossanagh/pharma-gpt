@@ -1,0 +1,200 @@
+:host {
+  display: block;
+  --blue: #b65b34;
+  --blue2: #cf7a53;
+  --text1: #171615;
+  --text2: #4a3f38;
+  --text3: #8a7f76;
+  --text4: #a89e96;
+  --border: #e8ddd0;
+  --border2: #f0e8df;
+}
+
+.pharma-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 48px;
+  height: 64px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(251, 248, 243, 0.96);
+  backdrop-filter: blur(24px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-sizing: border-box;
+}
+
+.pharma-nav *,
+.pharma-nav *::before,
+.pharma-nav *::after {
+  box-sizing: border-box;
+}
+
+.pharma-nav .logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.pharma-nav .logo-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pharma-nav .logo-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.pharma-nav .logo-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  color: var(--text1);
+  letter-spacing: -0.02em;
+}
+
+.pharma-nav .logo-text span {
+  color: var(--blue);
+}
+
+.pharma-nav .nav-links {
+  display: flex;
+  gap: 28px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pharma-nav .nav-links a {
+  color: var(--text2);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 400;
+  transition: color 0.15s;
+}
+
+.pharma-nav .nav-links a:hover {
+  color: var(--blue);
+}
+
+.pharma-nav .nav-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pharma-nav .nav-guest-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.pharma-nav .btn-nav-signin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  text-decoration: none;
+  color: var(--text2);
+  border: 1px solid var(--border2);
+  background: transparent;
+  transition:
+    color 0.15s,
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.pharma-nav .btn-nav-signin:hover {
+  color: var(--blue);
+  border-color: var(--blue);
+  background: rgba(182, 91, 52, 0.06);
+}
+
+.pharma-nav .btn-nav-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  text-decoration: none;
+  color: #fff;
+  background: linear-gradient(135deg, var(--blue), var(--blue2));
+  border: 1px solid transparent;
+  box-shadow: 0 4px 14px rgba(182, 91, 52, 0.22);
+  transition:
+    filter 0.15s,
+    box-shadow 0.15s;
+}
+
+.pharma-nav .btn-nav-cta:hover {
+  filter: brightness(1.06);
+  box-shadow: 0 6px 20px rgba(182, 91, 52, 0.32);
+}
+
+.pharma-nav .btn-ghost {
+  background: none;
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  padding: 7px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.pharma-nav .btn-ghost:hover {
+  border-color: var(--text3);
+  color: var(--text1);
+}
+
+.pharma-nav .btn-ghost.active {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: rgba(182, 91, 52, 0.1);
+  font-weight: 600;
+}
+
+.pharma-nav .user-nav-link {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .pharma-nav {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 12px 16px;
+    gap: 12px;
+  }
+
+  .pharma-nav .nav-links {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    gap: 16px;
+  }
+}

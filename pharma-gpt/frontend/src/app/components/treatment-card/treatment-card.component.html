@@ -1,0 +1,14 @@
+<div class="treatment-card">
+  <h3 class="card-title">Opțiuni de Tratament</h3>
+  <ul class="treatment-list">
+    @for (t of treatments; track t.name) {
+      <li class="treatment-item">
+        <span class="drug-name">{{ t.name }}</span>
+        @if (t.substance) {
+          <span class="substance">({{ t.substance }})</span>
+        }
+      </li>
+    }
+  </ul>
+  <a routerLink="/ghiduri" class="cta-btn">Citește Ghidul</a>
+</div>

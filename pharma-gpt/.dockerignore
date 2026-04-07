@@ -1,0 +1,9 @@
+target/
+frontend/
+.git/
+.idea/
+*.iml
+data/
+HELP.md
+.env
+.env.*

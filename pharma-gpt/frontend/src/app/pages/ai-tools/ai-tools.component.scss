@@ -1,0 +1,17 @@
+.ai-tools-page {
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--pg-canvas);
+}
+
+.ai-tools-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0 0 12px;
+  box-sizing: border-box;
+}

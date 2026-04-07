@@ -1,0 +1,44 @@
+# Pornește PostgreSQL + backend Spring Boot.
+#
+# 1) Copiază .env.example → .env și completează parolele / chei.
+# 2) Din acest folder: docker compose up -d --build
+# 3) API: http://localhost:8083
+# 4) DBeaver: Host localhost, Port 5432, Database pharma_gpt, User pharma_app, Password = POSTGRES_PASSWORD din .env
+#
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: pharma_gpt
+      POSTGRES_USER: pharma_app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pharma_app -d pharma_gpt"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/pharma_gpt
+      SPRING_DATASOURCE_USERNAME: pharma_app
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

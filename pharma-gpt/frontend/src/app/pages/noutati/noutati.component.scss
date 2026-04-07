@@ -1,0 +1,167 @@
+.page-content {
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+}
+
+.lead {
+  color: #6b7280;
+  margin: 0 0 1.5rem 0;
+  max-width: 42rem;
+}
+
+/* Stiri în stânga (sus în flux), text intro în dreapta — cea mai nouă știre e primul card din listă */
+.noutati-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 400px) minmax(0, 1fr);
+  gap: 2rem;
+  align-items: start;
+}
+
+.noutati-layout--single {
+  grid-template-columns: 1fr;
+}
+
+.noutati-intro {
+  min-width: 0;
+}
+
+.meta {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.meta--sync {
+  margin-top: 0.35rem;
+  font-size: 0.8125rem;
+  color: var(--pg-primary);
+}
+
+.state {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1rem;
+  color: #374151;
+  margin-bottom: 1rem;
+}
+
+.state.error {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.reload {
+  background: var(--pg-primary);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+.noutati-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: sticky;
+  top: 5.5rem;
+  max-height: calc(100vh - 6rem);
+  overflow-y: auto;
+  min-width: 0;
+  width: 100%;
+  padding-right: 2px;
+}
+
+.feed-skeleton {
+  height: 112px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 45%, #f3f4f6 100%);
+  background-size: 200% 100%;
+  animation: feed-shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes feed-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.feed-empty {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5rem 1.25rem;
+  text-align: center;
+}
+
+.feed-empty-title {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.feed-empty-text {
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.feed-refresh {
+  background: var(--pg-primary);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 0.65rem 1.15rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.feed-refresh:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.feed-refresh-hint {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .noutati-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .noutati-feed {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feed-skeleton {
+    animation: none;
+    background: #f3f4f6;
+  }
+}

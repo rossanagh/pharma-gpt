@@ -1,0 +1,47 @@
+@if (auth.isAuthenticated()) {
+  <div class="ai-history-rail">
+    @if (collapsed()) {
+      <button
+        type="button"
+        class="ai-history-expand"
+        (click)="collapsed.set(false)"
+        aria-label="Deschide istoricul conversațiilor"
+      >
+        <span class="ai-history-expand-icon" aria-hidden="true">‹</span>
+        <span class="ai-history-expand-label">Istoric</span>
+      </button>
+    } @else {
+      <div class="ai-history-panel">
+        <div class="ai-history-head">
+          <span class="ai-history-title">Istoric</span>
+          <button
+            type="button"
+            class="ai-history-retract"
+            (click)="collapsed.set(true)"
+            aria-label="Retrage istoricul"
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+        </div>
+        <div class="ai-history-list-wrap">
+          @if (items().length === 0) {
+            <p class="ai-history-empty">Nicio conversație încă. Folosește bara de căutare.</p>
+          } @else {
+            <ul class="ai-history-list">
+              @for (h of items(); track h.id) {
+                <li>
+                  <button type="button" class="ai-history-item" (click)="pick(h)">
+                    <span class="ai-history-item-q">{{ h.title }}</span>
+                    <span class="ai-history-item-meta">{{ h.at | date : 'short' }}</span>
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      </div>
+    }
+  </div>
+}

@@ -1,0 +1,133 @@
+<div class="forum" [class.forum--stacked]="stacked()">
+  <div class="composer">
+    <div class="title">Întreabă comunitatea</div>
+    <input
+      type="text"
+      name="title"
+      [ngModel]="title()"
+      (ngModelChange)="title.set($event)"
+      placeholder="Titlu (ex: Interacțiune X cu Y?)"
+    />
+    <textarea
+      name="content"
+      [ngModel]="content()"
+      (ngModelChange)="content.set($event)"
+      placeholder="Descrie întrebarea / contextul..."
+      rows="4"
+    ></textarea>
+    <div class="actions">
+      <button type="button" (click)="create()" [disabled]="creating() || !title().trim() || !content().trim()">
+        Postează
+      </button>
+    </div>
+  </div>
+
+  <div class="feed">
+    <div class="feed-toolbar">
+      <span class="feed-sort-label">Sortare</span>
+      <div class="sort-toggle" role="group" aria-label="Sortare postări">
+        <button
+          type="button"
+          class="sort-btn"
+          [class.active]="sort() === 'recent'"
+          (click)="setSort('recent')"
+        >
+          Cele mai recente
+        </button>
+        <button
+          type="button"
+          class="sort-btn"
+          [class.active]="sort() === 'popular'"
+          (click)="setSort('popular')"
+        >
+          Cele mai apreciate
+        </button>
+      </div>
+    </div>
+
+    @if (loading()) {
+      <div class="hint">Se încarcă postările...</div>
+    } @else {
+      @for (p of posts(); track p.id) {
+        <div class="post">
+          <div class="post-head">
+            <div>
+              <div class="post-title">{{ p.title }}</div>
+              <div class="post-meta">
+                <span class="author">
+                  @if (p.author?.online) {
+                    <span class="online-dot" title="Online" aria-label="Utilizator online"></span>
+                  }
+                  {{ p.author?.firstName }} {{ p.author?.lastName }}
+                  @if (p.author?.providerType) { ({{ p.author?.providerType }}) }
+                </span>
+                @if (p.author?.parafa) { <span class="dot">•</span> <span>Parafă: {{ p.author?.parafa }}</span> }
+              </div>
+            </div>
+            <div class="counts">
+              <span>{{ p.likeCount }} like</span>
+              <span class="dot">•</span>
+              <span>{{ p.commentCount }} comentarii</span>
+            </div>
+          </div>
+
+          <div class="post-body">{{ p.content }}</div>
+
+          <div class="post-actions">
+            <button type="button" class="like" [class.active]="p.likedByMe" (click)="toggleLike(p)">
+              {{ p.likedByMe ? 'Îți place' : 'Like' }}
+            </button>
+            <button type="button" class="ghost" (click)="toggleComments(p)">
+              Comentarii
+            </button>
+          </div>
+
+          @if (openCommentsFor() === p.id) {
+            <div class="comments">
+              <div class="comments-scroll">
+                @if (loadingComments()[p.id]) {
+                  <div class="hint">Se încarcă comentariile...</div>
+                } @else {
+                  @for (c of (comments()[p.id] || []); track c.id) {
+                    <div class="comment">
+                      <div class="comment-meta">
+                        <span class="author">
+                          @if (c.author?.online) {
+                            <span class="online-dot" title="Online" aria-label="Utilizator online"></span>
+                          }
+                          {{ c.author?.firstName }} {{ c.author?.lastName }}
+                        </span>
+                        @if (c.author?.providerType) { <span class="pill">{{ c.author?.providerType }}</span> }
+                      </div>
+                      <div class="comment-body">{{ c.content }}</div>
+                    </div>
+                  }
+                  @if (!(comments()[p.id] || []).length) {
+                    <div class="hint">Fii primul care răspunde.</div>
+                  }
+                }
+              </div>
+
+              <div class="comment-box">
+                <input
+                  type="text"
+                  [ngModel]="draftFor(p.id)"
+                  (ngModelChange)="setDraft(p.id, $event)"
+                  placeholder="Scrie un comentariu..."
+                />
+                <button
+                  type="button"
+                  (click)="addComment(p.id)"
+                  [disabled]="submittingComment()[p.id] || !draftFor(p.id).trim()"
+                >
+                  Trimite
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+</div>
+

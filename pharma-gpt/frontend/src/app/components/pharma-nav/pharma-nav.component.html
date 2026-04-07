@@ -1,0 +1,37 @@
+<nav class="pharma-nav">
+  <a class="logo" routerLink="/dashboard">
+    <div class="logo-mark">
+      <img src="branding/logo.png" width="32" height="32" alt="" />
+    </div>
+    <span class="logo-text">Pharma<span>-GPT</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a routerLink="/dashboard">Home</a></li>
+    <li>
+      <a routerLink="/ai-tools" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">AI Tools</a>
+    </li>
+    <li><a routerLink="/comunitate">Community</a></li>
+    <li><a routerLink="/students">Students</a></li>
+  </ul>
+  <div class="nav-right">
+    @if (auth.isAuthenticated()) {
+      @if (auth.currentUser(); as user) {
+        <a
+          class="btn-ghost user-nav-link"
+          routerLink="/profil"
+          routerLinkActive="active"
+          [attr.title]="auth.headerDisplayName()"
+        >
+          {{ auth.headerDisplayName() }}
+        </a>
+      } @else {
+        <a class="btn-ghost" routerLink="/profil" routerLinkActive="active">Account</a>
+      }
+    } @else {
+      <div class="nav-guest-actions">
+        <a routerLink="/login" class="btn-nav-signin">Sign in</a>
+        <a routerLink="/register" class="btn-nav-cta">Get free access</a>
+      </div>
+    }
+  </div>
+</nav>

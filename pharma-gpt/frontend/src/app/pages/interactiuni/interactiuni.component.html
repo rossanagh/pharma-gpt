@@ -1,0 +1,26 @@
+<div class="page-content">
+  <h1>Interacțiuni Medicamente</h1>
+  <p class="lead">Verifică interacțiunile periculoase între medicamente.</p>
+  <div class="interactions-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Medicament 1</th>
+          <th>Medicament 2</th>
+          <th>Risc</th>
+          <th>Notă</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (i of interactions; track i.drug1 + i.drug2) {
+          <tr>
+            <td>{{ i.drug1 }}</td>
+            <td>{{ i.drug2 }}</td>
+            <td><span class="badge" [class]="'badge-' + i.risk.toLowerCase()">{{ i.risk }}</span></td>
+            <td>{{ i.note }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

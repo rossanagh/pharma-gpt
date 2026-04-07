@@ -1,0 +1,55 @@
+<div class="page-content">
+  <h1>Noutăți</h1>
+  <p class="lead">Stai la curent cu cele mai recente știri medicale și farmaceutice.</p>
+
+  <div class="noutati-layout" [class.noutati-layout--single]="!!error && !loading">
+    @if (!error || loading) {
+      <aside class="noutati-feed" aria-label="Știri recente">
+        @if (loading && !refreshing) {
+          @for (_ of skeletonPlaceholders; track $index) {
+            <div class="feed-skeleton"></div>
+          }
+        } @else {
+          @for (item of news; track item.url) {
+            <app-news-card
+              [title]="item.title"
+              [excerpt]="item.excerpt"
+              [date]="item.date"
+              [source]="item.source"
+              [url]="item.url"
+            />
+          }
+          @if (!news.length && !refreshing) {
+            <div class="feed-empty">
+              <p class="feed-empty-title">Nu există știri încă</p>
+              <p class="feed-empty-text">
+                După pornirea backend-ului, actualizarea din surse rulează în fundal (câteva secunde). Dacă tot nu
+                apare nimic, rețeaua poate bloca descărcarea — poți forța o rescanare.
+              </p>
+              <button type="button" class="feed-refresh" (click)="refreshFeed()" [disabled]="refreshing">
+                {{ refreshing ? 'Se actualizează…' : 'Reîmprospătează știrile' }}
+              </button>
+            </div>
+          }
+          @if (refreshing && !loading) {
+            <p class="feed-refresh-hint">Se pornește actualizarea…</p>
+          }
+        }
+      </aside>
+    }
+
+    <div class="noutati-intro">
+      @if (loading && !refreshing) {
+        <div class="state">Se încarcă știrile…</div>
+      } @else if (error) {
+        <div class="state error">{{ error }}</div>
+        <button type="button" class="reload" (click)="load()">Reîncearcă încărcarea</button>
+      } @else {
+        <div class="meta">Ultimele 5 noutăți EMA (RSS), cele mai recente sus. Lista se reîmprospătează automat la fiecare oră.</div>
+        @if (backgroundSync) {
+          <div class="meta meta--sync">Actualizare în curs — lista se completează automat.</div>
+        }
+      }
+    </div>
+  </div>
+</div>

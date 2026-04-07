@@ -1,0 +1,211 @@
+<div class="pharma-landing">
+  <app-pharma-nav />
+
+  <div class="home-top home-top--no-history-rail">
+    <div class="home-hero-wrap">
+      <section class="hero hero-motion" id="ai-chat">
+        <div class="motto-wrap">
+          <div class="motto">Evidence, at the point of care.</div>
+        </div>
+        <div class="platform-tag">
+          <span class="platform-dot"></span>
+          Europe's Medical Knowledge Platform
+        </div>
+        <h1>Clinical answers you can<br /><em>trust at the bedside</em></h1>
+      </section>
+      <div class="hero-embed-chat">
+        <app-ai-chat [embedInHero]="true" [embedSuggestions]="askSuggestions" />
+      </div>
+    </div>
+
+    <aside class="home-news reveal reveal--news js-reveal" aria-label="Noutăți">
+      <div class="home-news-rail-accent" aria-hidden="true"></div>
+      <div class="home-news-inner">
+        <header class="home-news-head">
+          <div class="home-news-head-text">
+            <span class="home-news-kicker">Actualitate</span>
+            <h2 class="home-news-heading">Noutăți medicale</h2>
+          </div>
+        </header>
+        <div class="home-news-list">
+          @if (homeNewsLoading) {
+            @for (_ of [1, 2, 3, 4]; track $index) {
+              <div class="home-news-skeleton"></div>
+            }
+          } @else if (homeNewsError) {
+            <p class="home-news-msg">Nu am putut încărca știrile. Pornește backend-ul și reîncearcă.</p>
+          } @else if (!homeNews.length) {
+            <p class="home-news-msg">Nu sunt titluri noi momentan. Poți reîncerca din pagina Noutăți.</p>
+          } @else {
+            @for (item of homeNews; track item.url) {
+              <app-news-card
+                [title]="item.title"
+                [excerpt]="item.excerpt"
+                [date]="item.date"
+                [source]="item.source"
+                [url]="item.url"
+                [rail]="true"
+              />
+            }
+          }
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div
+    class="stats-bar reveal"
+    #statsBar
+    [class.stats-bar--visible]="statsEntered()"
+    [class.reveal--visible]="statsEntered()"
+  >
+    @for (s of statConfig; track s.label; let i = $index) {
+      <div class="stat">
+        <div class="stat-num">
+          @if (i === 3) {
+            {{ statSplitPercent(i).main }}<span>{{ statSplitPercent(i).rest }}</span>
+          } @else {
+            {{ statInt(i) }}<span>{{ s.suffix }}</span>
+          }
+        </div>
+        <div class="stat-label">{{ s.label }}</div>
+      </div>
+    }
+  </div>
+
+  <div class="partners reveal js-reveal">
+    <div class="partners-label">Institutional partners &amp; data sources</div>
+    <div class="partners-row">
+      <div class="partner-badge">
+        <div class="partner-icon ema">EMA</div>
+        <span class="partner-name">European Medicines Agency</span>
+      </div>
+      <div class="partner-badge">
+        <div class="partner-icon esc">ESC</div>
+        <span class="partner-name">ESC Guidelines</span>
+      </div>
+      <div class="partner-badge">
+        <div class="partner-icon ers">ERS</div>
+        <span class="partner-name">ERS Respiratory</span>
+      </div>
+      <div class="partner-badge">
+        <div class="partner-icon easd">EASD</div>
+        <span class="partner-name">EASD Diabetes</span>
+      </div>
+      <div class="partner-badge">
+        <div class="partner-icon esmo">ESMO</div>
+        <span class="partner-name">ESMO Oncology</span>
+      </div>
+      <div class="partner-badge">
+        <div class="partner-icon who">WHO</div>
+        <span class="partner-name">WHO Guidelines</span>
+      </div>
+      <div class="partner-badge">
+        <div class="partner-icon cmr">CMR</div>
+        <span class="partner-name">Colegiul Medicilor</span>
+      </div>
+      <div class="partner-badge">
+        <div class="partner-icon cfr">CFR</div>
+        <span class="partner-name">Colegiul Farmaciștilor</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="features">
+    <div class="feat">
+      <div class="feat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1558D6" stroke-width="1.8" stroke-linecap="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z" />
+          <path d="M2 17l10 5 10-5" />
+          <path d="M2 12l10 5 10-5" />
+        </svg>
+      </div>
+      <div class="feat-title">European Clinical Guidelines</div>
+      <div class="feat-desc">850+ protocols from ESC, ERS, EASD, ESMO, WHO — semantically indexed, fully cited.</div>
+      <span class="feat-badge">Updated monthly</span>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#D93025" stroke-width="1.8" stroke-linecap="round">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 8v4" />
+          <circle cx="12" cy="16" r="1" fill="#D93025" />
+        </svg>
+      </div>
+      <div class="feat-title">Drug Interactions</div>
+      <div class="feat-desc">25,000+ interactions with severity classification and pharmacological mechanisms.</div>
+      <span class="feat-badge feat-badge-red">25,000+ interactions</span>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#007A6E" stroke-width="1.8" stroke-linecap="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="9" y1="13" x2="15" y2="13" />
+        </svg>
+      </div>
+      <div class="feat-title">Local Legislation</div>
+      <div class="feat-desc">National drug registries, reimbursement protocols and country-specific pharmaceutical law.</div>
+      <span class="feat-badge feat-badge-teal">Live registry data</span>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#B8860B" stroke-width="1.8" stroke-linecap="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        </svg>
+      </div>
+      <div class="feat-title">Privacy &amp; Security</div>
+      <div class="feat-desc">Zero patient data stored. Full GDPR compliance. Verified access via national medical councils.</div>
+      <span class="feat-badge feat-badge-gold">GDPR Compliant</span>
+    </div>
+  </div>
+
+  <div class="testi-section reveal js-reveal">
+    <div class="section-label">What clinicians say</div>
+    <div class="section-heading testi-heading">Trusted across <em>European medicine</em></div>
+    <div class="testi-grid">
+      <div class="testi">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-text">
+          "I've cut my protocol lookup time in half. Answers are precise and always cited from sources I recognise."
+        </div>
+        <div class="testi-author"><strong>Dr. A. Ionescu</strong> — Cardiologist, Cluj University Hospital</div>
+      </div>
+      <div class="testi">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-text">
+          "Finally a tool that understands European context — national registries, reimbursement rules, local guidelines."
+        </div>
+        <div class="testi-author"><strong>Dr. M. Weber</strong> — Clinical Pharmacist, Berlin</div>
+      </div>
+      <div class="testi">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-text">
+          "Drug interactions are extremely well documented. Adopted as the standard reference in our emergency department."
+        </div>
+        <div class="testi-author"><strong>Dr. C. Moldovan</strong> — Emergency Medicine, Timișoara</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta">
+    <div class="cta-h">European clinicians deserve world-class tools</div>
+    <p class="cta-sub">Free for all verified healthcare professionals. Sign up in 2 minutes with your national medical council ID.</p>
+    <div class="cta-btns">
+      <a class="btn-cta-w" routerLink="/register">Get Free Access</a>
+      <button type="button" class="btn-cta-o">Request Institutional Demo</button>
+    </div>
+  </div>
+
+  <footer class="reveal js-reveal">
+    <div class="footer-logo">Pharma-GPT</div>
+    <div class="footer-links">
+      <a routerLink="/legislation" fragment="terms">Terms</a>
+      <a routerLink="/legislation" fragment="privacy">Privacy</a>
+      <a routerLink="/register">Medical Policy</a>
+      <a routerLink="/comunitate">Contact</a>
+      <a routerLink="/dashboard">Hospital API</a>
+    </div>
+    <div class="footer-legal">© 2025 Pharma-GPT · For verified medical professionals only</div>
+  </footer>
+</div>

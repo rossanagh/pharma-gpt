@@ -1,0 +1,46 @@
+<div class="pharma-shell">
+  <app-pharma-nav />
+
+  <main class="community-main">
+    <header class="community-toolbar">
+      <div class="tabs" role="tablist" aria-label="Comunitate">
+        <button
+          type="button"
+          class="tab"
+          role="tab"
+          [attr.aria-selected]="tab() === 'forum'"
+          [class.active]="tab() === 'forum'"
+          (click)="tab.set('forum')"
+        >
+          Forum
+        </button>
+        <button
+          type="button"
+          class="tab"
+          role="tab"
+          [attr.aria-selected]="tab() === 'mesaje'"
+          [class.active]="tab() === 'mesaje'"
+          (click)="tab.set('mesaje')"
+        >
+          Mesaje
+        </button>
+      </div>
+    </header>
+
+    <div class="tab-body">
+      @if (tab() === 'forum') {
+        <section class="community-panel forum-panel" aria-label="Forum">
+          <div class="panel-content">
+            <app-forum />
+          </div>
+        </section>
+      } @else {
+        <section class="community-panel mesaje-panel" aria-label="Mesaje">
+          <div class="panel-content">
+            <app-mesaje />
+          </div>
+        </section>
+      }
+    </div>
+  </main>
+</div>

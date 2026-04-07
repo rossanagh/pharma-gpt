@@ -1,0 +1,14 @@
+<div class="page-content">
+  <h1>Anunțuri (Joburi)</h1>
+  <p class="lead">Oportunități de angajare în domeniul medical și farmaceutic.</p>
+  <div class="jobs-list">
+    @for (job of jobs; track job.title) {
+      <div class="job-card">
+        <h3>{{ job.title }}</h3>
+        <p class="company">{{ job.company }}</p>
+        <p class="meta">{{ job.location }} • {{ job.date }}</p>
+        <button class="btn-apply">Aplică</button>
+      </div>
+    }
+  </div>
+</div>

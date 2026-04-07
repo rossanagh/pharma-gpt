@@ -1,0 +1,234 @@
+<div
+  class="ai-chat-root"
+  [class.ai-chat-root--embed]="embedInHero()"
+  [class.ai-chat-root--workspace]="workspaceLayout()"
+>
+  @if (showAuthModal()) {
+    <div
+      class="auth-modal-backdrop"
+      role="presentation"
+      (click)="closeAuthModal()"
+    ></div>
+    <div class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="ai-auth-title">
+      <h3 id="ai-auth-title" class="auth-modal-title">Autentificare necesară</h3>
+      <p class="auth-modal-text">
+        Pentru a folosi chatul Pharma-GPT trebuie să fii autentificat. Te rugăm să te conectezi sau să îți creezi un cont.
+      </p>
+      <div class="auth-modal-actions">
+        <a routerLink="/login" class="auth-modal-btn auth-modal-btn--primary" (click)="closeAuthModal()"
+          >Autentificare</a
+        >
+        <a routerLink="/register" class="auth-modal-btn auth-modal-btn--secondary" (click)="closeAuthModal()"
+          >Înregistrare</a
+        >
+      </div>
+      <button type="button" class="auth-modal-close" (click)="closeAuthModal()">Închide</button>
+    </div>
+  }
+
+  <div
+    class="ai-chat-layout"
+    [class.ai-chat-layout--embed]="embedInHero()"
+    [class.ai-chat-layout--workspace]="workspaceLayout()"
+  >
+    @if (!embedInHero() && auth.isAuthenticated()) {
+      @if (!historyCollapsed() || workspaceLayout()) {
+        <aside
+          class="history-panel"
+          [class.history-panel--workspace]="workspaceLayout()"
+          aria-label="Istoric conversații"
+        >
+          <div class="history-head">
+            <span class="history-head-title">Istoric</span>
+            <div class="history-head-actions">
+              <button type="button" class="btn-new-chat" (click)="newChat()" title="Conversație nouă">
+                + Chat nou
+              </button>
+              @if (!workspaceLayout()) {
+                <button
+                  type="button"
+                  class="history-retract"
+                  (click)="historyCollapsed.set(true)"
+                  aria-label="Retrage panoul de istoric"
+                >
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </button>
+              }
+            </div>
+          </div>
+          <div class="history-list-wrap" [class.history-list-wrap--workspace]="workspaceLayout()">
+            @if (historyItems().length === 0) {
+              <p class="history-empty">Nicio conversație salvată încă.</p>
+            } @else {
+              <ul class="history-list">
+                @for (h of historyItems(); track h.id) {
+                  <li>
+                    <button type="button" class="history-item" (click)="selectHistory(h)">
+                      <span class="history-item-q">{{ h.title }}</span>
+                      <span class="history-item-meta">{{ h.at | date : 'short' }}</span>
+                    </button>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        </aside>
+      } @else if (!workspaceLayout()) {
+        <button
+          type="button"
+          class="history-expand-tab"
+          (click)="historyCollapsed.set(false)"
+          aria-label="Arată istoricul"
+        >
+          <span class="history-expand-icon" aria-hidden="true">›</span>
+          <span class="history-expand-label">Istoric</span>
+        </button>
+      }
+    }
+
+    <div
+      class="ai-chat-card"
+      [class.ai-chat-card--embed]="embedInHero()"
+      [class.ai-chat-card--workspace]="workspaceLayout()"
+    >
+      @if (embedInHero()) {
+        <div class="embed-composer">
+          <form class="embed-form" (ngSubmit)="onSubmit()">
+            <input
+              type="text"
+              [(ngModel)]="question"
+              name="embedQuestion"
+              placeholder="Ask anything — doze, interacțiuni, protocoale…"
+              class="ai-input embed-input"
+              autocomplete="off"
+            />
+            <button type="submit" class="submit-btn submit-btn--embed-cta embed-send" [disabled]="!question.trim()">
+              Ask →
+            </button>
+          </form>
+        </div>
+        @if (embedSuggestions().length) {
+          <div class="embed-suggestions" aria-label="Sugestii rapide">
+            @for (t of embedSuggestions(); track t) {
+              <button type="button" class="embed-suggestion-tag" (click)="setQuestion(t)">{{ t }}</button>
+            }
+          </div>
+        }
+      } @else if (workspaceLayout()) {
+        <div class="workspace-messages" #workspaceMessages>
+          @if (threadMessages().length === 0 && !loading()) {
+            <div class="workspace-empty">
+              <p class="workspace-empty-title">Întreabă Pharma-GPT</p>
+              <p class="workspace-empty-text">
+                Poți trimite oricâte mesaje într-o conversație. Folosește „Chat nou” pentru o sesiune goală.
+              </p>
+            </div>
+          }
+          @for (m of threadMessages(); track $index) {
+            <div class="msg" [class.msg-user]="m.role === 'user'" [class.msg-assistant]="m.role === 'assistant'">
+              @if (m.role === 'user') {
+                <div class="msg-bubble msg-bubble-user">{{ m.content }}</div>
+              } @else {
+                <div class="msg-bubble msg-bubble-assistant">
+                  <div class="response-content">{{ m.content }}</div>
+                </div>
+              }
+            </div>
+          }
+          @if (loading()) {
+            <div class="msg msg-assistant">
+              <div class="msg-bubble msg-bubble-assistant msg-bubble-loading" role="status">
+                <span class="spinner" aria-hidden="true"></span>
+                Se generează răspunsul…
+              </div>
+            </div>
+          }
+          @if (error()) {
+            <div class="error-message">{{ error() }}</div>
+          }
+        </div>
+        <div class="workspace-composer">
+          <form class="workspace-form" (ngSubmit)="onSubmit()">
+            <div class="workspace-composer-inner">
+              <button type="button" class="btn-new-chat" (click)="newChat()" title="Conversație nouă">+ Chat nou</button>
+              <div class="workspace-input-row">
+                <input
+                  type="text"
+                  [(ngModel)]="question"
+                  name="workspaceQuestion"
+                  placeholder="Mesaj…"
+                  class="ai-input workspace-input"
+                  [disabled]="loading()"
+                  autocomplete="off"
+                />
+                <button type="submit" class="submit-btn workspace-send" [disabled]="loading() || !question.trim()">
+                  @if (loading()) {
+                    <span class="spinner"></span>
+                  } @else {
+                    Trimite
+                  }
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      } @else {
+        <h2 class="card-title">Întreabă AI</h2>
+        <p class="card-subtitle">Conversații multi-turn; istoricul se salvează local.</p>
+
+        <div class="classic-messages">
+          @if (threadMessages().length === 0 && !loading()) {
+            <p class="classic-placeholder">Scrie primul mesaj mai jos.</p>
+          }
+          @for (m of threadMessages(); track $index) {
+            <div class="msg" [class.msg-user]="m.role === 'user'" [class.msg-assistant]="m.role === 'assistant'">
+              @if (m.role === 'user') {
+                <div class="msg-bubble msg-bubble-user">{{ m.content }}</div>
+              } @else {
+                <div class="msg-bubble msg-bubble-assistant">
+                  <div class="response-content">{{ m.content }}</div>
+                </div>
+              }
+            </div>
+          }
+          @if (loading()) {
+            <div class="msg msg-assistant">
+              <div class="msg-bubble msg-bubble-assistant msg-bubble-loading" role="status">
+                <span class="spinner" aria-hidden="true"></span>
+                Se generează răspunsul…
+              </div>
+            </div>
+          }
+          @if (error()) {
+            <div class="error-message">{{ error() }}</div>
+          }
+        </div>
+
+        <form class="ai-form" (ngSubmit)="onSubmit()">
+          <div class="classic-composer-row">
+            <button type="button" class="btn-new-chat" (click)="newChat()" title="Conversație nouă">+ Chat nou</button>
+            <div class="input-group">
+              <input
+                type="text"
+                [(ngModel)]="question"
+                name="question"
+                placeholder="Pune o întrebare medicală..."
+                class="ai-input"
+                [disabled]="loading()"
+              />
+              <button type="submit" class="submit-btn" [disabled]="loading() || !question.trim()">
+                @if (loading()) {
+                  <span class="spinner"></span>
+                } @else {
+                  Trimite
+                }
+              </button>
+            </div>
+          </div>
+        </form>
+      }
+    </div>
+  </div>
+</div>

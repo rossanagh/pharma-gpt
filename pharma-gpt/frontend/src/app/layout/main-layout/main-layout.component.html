@@ -1,0 +1,15 @@
+@if (fullBleed()) {
+  <router-outlet />
+} @else {
+  <div class="main-layout">
+    <header class="header">
+      <app-navbar />
+    </header>
+    <div class="layout-body">
+      <app-sidebar />
+      <div class="content-area">
+        <router-outlet />
+      </div>
+    </div>
+  </div>
+}

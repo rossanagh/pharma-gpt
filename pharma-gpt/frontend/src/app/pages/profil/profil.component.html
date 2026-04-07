@@ -1,0 +1,91 @@
+<div class="pharma-shell">
+  <app-pharma-nav />
+
+  <main class="profile-main">
+    <header class="profile-hero">
+      <div class="profile-hero-text">
+        <p class="eyebrow">Account</p>
+        <h1>Your profile</h1>
+        <p class="lede">View your professional details (read-only).</p>
+      </div>
+      <button type="button" class="btn-logout" (click)="auth.logout()">Sign out</button>
+    </header>
+
+    @if (loading()) {
+      <div class="panel panel-loading">
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line short"></div>
+      </div>
+    } @else {
+      @if (error()) {
+        <div class="panel panel-single">
+          <div class="msg error">{{ error() }}</div>
+          <button type="button" class="btn-retry" (click)="load()">Retry</button>
+        </div>
+      }
+      @if (profile(); as p) {
+        <section class="panel panel-single">
+          <h2 class="panel-title">Profile details</h2>
+
+          <div class="row">
+            <div class="field">
+              <span class="label">First name</span>
+              <div class="value">{{ p.firstName }}</div>
+            </div>
+            <div class="field">
+              <span class="label">Last name</span>
+              <div class="value">{{ p.lastName }}</div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <span class="label">Email</span>
+              <div class="value">{{ p.email }}</div>
+            </div>
+            <div class="field">
+              <span class="label">Phone</span>
+              <div class="value">{{ p.phoneNumber || '—' }}</div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <span class="label">Rol</span>
+              <div class="value">{{ providerLabel(p.providerType) }}</div>
+            </div>
+            @if (p.providerType === 'medic') {
+              <div class="field">
+                <span class="label">Grad profesional</span>
+                <div class="value">{{ medicGradeLabel(p.medicGrade) }}</div>
+              </div>
+            }
+          </div>
+
+          @if (p.providerType === 'medic') {
+            <div class="row">
+              <div class="field full">
+                <span class="label">Specialitate</span>
+                <div class="value">{{ p.specialty || '—' }}</div>
+              </div>
+            </div>
+          }
+
+          <div class="row">
+            <div class="field full">
+              <span class="label">Titluri academice</span>
+              <div class="value">{{ p.academicTitles || '—' }}</div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field full">
+              <span class="label">Parafă</span>
+              <div class="value">{{ p.parafa || '—' }}</div>
+            </div>
+          </div>
+        </section>
+      }
+    }
+  </main>
+</div>

@@ -1,0 +1,189 @@
+<div class="pharma-landing">
+  <app-pharma-nav />
+
+  <div class="home-hero-wrap legislation-hero-wrap">
+    <section class="hero legislation-hero">
+      <div class="motto-wrap">
+        <div class="motto">Evidence, at the point of care.</div>
+      </div>
+      <div class="platform-tag">
+        <span class="platform-dot"></span>
+        Pharma-GPT
+      </div>
+      <h1>Legal <em>documents</em></h1>
+      <p class="legislation-lead">
+        Terms of Service and Privacy Policy. Please read these carefully before using the platform.
+      </p>
+    </section>
+  </div>
+
+  <div class="legislation-content">
+    <article id="terms" class="legal-card">
+      <h2 class="legal-card-title">Terms of Service</h2>
+      <p class="legal-updated">Last updated: {{ lastUpdatedLabel }}</p>
+      <p>Welcome to Pharma-GPT.</p>
+      <p>
+        By accessing or using our platform, you agree to be bound by these Terms of Service.
+      </p>
+
+      <section class="legal-section">
+        <h3>1. Description of service</h3>
+        <p>
+          Pharma-GPT provides an AI-powered platform for informational, educational, and collaborative purposes for
+          healthcare professionals and users.
+        </p>
+      </section>
+
+      <section class="legal-section">
+        <h3>2. No medical advice</h3>
+        <p>
+          The content provided by Pharma-GPT, including AI-generated responses, is for informational purposes only and does
+          not constitute medical advice, diagnosis, or treatment.
+        </p>
+        <p>You must not rely on the platform as a substitute for professional medical judgment.</p>
+      </section>
+
+      <section class="legal-section">
+        <h3>3. User eligibility</h3>
+        <p>By using this platform, you confirm that:</p>
+        <ul>
+          <li>You are at least 18 years old</li>
+          <li>You are legally capable of entering into agreements</li>
+          <li>If you claim to be a healthcare professional, you provide accurate information</li>
+        </ul>
+      </section>
+
+      <section class="legal-section">
+        <h3>4. User responsibilities</h3>
+        <p>You agree:</p>
+        <ul>
+          <li>Not to misuse the platform</li>
+          <li>Not to share false or harmful medical information</li>
+          <li>To verify all information before applying it in real-world scenarios</li>
+        </ul>
+      </section>
+
+      <section class="legal-section">
+        <h3>5. Account security</h3>
+        <p>You are responsible for maintaining the confidentiality of your account and credentials.</p>
+      </section>
+
+      <section class="legal-section">
+        <h3>6. Limitation of liability</h3>
+        <p>
+          Pharma-GPT is not liable for any decisions made based on the information provided through the platform.
+        </p>
+        <p>We do not guarantee the accuracy, completeness, or reliability of any content.</p>
+      </section>
+
+      <section class="legal-section">
+        <h3>7. Termination</h3>
+        <p>We reserve the right to suspend or terminate accounts that violate these terms.</p>
+      </section>
+
+      <section class="legal-section">
+        <h3>8. Governing law</h3>
+        <p>These Terms are governed by the laws of the European Union and applicable national laws.</p>
+      </section>
+
+      <section class="legal-section">
+        <h3>9. Changes</h3>
+        <p>We may update these Terms at any time. Continued use of the platform means acceptance of changes.</p>
+      </section>
+    </article>
+
+    <article id="privacy" class="legal-card">
+      <h2 class="legal-card-title">Privacy Policy</h2>
+      <p class="legal-updated">Last updated: {{ lastUpdatedLabel }}</p>
+      <p>
+        Pharma-GPT is committed to protecting your personal data in accordance with the General Data Protection Regulation
+        (GDPR).
+      </p>
+
+      <section class="legal-section">
+        <h3>1. Data we collect</h3>
+        <p>We may collect:</p>
+        <ul>
+          <li>Name and email address</li>
+          <li>Account information</li>
+          <li>Messages and interactions within the platform</li>
+          <li>Technical data (IP address, browser type)</li>
+        </ul>
+      </section>
+
+      <section class="legal-section">
+        <h3>2. Purpose of processing</h3>
+        <p>We process your data to:</p>
+        <ul>
+          <li>Provide and improve our services</li>
+          <li>Authenticate users</li>
+          <li>Enable communication between users</li>
+          <li>Ensure platform security</li>
+        </ul>
+      </section>
+
+      <section class="legal-section">
+        <h3>3. Legal basis</h3>
+        <p>We process personal data based on:</p>
+        <ul>
+          <li>User consent</li>
+          <li>Contractual necessity</li>
+          <li>Legitimate interests</li>
+        </ul>
+      </section>
+
+      <section class="legal-section">
+        <h3>4. Data sharing</h3>
+        <p>We do not sell your personal data.</p>
+        <p>We may share data with:</p>
+        <ul>
+          <li>Service providers (e.g., cloud hosting)</li>
+          <li>AI providers (for processing user queries)</li>
+        </ul>
+      </section>
+
+      <section class="legal-section">
+        <h3>5. Data retention</h3>
+        <p>We retain personal data only as long as necessary for the purposes described.</p>
+      </section>
+
+      <section class="legal-section">
+        <h3>6. Your rights</h3>
+        <p>Under GDPR, you have the right to:</p>
+        <ul>
+          <li>Access your data</li>
+          <li>Rectify inaccurate data</li>
+          <li>Request deletion</li>
+          <li>Restrict processing</li>
+          <li>Data portability</li>
+          <li>Withdraw consent</li>
+        </ul>
+      </section>
+
+      <section class="legal-section">
+        <h3>7. Security</h3>
+        <p>We implement appropriate technical and organizational measures to protect your data.</p>
+      </section>
+
+      <section class="legal-section">
+        <h3>8. Contact</h3>
+        <p>
+          For data-related requests, contact:
+          <a class="legal-mail" href="mailto:privacy@pharma-gpt.com">privacy@pharma-gpt.com</a>
+        </p>
+      </section>
+    </article>
+  </div>
+
+  <footer>
+    <div class="footer-logo">Pharma-GPT</div>
+    <div class="footer-links">
+      <a routerLink="/legislation" fragment="terms">Terms</a>
+      <a routerLink="/legislation" fragment="privacy">Privacy</a>
+      <a routerLink="/register">Medical Policy</a>
+      <a routerLink="/comunitate">Contact</a>
+      <a routerLink="/dashboard">Hospital API</a>
+    </div>
+    <div class="footer-legal">© 2025 Pharma-GPT · For verified medical professionals only</div>
+  </footer>
+</div>

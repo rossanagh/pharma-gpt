@@ -1,0 +1,75 @@
+/* MedicinEvidence-inspired palette (medicinevidence_10b.html) */
+:root {
+  --me-bg: #f7f3ed;
+  --me-bg2: #fbf8f3;
+  --me-ink: #171615;
+  --me-ink2: #4a3f38;
+  --me-ink3: #8a7f76;
+  --me-accent: #b65b34;
+  --me-accent2: #cf7a53;
+  --me-accent3: #8d4325;
+  --me-gold: #c7a25b;
+  --me-line: #e8ddd0;
+  --me-green: #2d6a4f;
+  --me-red: #c0392b;
+
+  --pg-primary: var(--me-accent);
+  --pg-primary-hover: var(--me-accent3);
+  --pg-surface: #ffffff;
+  --pg-canvas: var(--me-bg2);
+  --pg-border: var(--me-line);
+  --pg-text: var(--me-ink2);
+  --pg-text-strong: var(--me-ink);
+  --pg-text-muted: var(--me-ink3);
+  --pg-accent-soft: rgba(182, 91, 52, 0.1);
+}
+
+html {
+  color-scheme: light;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  body {
+    transition:
+      background-color 0.35s ease,
+      color 0.25s ease;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--pg-text);
+  background: var(--pg-canvas);
+}
+
+a {
+  color: inherit;
+}
+
+/* Evită întârzierea dublu-tap pe unele browsere mobile */
+button,
+.navbar a,
+.sidebar-nav a,
+.user-profile {
+  touch-action: manipulation;
+}
+
+button {
+  font-family: inherit;
+}

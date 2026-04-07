@@ -1,0 +1,376 @@
+/*
+ * Implicit: dimensiuni moderate ca să încapă fără scroll pe laptop 1366×768 (cu bară browser).
+ * „Mai mare” doar de la min-height: 880px în sus.
+ * Mobil o coloană: poate scroll — prea multe câmpuri.
+ */
+.register-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, #fff9f5 0%, #f7f3ed 42%, #fbf8f3 100%);
+  padding: 0.35rem 0.65rem;
+  box-sizing: border-box;
+}
+
+.brand-lock {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  margin-bottom: 0.45rem;
+  width: 100%;
+  text-align: center;
+}
+
+.brand-lock .brand-mark {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.12);
+  flex-shrink: 0;
+}
+
+.brand-lock .brand-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.brand-lock .brand-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: var(--pg-text-strong, #0f172a);
+}
+
+.optional {
+  font-weight: 400;
+  font-size: 0.8em;
+  color: var(--pg-text-muted, #64748b);
+}
+
+.brand-lock .brand-tagline {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--pg-text-muted, #64748b);
+  margin-top: 0.05rem;
+}
+
+.register-card {
+  background: var(--pg-surface, #fff);
+  border-radius: 14px;
+  padding: 0.75rem 1.3rem 0.7rem;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 12px 40px -12px rgba(12, 74, 110, 0.15);
+  border: 1px solid var(--pg-border, #e2e8f0);
+  box-sizing: border-box;
+
+  h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #111827;
+    text-align: center;
+    width: 100%;
+    margin: 0 0 0.55rem 0;
+    letter-spacing: -0.02em;
+  }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem 0.9rem;
+  margin-bottom: 0.35rem;
+  align-content: start;
+}
+
+.form-group.full {
+  grid-column: 1 / -1;
+}
+
+.form-group {
+  margin-bottom: 0;
+  min-width: 0;
+
+  label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.22rem;
+    line-height: 1.25;
+  }
+
+  input,
+  select {
+    width: 100%;
+    padding: 0.45rem 0.65rem;
+    min-height: 2.35rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    line-height: 1.35;
+    box-sizing: border-box;
+
+    &:focus {
+      outline: none;
+      border-color: var(--pg-primary);
+      box-shadow: 0 0 0 2px rgba(182, 91, 52, 0.2);
+    }
+  }
+
+  select {
+    background: #fff;
+    cursor: pointer;
+  }
+}
+
+.error-msg {
+  background: #fef2f2;
+  color: #dc2626;
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  margin-bottom: 0.35rem;
+  line-height: 1.3;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 0.52rem 1rem;
+  min-height: 2.5rem;
+  background: linear-gradient(135deg, var(--pg-primary) 0%, var(--pg-primary-hover) 100%);
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 14px rgba(182, 91, 52, 0.22);
+  margin-top: 0.3rem;
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.05);
+  }
+
+  &:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+  }
+}
+
+.login-link {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.82rem;
+  color: #6b7280;
+  text-align: center;
+  line-height: 1.4;
+
+  a {
+    color: var(--pg-primary);
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+/* Monitor înalt: formular mai aerisit și puțin mai mare */
+@media (min-height: 880px) {
+  .register-page {
+    padding: 0.75rem 1rem;
+  }
+
+  .brand-lock {
+    gap: 0.7rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .brand-lock .brand-mark {
+    width: 46px;
+    height: 46px;
+  }
+
+  .brand-lock .brand-name {
+    font-size: 1.35rem;
+  }
+
+  .brand-lock .brand-tagline {
+    font-size: 0.72rem;
+  }
+
+  .register-card {
+    padding: 1.15rem 1.65rem 1rem;
+    border-radius: 16px;
+    max-width: 640px;
+  }
+
+  .register-card h2 {
+    font-size: 1.4rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .form-grid {
+    gap: 0.65rem 1.05rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-group label {
+    font-size: 0.85rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 0.58rem 0.8rem;
+    min-height: 2.65rem;
+    font-size: 0.9375rem;
+    border-radius: 9px;
+  }
+
+  .btn-primary {
+    padding: 0.68rem 1.1rem;
+    min-height: 2.85rem;
+    font-size: 0.98rem;
+    border-radius: 10px;
+    margin-top: 0.45rem;
+  }
+
+  .login-link {
+    margin: 0.75rem 0 0 0;
+    font-size: 0.9rem;
+  }
+}
+
+/* Foarte înalt: încă un pas în sus */
+@media (min-height: 1000px) {
+  .brand-lock .brand-mark {
+    width: 52px;
+    height: 52px;
+  }
+
+  .brand-lock .brand-name {
+    font-size: 1.5rem;
+  }
+
+  .register-card {
+    padding: 1.35rem 1.85rem 1.15rem;
+    max-width: 660px;
+  }
+
+  .register-card h2 {
+    font-size: 1.55rem;
+    margin-bottom: 1rem;
+  }
+
+  .form-grid {
+    gap: 0.8rem 1.15rem;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 0.65rem 0.88rem;
+    min-height: 2.85rem;
+    font-size: 1rem;
+  }
+
+  .btn-primary {
+    padding: 0.78rem 1.15rem;
+    min-height: 3rem;
+    font-size: 1.02rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .register-page {
+    align-items: flex-start;
+    padding: 0.65rem;
+  }
+
+  .register-card {
+    padding: 1rem 1.15rem;
+  }
+
+  .register-card h2 {
+    font-size: 1.25rem;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 0.55rem;
+  }
+
+  .form-group.full {
+    grid-column: 1;
+  }
+}
+
+/* Înălțime mică: extra compact (fără scroll) */
+@media (min-width: 521px) and (max-height: 720px) {
+  .register-page {
+    padding: 0.2rem 0.45rem;
+  }
+
+  .brand-lock {
+    margin-bottom: 0.3rem;
+    gap: 0.4rem;
+  }
+
+  .brand-lock .brand-mark {
+    width: 32px;
+    height: 32px;
+  }
+
+  .brand-lock .brand-name {
+    font-size: 1rem;
+  }
+
+  .register-card {
+    padding: 0.5rem 1.05rem 0.5rem;
+  }
+
+  .register-card h2 {
+    font-size: 1.05rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .form-grid {
+    gap: 0.28rem 0.7rem;
+  }
+
+  .form-group label {
+    font-size: 0.7rem;
+    margin-bottom: 0.12rem;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 0.3rem 0.5rem;
+    min-height: 2.05rem;
+    font-size: 0.8rem;
+  }
+
+  .btn-primary {
+    padding: 0.4rem 0.8rem;
+    min-height: 2.2rem;
+    font-size: 0.82rem;
+    margin-top: 0.2rem;
+  }
+
+  .login-link {
+    margin: 0.35rem 0 0 0;
+    font-size: 0.76rem;
+  }
+}
