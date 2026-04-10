@@ -16,7 +16,6 @@ import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api/ai")
-@CrossOrigin(origins = {"http://localhost:4200", "http://localhost:4200/"})
 public class AiController {
 
     private final OpenAiService openAiService;

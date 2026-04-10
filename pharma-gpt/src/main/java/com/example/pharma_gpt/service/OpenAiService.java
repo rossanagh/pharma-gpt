@@ -51,8 +51,15 @@ public class OpenAiService {
         .connectTimeout(Duration.ofSeconds(30))
         .build();
 
+    /**
+     * Cheie doar în application-local.properties (gitignored). Are prioritate față de {@code openai.api-key} /
+     * {@code OPENAI_API_KEY}, ca să nu te blocheze o variabilă de mediu goală în Windows.
+     */
+    @Value("${pharma.local.openai-api-key:}")
+    private String localOpenAiApiKey;
+
     @Value("${openai.api-key:}")
-    private String apiKey;
+    private String openaiApiKey;
 
     @Value("${openai.model:gpt-4o-mini}")
     private String model;
@@ -72,12 +79,23 @@ public class OpenAiService {
         this.ragKnowledgeService = ragKnowledgeService;
     }
 
+    private String effectiveApiKey() {
+        if (localOpenAiApiKey != null && !localOpenAiApiKey.isBlank()) {
+            return localOpenAiApiKey.trim();
+        }
+        if (openaiApiKey != null && !openaiApiKey.isBlank()) {
+            return openaiApiKey.trim();
+        }
+        return "";
+    }
+
     public String ask(String question, List<ChatMessageDto> history) {
-        if (apiKey == null || apiKey.isBlank()) {
+        String apiKey = effectiveApiKey();
+        if (apiKey.isBlank()) {
             return """
                 Serviciul AI nu este configurat. Alege una din variante:
-                1) Variabila de mediu OPENAI_API_KEY (recomandat), sau
-                2) Fișier application-local.properties cu openai.api-key=... (vezi application-local.properties.example).
+                1) Variabila de mediu OPENAI_API_KEY (recomandat pe server), sau
+                2) Fișier application-local.properties cu pharma.local.openai-api-key=sk-... (vezi application-local.properties.example).
                 Repornește backend-ul după ce setezi cheia.
                 """.stripIndent();
         }
@@ -91,7 +109,7 @@ public class OpenAiService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(apiKey.trim());
+        headers.setBearerAuth(apiKey);
 
         try {
             String jsonBody = objectMapper.writeValueAsString(body);
@@ -131,9 +149,10 @@ public class OpenAiService {
      * Streams answer tokens from OpenAI; {@code onDelta} receives each content delta (may be empty lines skipped).
      */
     public void streamAsk(String question, List<ChatMessageDto> history, Consumer<String> onDelta) throws IOException {
-        if (apiKey == null || apiKey.isBlank()) {
+        String apiKey = effectiveApiKey();
+        if (apiKey.isBlank()) {
             onDelta.accept(
-                "Serviciul AI nu este configurat (OPENAI / openai.api-key). Configurează cheia și repornește backend-ul."
+                "Serviciul AI nu este configurat (OPENAI / pharma.local.openai-api-key). Configurează cheia și repornește backend-ul."
             );
             return;
         }
@@ -150,7 +169,7 @@ public class OpenAiService {
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(OPENAI_CHAT_URL))
             .timeout(Duration.ofMinutes(10))
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey.trim())
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
             .build();

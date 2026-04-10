@@ -1,0 +1,10 @@
+# Angular SPA: trimite rutele client (/ai-tools, /dashboard, …) la index.html.
+# Necesar pe cPanel/Apache când dai refresh sau deschizi URL direct.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>

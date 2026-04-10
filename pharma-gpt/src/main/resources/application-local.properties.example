@@ -1,7 +1,7 @@
-# Copiază la: src/main/resources/application-local.properties (gitignored)
+# Copiază la: src/main/resources/application-local.properties (gitignored — nu se comită)
 #
-# OpenAI (opțional dacă folosești deja OPENAI_API_KEY în mediu):
-openai.api-key=
+# OpenAI — prioritate peste OPENAI_API_KEY (util când variabila de mediu e goală greșit în Windows):
+# pharma.local.openai-api-key=sk-your-key-here
 #
 # Opțional: aceeași sursă ca producția — de obicei folosești variabilele SPRING_DATASOURCE_*
 # în IDE sau în PowerShell, nu neapărat aici.
