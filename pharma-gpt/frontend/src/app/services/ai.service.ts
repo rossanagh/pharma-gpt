@@ -14,7 +14,12 @@ export interface AskResponse {
 export class AiService {
   private readonly http = inject(HttpClient);
   private readonly auth = inject(AuthService);
-  private apiUrl = `${environment.apiUrl}/api/ai`;
+
+  /** Baza /api/ai — recalculată la fiecare apel (după încărcarea api-url.json). */
+  private aiRoot(): string {
+    const base = environment.apiUrl.replace(/\/$/, '');
+    return base ? `${base}/api/ai` : '/api/ai';
+  }
 
   async askQuestion(
     question: string,
@@ -27,7 +32,7 @@ export class AiService {
     if (history?.length) {
       body.history = history.map((h) => ({ role: h.role, content: h.content }));
     }
-    const result = await firstValueFrom(this.http.post<AskResponse>(`${this.apiUrl}/ask`, body));
+    const result = await firstValueFrom(this.http.post<AskResponse>(`${this.aiRoot()}/ask`, body));
     return result;
   }
 
@@ -54,7 +59,7 @@ export class AiService {
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
-    const res = await fetch(`${this.apiUrl}/ask/stream`, {
+    const res = await fetch(`${this.aiRoot()}/ask/stream`, {
       method: 'POST',
       headers,
       body: JSON.stringify(body)

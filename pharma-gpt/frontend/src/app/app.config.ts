@@ -6,6 +6,7 @@ import { routes } from './app.routes';
 import { authInterceptor } from './interceptors/auth.interceptor';
 import { errorInterceptor } from './interceptors/error.interceptor';
 import { I18nService } from './services/i18n.service';
+import { apiUrlInitFactory } from './api-url.init';
 
 export function i18nInitFactory(i18n: I18nService) {
   return () => i18n.init();
@@ -14,6 +15,7 @@ export function i18nInitFactory(i18n: I18nService) {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
+    { provide: APP_INITIALIZER, useFactory: apiUrlInitFactory, multi: true },
     provideRouter(
       routes,
       withInMemoryScrolling({
@@ -22,6 +24,6 @@ export const appConfig: ApplicationConfig = {
       })
     ),
     provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
-    { provide: APP_INITIALIZER, useFactory: i18nInitFactory, deps: [I18nService], multi: true }
+    { provide: APP_INITIALIZER, useFactory: i18nInitFactory, deps: [I18nService], multi: true } // după api-url
   ]
 };
