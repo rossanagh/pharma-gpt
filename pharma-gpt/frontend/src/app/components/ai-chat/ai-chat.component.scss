@@ -624,7 +624,78 @@
   font-size: 1.0625rem;
   color: #334155;
   line-height: 1.65;
-  white-space: pre-wrap;
+
+  :deep(h1),
+  :deep(h2),
+  :deep(h3),
+  :deep(h4) {
+    font-family: inherit;
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 0.65rem 0 0.35rem;
+    color: var(--pg-text-strong, #334155);
+    line-height: 1.35;
+  }
+
+  :deep(h1) {
+    font-size: 1.15rem;
+  }
+
+  :deep(p) {
+    margin: 0 0 0.5rem;
+  }
+
+  :deep(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  :deep(ul),
+  :deep(ol) {
+    margin: 0.4rem 0 0.65rem;
+    padding-left: 1.35rem;
+  }
+
+  :deep(li) {
+    margin-bottom: 0.25rem;
+  }
+
+  :deep(strong) {
+    font-weight: 600;
+  }
+
+  :deep(code) {
+    font-size: 0.9em;
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.06);
+  }
+
+  :deep(pre) {
+    margin: 0.5rem 0;
+    padding: 0.65rem 0.85rem;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.05);
+    overflow-x: auto;
+    font-size: 0.88em;
+  }
+
+  :deep(pre code) {
+    padding: 0;
+    background: none;
+  }
+
+  :deep(blockquote) {
+    margin: 0.5rem 0;
+    padding-left: 0.85rem;
+    border-left: 3px solid rgba(182, 91, 52, 0.35);
+    color: var(--pg-text-muted, #64748b);
+  }
+
+  :deep(a) {
+    color: var(--pg-primary, #b65b34);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
 }
 
 @media (max-width: 900px) {
@@ -805,7 +876,6 @@
 }
 
 .msg-bubble-assistant .response-content {
-  white-space: pre-wrap;
   font-size: 0.9375rem;
   line-height: 1.65;
   color: var(--pg-text);

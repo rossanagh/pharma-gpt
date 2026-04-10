@@ -91,7 +91,8 @@
   margin-right: auto;
   width: 100%;
   position: relative;
-  z-index: 0;
+  /* Deasupra coloanei știri când stacking/transform ar suprapune zona hero */
+  z-index: 2;
 }
 
 .pharma-landing .hero {
@@ -119,6 +120,7 @@
   background: linear-gradient(180deg, #f8fafc 0%, var(--bg2) 45%, #f1f5f9 100%);
   border-left: 1px solid var(--border);
   box-shadow: -8px 0 32px rgba(15, 23, 42, 0.06);
+  z-index: 0;
 }
 
 .pharma-landing .home-news-rail-accent {
@@ -967,11 +969,14 @@
   transition:
     opacity 0.92s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.92s cubic-bezier(0.22, 1, 0.36, 1);
+  /* opacity:0 captează încă clicuri — nu bloca UI-ul de dedesubt */
+  pointer-events: none;
 }
 
 .pharma-landing .reveal.reveal--visible {
   opacity: 1;
   transform: translate3d(0, 0, 0);
+  pointer-events: auto;
 }
 
 .pharma-landing .reveal--news {

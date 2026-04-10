@@ -92,6 +92,44 @@
   gap: 10px;
 }
 
+.pharma-nav .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.pharma-nav .nav-lang {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 4px;
+}
+
+.pharma-nav .nav-lang-select {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text2);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 6px 8px;
+  cursor: pointer;
+  max-width: 72px;
+}
+
+.pharma-nav .nav-lang-select:hover,
+.pharma-nav .nav-lang-select:focus {
+  border-color: var(--blue);
+  outline: none;
+}
+
 .pharma-nav .nav-guest-actions {
   display: flex;
   align-items: center;

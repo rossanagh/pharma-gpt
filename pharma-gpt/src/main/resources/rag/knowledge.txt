@@ -1,0 +1,15 @@
+Pharmacokinetics (general): Bioavailability (F) is the fraction of an administered dose that reaches systemic circulation unchanged. Oral bioavailability depends on absorption, first-pass hepatic metabolism, and gut efflux (e.g., P-glycoprotein). Half-life (t½) relates to clearance (Cl) and volume of distribution (Vd): t½ = (ln 2 × Vd) / Cl.
+---
+Drug–drug interactions (CYP3A4): Many clinically relevant interactions involve cytochrome P450 3A4 substrates, inhibitors, and inducers. Strong inhibitors (e.g., clarithromycin, ritonavir) can markedly increase exposure of sensitive substrates; strong inducers (e.g., rifampin, carbamazepine) can reduce efficacy by lowering concentrations. Always check product information and interaction databases for patient-specific factors (renal/hepatic impairment, age, polypharmacy).
+---
+Anticoagulation (warfarin): Warfarin has a narrow therapeutic index and interacts with many drugs and foods (vitamin K). INR monitoring frequency should follow local protocols after dose changes or when interacting agents are started/stopped. Direct oral anticoagulants (DOACs) have different renal elimination profiles; dose adjustments often depend on creatinine clearance and age/body weight per label.
+---
+Antimicrobial stewardship: Antibiotics should be chosen using local resistance patterns, source control where applicable, and the narrowest reasonable spectrum/duration. Renal adjustment is required for many agents; therapeutic drug monitoring applies to aminoglycosides, vancomycin (per guideline), and selected others.
+---
+Pregnancy & lactation: Risk classification and data evolve; use specialized databases (e.g., LactMed-style resources) and product labels. Many drugs have insufficient human data—benefit–risk must be individualized with the obstetric/pediatric team.
+---
+Adverse drug reactions (ADRs): Type A reactions are dose-dependent and predictable (e.g., bleeding with anticoagulants); Type B are idiosyncratic. Serious ADRs should be reported per national pharmacovigilance requirements. Rechallenge is generally avoided unless clearly justified.
+---
+Pediatric dosing: Weight-based dosing is common; developmental changes in absorption, distribution, metabolism, and elimination mean adult mg/kg extrapolation is often unsafe. Use pediatric references and formulation suitability (liquids vs tablets).
+---
+Hypertension & comorbidity: Choice of antihypertensive class depends on comorbidities (e.g., CKD, diabetes, heart failure with reduced ejection fraction). Combination therapy is common; monitor electrolytes with RAAS blockers and diuretics.

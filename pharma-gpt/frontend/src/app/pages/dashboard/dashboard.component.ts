@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
+  computed,
   ElementRef,
   OnDestroy,
   OnInit,
@@ -18,12 +19,14 @@ import { compareNewsByPublishedDesc, formatNewsDateRo } from '../../utils/news-d
 import { AiChatComponent } from '../../components/ai-chat/ai-chat.component';
 import { PharmaNavComponent } from '../../components/pharma-nav/pharma-nav.component';
 import { NewsCardComponent } from '../../components/news-card/news-card.component';
+import { TranslatePipe } from '../../pipes/translate.pipe';
+import { I18nService } from '../../services/i18n.service';
 
-type StatConfig = {
+type StatRow = {
   target: number;
   decimals: number;
   suffix: string;
-  label: string;
+  labelKey: string;
 };
 
 @Component({
@@ -34,7 +37,8 @@ type StatConfig = {
     RouterLink,
     AiChatComponent,
     PharmaNavComponent,
-    NewsCardComponent
+    NewsCardComponent,
+    TranslatePipe
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
@@ -42,6 +46,7 @@ type StatConfig = {
 export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly http = inject(HttpClient);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly i18n = inject(I18nService);
   @ViewChild('statsBar', { read: ElementRef }) private statsBar?: ElementRef<HTMLElement>;
 
   /** Home sidebar: latest headlines (max 5) */
@@ -49,12 +54,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   homeNewsLoading = true;
   homeNewsError = false;
 
-  /** Landing stats: count-up targets + labels */
-  readonly statConfig: readonly StatConfig[] = [
-    { target: 14, decimals: 0, suffix: 'K+', label: 'Verified clinicians' },
-    { target: 3, decimals: 0, suffix: 'M+', label: 'AI consultations' },
-    { target: 850, decimals: 0, suffix: '+', label: 'Clinical guidelines indexed' },
-    { target: 99.2, decimals: 1, suffix: '%', label: 'Validated accuracy' }
+  /** Landing stats: count-up targets + i18n label keys */
+  readonly statRows: readonly StatRow[] = [
+    { target: 14, decimals: 0, suffix: 'K+', labelKey: 'dashboard.stat0' },
+    { target: 3, decimals: 0, suffix: 'M+', labelKey: 'dashboard.stat1' },
+    { target: 850, decimals: 0, suffix: '+', labelKey: 'dashboard.stat2' },
+    { target: 99.2, decimals: 1, suffix: '%', labelKey: 'dashboard.stat3' }
   ];
 
   readonly statDisplay = signal<number[]>([0, 0, 0, 0]);
@@ -64,15 +69,20 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   private statsAnimated = false;
   private revealObserver?: IntersectionObserver;
 
-  /** Exactly 6 suggestion chips for Ask */
-  readonly askSuggestions = [
-    'Pediatric dosing',
-    'Drug interactions',
-    'ESC Guidelines 2024',
-    'Reimbursement protocols',
-    'Pregnancy & lactation',
-    'Emergency medicine'
-  ];
+  private static readonly SUGGESTION_KEYS = [
+    'dashboard.sug0',
+    'dashboard.sug1',
+    'dashboard.sug2',
+    'dashboard.sug3',
+    'dashboard.sug4',
+    'dashboard.sug5'
+  ] as const;
+
+  /** Exactly 6 suggestion chips — text follows UI language */
+  readonly embedSuggestionLabels = computed(() => {
+    this.i18n.dict();
+    return DashboardComponent.SUGGESTION_KEYS.map((k) => this.i18n.t(k));
+  });
 
   async ngOnInit(): Promise<void> {
     await this.loadHomeNews();
@@ -218,7 +228,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     if (reduced) {
-      this.statDisplay.set(this.statConfig.map((c) => c.target));
+      this.statDisplay.set(this.statRows.map((c) => c.target));
       this.statsEntered.set(true);
       return;
     }
@@ -229,7 +239,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const staggerMs = 110;
     const base = performance.now();
 
-    this.statConfig.forEach((cfg, i) => {
+    this.statRows.forEach((cfg, i) => {
       const startAt = base + i * staggerMs;
       const from = 0;
       const to = cfg.target;

@@ -5,26 +5,31 @@
     <div class="home-hero-wrap">
       <section class="hero hero-motion" id="ai-chat">
         <div class="motto-wrap">
-          <div class="motto">Evidence, at the point of care.</div>
+          <div class="motto">{{ 'dashboard.motto' | translate }}</div>
         </div>
         <div class="platform-tag">
           <span class="platform-dot"></span>
-          Europe's Medical Knowledge Platform
+          {{ 'dashboard.platformTag' | translate }}
         </div>
-        <h1>Clinical answers you can<br /><em>trust at the bedside</em></h1>
+        <h1>
+          {{ 'dashboard.heroLine1' | translate }}<br /><em>{{ 'dashboard.heroLine2Em' | translate }}</em>
+        </h1>
       </section>
       <div class="hero-embed-chat">
-        <app-ai-chat [embedInHero]="true" [embedSuggestions]="askSuggestions" />
+        <app-ai-chat [embedInHero]="true" [embedSuggestions]="embedSuggestionLabels()" />
       </div>
     </div>
 
-    <aside class="home-news reveal reveal--news js-reveal" aria-label="Noutăți">
+    <aside
+      class="home-news reveal reveal--news js-reveal"
+      [attr.aria-label]="'dashboard.newsAria' | translate"
+    >
       <div class="home-news-rail-accent" aria-hidden="true"></div>
       <div class="home-news-inner">
         <header class="home-news-head">
           <div class="home-news-head-text">
-            <span class="home-news-kicker">Actualitate</span>
-            <h2 class="home-news-heading">Noutăți medicale</h2>
+            <span class="home-news-kicker">{{ 'dashboard.newsKicker' | translate }}</span>
+            <h2 class="home-news-heading">{{ 'dashboard.newsHeading' | translate }}</h2>
           </div>
         </header>
         <div class="home-news-list">
@@ -33,9 +38,9 @@
               <div class="home-news-skeleton"></div>
             }
           } @else if (homeNewsError) {
-            <p class="home-news-msg">Nu am putut încărca știrile. Pornește backend-ul și reîncearcă.</p>
+            <p class="home-news-msg">{{ 'dashboard.newsError' | translate }}</p>
           } @else if (!homeNews.length) {
-            <p class="home-news-msg">Nu sunt titluri noi momentan. Poți reîncerca din pagina Noutăți.</p>
+            <p class="home-news-msg">{{ 'dashboard.newsEmpty' | translate }}</p>
           } @else {
             @for (item of homeNews; track item.url) {
               <app-news-card
@@ -59,7 +64,7 @@
     [class.stats-bar--visible]="statsEntered()"
     [class.reveal--visible]="statsEntered()"
   >
-    @for (s of statConfig; track s.label; let i = $index) {
+    @for (s of statRows; track s.labelKey; let i = $index) {
       <div class="stat">
         <div class="stat-num">
           @if (i === 3) {
@@ -68,13 +73,13 @@
             {{ statInt(i) }}<span>{{ s.suffix }}</span>
           }
         </div>
-        <div class="stat-label">{{ s.label }}</div>
+        <div class="stat-label">{{ s.labelKey | translate }}</div>
       </div>
     }
   </div>
 
   <div class="partners reveal js-reveal">
-    <div class="partners-label">Institutional partners &amp; data sources</div>
+    <div class="partners-label">{{ 'dashboard.partnersLabel' | translate }}</div>
     <div class="partners-row">
       <div class="partner-badge">
         <div class="partner-icon ema">EMA</div>
@@ -120,9 +125,9 @@
           <path d="M2 12l10 5 10-5" />
         </svg>
       </div>
-      <div class="feat-title">European Clinical Guidelines</div>
-      <div class="feat-desc">850+ protocols from ESC, ERS, EASD, ESMO, WHO — semantically indexed, fully cited.</div>
-      <span class="feat-badge">Updated monthly</span>
+      <div class="feat-title">{{ 'feat1.title' | translate }}</div>
+      <div class="feat-desc">{{ 'feat1.desc' | translate }}</div>
+      <span class="feat-badge">{{ 'feat1.badge' | translate }}</span>
     </div>
     <div class="feat">
       <div class="feat-icon">
@@ -132,9 +137,9 @@
           <circle cx="12" cy="16" r="1" fill="#D93025" />
         </svg>
       </div>
-      <div class="feat-title">Drug Interactions</div>
-      <div class="feat-desc">25,000+ interactions with severity classification and pharmacological mechanisms.</div>
-      <span class="feat-badge feat-badge-red">25,000+ interactions</span>
+      <div class="feat-title">{{ 'feat2.title' | translate }}</div>
+      <div class="feat-desc">{{ 'feat2.desc' | translate }}</div>
+      <span class="feat-badge feat-badge-red">{{ 'feat2.badge' | translate }}</span>
     </div>
     <div class="feat">
       <div class="feat-icon">
@@ -144,9 +149,9 @@
           <line x1="9" y1="13" x2="15" y2="13" />
         </svg>
       </div>
-      <div class="feat-title">Local Legislation</div>
-      <div class="feat-desc">National drug registries, reimbursement protocols and country-specific pharmaceutical law.</div>
-      <span class="feat-badge feat-badge-teal">Live registry data</span>
+      <div class="feat-title">{{ 'feat3.title' | translate }}</div>
+      <div class="feat-desc">{{ 'feat3.desc' | translate }}</div>
+      <span class="feat-badge feat-badge-teal">{{ 'feat3.badge' | translate }}</span>
     </div>
     <div class="feat">
       <div class="feat-icon">
@@ -154,58 +159,54 @@
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
         </svg>
       </div>
-      <div class="feat-title">Privacy &amp; Security</div>
-      <div class="feat-desc">Zero patient data stored. Full GDPR compliance. Verified access via national medical councils.</div>
-      <span class="feat-badge feat-badge-gold">GDPR Compliant</span>
+      <div class="feat-title">{{ 'feat4.title' | translate }}</div>
+      <div class="feat-desc">{{ 'feat4.desc' | translate }}</div>
+      <span class="feat-badge feat-badge-gold">{{ 'feat4.badge' | translate }}</span>
     </div>
   </div>
 
   <div class="testi-section reveal js-reveal">
-    <div class="section-label">What clinicians say</div>
-    <div class="section-heading testi-heading">Trusted across <em>European medicine</em></div>
+    <div class="section-label">{{ 'section.testimonialsLabel' | translate }}</div>
+    <div class="section-heading testi-heading">
+      {{ 'section.testimonialsHeading' | translate }} <em>{{ 'section.testimonialsHeadingEm' | translate }}</em>
+    </div>
     <div class="testi-grid">
       <div class="testi">
         <div class="testi-stars">★★★★★</div>
-        <div class="testi-text">
-          "I've cut my protocol lookup time in half. Answers are precise and always cited from sources I recognise."
-        </div>
-        <div class="testi-author"><strong>Dr. A. Ionescu</strong> — Cardiologist, Cluj University Hospital</div>
+        <div class="testi-text">"{{ 'testi1.quote' | translate }}"</div>
+        <div class="testi-author">{{ 'testi1.author' | translate }}</div>
       </div>
       <div class="testi">
         <div class="testi-stars">★★★★★</div>
-        <div class="testi-text">
-          "Finally a tool that understands European context — national registries, reimbursement rules, local guidelines."
-        </div>
-        <div class="testi-author"><strong>Dr. M. Weber</strong> — Clinical Pharmacist, Berlin</div>
+        <div class="testi-text">"{{ 'testi2.quote' | translate }}"</div>
+        <div class="testi-author">{{ 'testi2.author' | translate }}</div>
       </div>
       <div class="testi">
         <div class="testi-stars">★★★★★</div>
-        <div class="testi-text">
-          "Drug interactions are extremely well documented. Adopted as the standard reference in our emergency department."
-        </div>
-        <div class="testi-author"><strong>Dr. C. Moldovan</strong> — Emergency Medicine, Timișoara</div>
+        <div class="testi-text">"{{ 'testi3.quote' | translate }}"</div>
+        <div class="testi-author">{{ 'testi3.author' | translate }}</div>
       </div>
     </div>
   </div>
 
   <div class="cta">
-    <div class="cta-h">European clinicians deserve world-class tools</div>
-    <p class="cta-sub">Free for all verified healthcare professionals. Sign up in 2 minutes with your national medical council ID.</p>
+    <div class="cta-h">{{ 'cta.title' | translate }}</div>
+    <p class="cta-sub">{{ 'cta.sub' | translate }}</p>
     <div class="cta-btns">
-      <a class="btn-cta-w" routerLink="/register">Get Free Access</a>
-      <button type="button" class="btn-cta-o">Request Institutional Demo</button>
+      <a class="btn-cta-w" routerLink="/register">{{ 'cta.register' | translate }}</a>
+      <button type="button" class="btn-cta-o">{{ 'cta.demo' | translate }}</button>
     </div>
   </div>
 
   <footer class="reveal js-reveal">
     <div class="footer-logo">Pharma-GPT</div>
     <div class="footer-links">
-      <a routerLink="/legislation" fragment="terms">Terms</a>
-      <a routerLink="/legislation" fragment="privacy">Privacy</a>
-      <a routerLink="/register">Medical Policy</a>
-      <a routerLink="/comunitate">Contact</a>
-      <a routerLink="/dashboard">Hospital API</a>
+      <a routerLink="/legislation" fragment="terms">{{ 'footer.terms' | translate }}</a>
+      <a routerLink="/legislation" fragment="privacy">{{ 'footer.privacy' | translate }}</a>
+      <a routerLink="/register">{{ 'footer.medical' | translate }}</a>
+      <a routerLink="/comunitate">{{ 'footer.contact' | translate }}</a>
+      <a routerLink="/dashboard">{{ 'footer.api' | translate }}</a>
     </div>
-    <div class="footer-legal">© 2025 Pharma-GPT · For verified medical professionals only</div>
+    <div class="footer-legal">{{ 'footer.copy' | translate }}</div>
   </footer>
 </div>

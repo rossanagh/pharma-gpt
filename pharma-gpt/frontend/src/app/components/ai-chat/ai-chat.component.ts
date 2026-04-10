@@ -1,5 +1,6 @@
 import {
   Component,
+  computed,
   effect,
   ElementRef,
   HostBinding,
@@ -14,6 +15,9 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AiService } from '../../services/ai.service';
 import { AuthService } from '../../services/auth.service';
+import { I18nService } from '../../services/i18n.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
+import { MarkdownPipe } from '../../pipes/markdown.pipe';
 import { AiChatCoordinatorService } from '../../services/ai-chat-coordinator.service';
 import {
   AiChatHistoryItem,
@@ -31,7 +35,7 @@ function newSessionId(): string {
 @Component({
   selector: 'app-ai-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, MarkdownPipe],
   templateUrl: './ai-chat.component.html',
   styleUrl: './ai-chat.component.scss'
 })
@@ -40,6 +44,7 @@ export class AiChatComponent {
   private readonly historyService = inject(AiChatHistoryService);
   private readonly coordinator = inject(AiChatCoordinatorService);
   private readonly router = inject(Router);
+  private readonly i18n = inject(I18nService);
 
   readonly auth = inject(AuthService);
 
@@ -66,6 +71,31 @@ export class AiChatComponent {
 
   loading = signal(false);
   error = signal<string | null>(null);
+
+  /** Spinner row only until first streamed token appears in the assistant bubble */
+  readonly showStreamingSpinner = computed(() => {
+    if (!this.loading()) {
+      return false;
+    }
+    const msgs = this.threadMessages();
+    if (msgs.length === 0) {
+      return false;
+    }
+    const last = msgs[msgs.length - 1];
+    return last.role === 'assistant' && last.content.trim().length === 0;
+  });
+
+  /** Hide empty in-list assistant bubble while the streaming spinner row is shown */
+  shouldShowMessage(m: ChatTurn, index: number): boolean {
+    if (m.role === 'user') {
+      return true;
+    }
+    if (m.content.trim().length > 0) {
+      return true;
+    }
+    const last = index === this.threadMessages().length - 1;
+    return !(last && this.showStreamingSpinner());
+  }
 
   readonly historyItems = signal<AiChatHistoryItem[]>([]);
   readonly historyCollapsed = signal(false);
@@ -197,17 +227,29 @@ export class AiChatComponent {
       content: m.content
     }));
 
-    this.threadMessages.set([...prior, { role: 'user', content: q }]);
+    this.threadMessages.set([
+      ...prior,
+      { role: 'user', content: q },
+      { role: 'assistant', content: '' }
+    ]);
     this.question = '';
     this.loading.set(true);
     this.error.set(null);
 
     try {
-      const result = await this.aiService.askQuestion(q, historyForApi);
-      this.threadMessages.update((t) => [...t, { role: 'assistant', content: result.response }]);
+      await this.aiService.askQuestionStream(q, historyForApi, (delta) => {
+        this.threadMessages.update((t) => {
+          const copy = [...t];
+          const last = copy[copy.length - 1];
+          if (last?.role === 'assistant') {
+            copy[copy.length - 1] = { role: 'assistant', content: last.content + delta };
+          }
+          return copy;
+        });
+      });
       this.historyItems.set(this.historyService.saveSession(this.sessionId(), this.threadMessages()));
     } catch (err) {
-      this.error.set(err instanceof Error ? err.message : 'A apărut o eroare. Încercați din nou.');
+      this.error.set(err instanceof Error ? err.message : this.i18n.t('ai.errorGeneric'));
       this.threadMessages.set(prior);
     } finally {
       this.loading.set(false);
