@@ -23,7 +23,7 @@ import java.util.Map;
 public class AuthController {
 
     private static final List<String> ALLOWED_PROVIDER = List.of(
-        "medic", "farmacist", "asistent_medical", "asistent_farmacist"
+        "medic", "farmacist", "student", "asistent_medical", "asistent_farmacist"
     );
     private static final List<String> MEDIC_GRADES = List.of("rezident", "specialist", "primar");
 
