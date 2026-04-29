@@ -22,7 +22,10 @@ public class CorsConfig {
             "http://127.0.0.1:*",
             "https://pharma-gpt.com",
             "https://www.pharma-gpt.com",
-            "https://*.pharma-gpt.com"
+            "https://*.pharma-gpt.com",
+            "https://medicinevidence.com",
+            "https://www.medicinevidence.com",
+            "https://*.medicinevidence.com"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
