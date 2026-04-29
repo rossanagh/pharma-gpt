@@ -37,5 +37,9 @@ async function createUser({ name, email, passwordHash, parafa, role = "user" }) 
   return await findById(id);
 }
 
-module.exports = { toPublicUser, findByEmail, findById, createUser };
+async function updatePasswordByEmail(email, passwordHash) {
+  await pool.query(`UPDATE users SET password=$2 WHERE email=$1`, [email, passwordHash]);
+}
+
+module.exports = { toPublicUser, findByEmail, findById, createUser, updatePasswordByEmail };
 

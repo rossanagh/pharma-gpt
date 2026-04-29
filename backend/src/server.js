@@ -15,19 +15,24 @@ const origins = String(process.env.FRONTEND_ORIGINS || "")
   .map((s) => s.trim())
   .filter(Boolean);
 
+const corsOptions = {
+  origin: (origin, cb) => {
+    // allow tools like curl / server-to-server
+    if (!origin) return cb(null, true);
+    if (!origins.length) return cb(null, true);
+    if (origins.includes(origin)) return cb(null, true);
+    return cb(new Error("Not allowed by CORS"));
+  },
+  credentials: false,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  maxAge: 86400
+};
+
 app.use(helmet());
-app.use(
-  cors({
-    origin: (origin, cb) => {
-      // allow tools like curl / server-to-server
-      if (!origin) return cb(null, true);
-      if (!origins.length) return cb(null, true);
-      if (origins.includes(origin)) return cb(null, true);
-      return cb(new Error("Not allowed by CORS"));
-    },
-    credentials: false
-  })
-);
+// IMPORTANT: handle preflight requests explicitly
+app.options("*", cors(corsOptions));
+app.use(cors(corsOptions));
 
 app.use(express.json({ limit: "1mb" }));
 
