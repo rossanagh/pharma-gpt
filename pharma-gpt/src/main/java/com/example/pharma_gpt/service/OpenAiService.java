@@ -15,6 +15,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,6 +88,10 @@ public class OpenAiService {
             return openaiApiKey.trim();
         }
         return "";
+    }
+
+    public boolean isConfigured() {
+        return !effectiveApiKey().isBlank();
     }
 
     public String ask(String question, List<ChatMessageDto> history) {
@@ -217,6 +222,95 @@ public class OpenAiService {
                 }
             }
         }
+    }
+
+    /**
+     * Radiology second-opinion (vision). Returns markdown with structure + sources.
+     * Notes:
+     * - This is decision-support only and must be verified by a radiologist.
+     * - Citations are provided as links to EU/WHO/ESR safety & appropriateness resources.
+     */
+    public String analyzeRadiologyImage(byte[] imageBytes, String contentType) throws IOException {
+        String apiKey = effectiveApiKey();
+        if (apiKey.isBlank()) {
+            return "Serviciul AI nu este configurat (OPENAI). Configurează OPENAI_API_KEY și repornește backend-ul.";
+        }
+
+        String b64 = Base64.getEncoder().encodeToString(imageBytes);
+        String dataUrl = "data:" + contentType + ";base64," + b64;
+
+        String system = """
+            You are MedicinEvidence Radiology AI. Provide an evidence-based radiology second-opinion for clinicians in Europe.
+
+            Output requirements:
+            - Write in the same language as the user interface (default English if unknown).
+            - Use a clear clinical structure:
+              1) Study type & image quality (if determinable)
+              2) Key findings (bullets)
+              3) Differential diagnosis (ranked; include red flags)
+              4) Confidence level (low/medium/high) + why
+              5) Recommended next steps (imaging/labs/urgent escalation when needed)
+              6) Limitations (single image, missing views, clinical context)
+              7) Sources (links)
+
+            Safety constraints:
+            - Do not claim to replace a radiologist. Encourage formal read.
+            - If you cannot reliably interpret the image, say so and give safe next steps.
+
+            Sources: include these links (and optionally others you are confident about):
+            - ESR iGuide imaging referral guidelines: https://esriguide.org/
+            - European Commission clinical audit & radiation protection guidance: https://op.europa.eu/en/publication-detail/-/publication/75688cc6-c9d3-4c43-9bfd-ce5cea0d8bcb
+            - WHO: Radiation Protection and Safety in Medical Uses of Ionizing Radiation: https://www.who.int/publications/m/item/radiation-protection-and-safety-in-medical-uses-ionizing-radiation
+            """;
+
+        Map<String, Object> textPart = Map.of("type", "text", "text", "Analyze the uploaded medical image and provide a structured second-opinion.");
+        Map<String, Object> imgPart = Map.of("type", "image_url", "image_url", Map.of("url", dataUrl));
+
+        Map<String, Object> userMsg = Map.of(
+            "role", "user",
+            "content", List.of(textPart, imgPart)
+        );
+        Map<String, Object> sysMsg = Map.of("role", "system", "content", system);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("model", model);
+        body.put("temperature", 0.2);
+        body.put("messages", List.of(sysMsg, userMsg));
+
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(OPENAI_CHAT_URL))
+            .timeout(Duration.ofMinutes(2))
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(body)))
+            .build();
+
+        HttpResponse<String> resp;
+        try {
+            resp = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IOException("OpenAI request interrupted", e);
+        }
+
+        if (resp.statusCode() < 200 || resp.statusCode() >= 300) {
+            return "OpenAI HTTP " + resp.statusCode() + ": " + resp.body();
+        }
+
+        JsonNode root = objectMapper.readTree(resp.body());
+        JsonNode err = root.path("error");
+        if (!err.isMissingNode() && err.path("message").isTextual()) {
+            return "Eroare OpenAI: " + err.path("message").asText();
+        }
+
+        JsonNode choices = root.path("choices");
+        if (choices.isArray() && choices.size() > 0) {
+            String text = choices.get(0).path("message").path("content").asText("");
+            if (!text.isBlank()) {
+                return text;
+            }
+        }
+        return "Nu s-a putut obține un răspuns de la serviciul Radiology AI.";
     }
 
     private List<Map<String, String>> buildChatMessages(String question, List<ChatMessageDto> history) {

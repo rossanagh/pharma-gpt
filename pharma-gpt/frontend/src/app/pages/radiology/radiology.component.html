@@ -1,0 +1,64 @@
+<div class="pharma-landing radiology-page">
+  <app-pharma-nav />
+
+  <div class="radiology-wrap">
+    <header class="radiology-head">
+      <p class="eyebrow">🩻 Radiology AI</p>
+      <h1 class="title">Radiology <em>second-opinion</em></h1>
+      <p class="lead">
+        Upload imaging for an evidence-based second-opinion · JPG, PNG · AI Vision
+      </p>
+    </header>
+
+    <section
+      class="dropzone"
+      (drop)="onDrop($event)"
+      (dragover)="onDragOver($event)"
+      [class.dropzone--has-file]="file()"
+    >
+      <input id="radFile" type="file" accept="image/png,image/jpeg" (change)="onPickFile($event)" />
+      @if (!file()) {
+        <label class="dz-inner" for="radFile">
+          <div class="dz-ic">🩻</div>
+          <div class="dz-title">Drop imaging here or click to upload</div>
+          <div class="dz-sub">Supports JPG, PNG · Max 5MB</div>
+        </label>
+      } @else {
+        <div class="dz-preview">
+          @if (previewUrl(); as url) {
+            <img class="dz-img" [src]="url" alt="" />
+          }
+          <div class="dz-meta">
+            <div class="dz-name">{{ file()!.name }}</div>
+            <div class="dz-actions">
+              <button type="button" class="btn" (click)="analyze()" [disabled]="!canAnalyze()">
+                @if (state() === 'uploading') { Analyzing… } @else { 🤖 Analyze with AI }
+              </button>
+              <button type="button" class="btn btn--ghost" (click)="clear()" [disabled]="state() === 'uploading'">
+                Clear
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </section>
+
+    @if (error()) {
+      <div class="err">{{ error() }}</div>
+    }
+
+    @if (result()) {
+      <section class="report">
+        <div class="report-title">Result</div>
+        <div class="report-body" [innerHTML]="result() | markdown"></div>
+      </section>
+    }
+
+    <section class="disclaimer">
+      <strong>⚠ Clinical disclaimer:</strong>
+      Radiology AI provides decision-support only. It is not a substitute for formal radiological interpretation by a
+      licensed radiologist. All findings must be clinically correlated and verified.
+    </section>
+  </div>
+</div>
+

@@ -8,13 +8,14 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { MEDICAL_SPECIALTIES } from '../../data/medical-specialties';
 import { formatPersonName } from '../../utils/person-name';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 export type ProviderCategory = 'medic' | 'farmacist' | 'asistent_medical' | 'asistent_farmacist';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })

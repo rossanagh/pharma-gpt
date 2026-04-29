@@ -3,9 +3,12 @@ package com.example.pharma_gpt.controller;
 import com.example.pharma_gpt.config.JwtConfig;
 import com.example.pharma_gpt.dto.LoginRequest;
 import com.example.pharma_gpt.dto.LoginResponse;
+import com.example.pharma_gpt.dto.PasswordResetConfirmRequest;
+import com.example.pharma_gpt.dto.PasswordResetRequest;
 import com.example.pharma_gpt.dto.RegisterRequest;
 import com.example.pharma_gpt.entity.User;
 import com.example.pharma_gpt.repository.UserRepository;
+import com.example.pharma_gpt.service.PasswordResetService;
 import com.example.pharma_gpt.util.PersonNameUtils;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 @RestController
@@ -28,13 +30,16 @@ public class AuthController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtConfig jwtConfig;
+    private final PasswordResetService passwordResetService;
 
     public AuthController(UserRepository userRepository,
                           PasswordEncoder passwordEncoder,
-                          JwtConfig jwtConfig) {
+                          JwtConfig jwtConfig,
+                          PasswordResetService passwordResetService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtConfig = jwtConfig;
+        this.passwordResetService = passwordResetService;
     }
 
     @PostMapping("/login")
@@ -97,6 +102,26 @@ public class AuthController {
         userRepository.save(user);
         String token = jwtConfig.generateToken(user.getEmail(), user.getFullName());
         return ResponseEntity.ok(buildLoginResponse(token, user));
+    }
+
+    /**
+     * Request a reset code via email or phone.
+     * Always returns 200 (anti-enumeration).
+     */
+    @PostMapping("/password-reset/request")
+    public ResponseEntity<?> requestPasswordReset(@Valid @RequestBody PasswordResetRequest request) {
+        passwordResetService.requestReset(request.target());
+        return ResponseEntity.ok(Map.of("ok", true));
+    }
+
+    @PostMapping("/password-reset/confirm")
+    public ResponseEntity<?> confirmPasswordReset(@Valid @RequestBody PasswordResetConfirmRequest request) {
+        try {
+            passwordResetService.confirmReset(request.target(), request.code(), request.newPassword());
+            return ResponseEntity.ok(Map.of("ok", true));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(400).body(Map.of("error", e.getMessage()));
+        }
     }
 
     private static LoginResponse buildLoginResponse(String token, User user) {

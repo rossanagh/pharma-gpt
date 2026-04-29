@@ -1,40 +1,68 @@
-<div class="register-page">
-  <div class="register-card">
-    <div class="brand-lock" aria-hidden="true">
-      <img class="brand-mark" src="branding/logo.png" width="48" height="48" alt="" />
-      <div class="brand-text">
-        <span class="brand-name">Pharma-GPT</span>
-        <span class="brand-tagline">Platformă medicală inteligentă</span>
+<div class="auth-page">
+  <div class="auth-card" role="region" [attr.aria-label]="'ai.register' | translate">
+    <button type="button" class="auth-close" routerLink="/dashboard" [attr.aria-label]="'ai.close' | translate">
+      {{ 'ai.close' | translate }}
+    </button>
+
+    <div class="auth-top">
+      <div class="auth-logo" aria-hidden="true">
+        <div class="auth-logo-mark">ME</div>
+        <span class="auth-logo-name">MedicinEvidence</span>
       </div>
+      <div class="auth-title">{{ 'auth.registerTitle' | translate }}</div>
+      <div class="auth-sub">{{ 'auth.registerSub' | translate }}</div>
     </div>
-    <h2>Înregistrare</h2>
-    <form (ngSubmit)="onSubmit()">
+
+    <form class="auth-body" (ngSubmit)="onSubmit()">
+      <div class="verify-note">
+        <span class="vn-ic">🔐</span>
+        <p>
+          <strong>{{ 'auth.verifiedTitle' | translate }}</strong>
+          {{ 'auth.verifiedBody' | translate }}
+        </p>
+      </div>
+
+      <div class="role-wrap">
+        <label class="fl">{{ 'auth.iAmA' | translate }}</label>
+        <div class="role-sel">
+          <button type="button" class="rb" [class.on]="providerType==='medic'" (click)="providerType='medic'">
+            <span class="r-ic">👨‍⚕️</span><span class="r-nm">{{ 'auth.rolePhysician' | translate }}</span>
+          </button>
+          <button type="button" class="rb" [class.on]="providerType==='farmacist'" (click)="providerType='farmacist'">
+            <span class="r-ic">💊</span><span class="r-nm">{{ 'auth.rolePharmacist' | translate }}</span>
+          </button>
+          <button type="button" class="rb" [class.on]="providerType==='asistent_medical'" (click)="providerType='asistent_medical'">
+            <span class="r-ic">🩺</span><span class="r-nm">{{ 'auth.roleNurse' | translate }}</span>
+          </button>
+        </div>
+      </div>
+
       <div class="form-grid">
         <div class="form-group">
-          <label for="firstName">Prenume</label>
+          <label for="firstName">{{ 'auth.firstName' | translate }}</label>
           <input id="firstName" type="text" [(ngModel)]="firstName" name="firstName" placeholder="Ex: Andrei" required minlength="2" />
         </div>
         <div class="form-group">
-          <label for="lastName">Nume</label>
+          <label for="lastName">{{ 'auth.lastName' | translate }}</label>
           <input id="lastName" type="text" [(ngModel)]="lastName" name="lastName" placeholder="Ex: Popescu" required minlength="2" />
         </div>
 
         <div class="form-group">
-          <label for="email">Email</label>
-          <input id="email" type="email" [(ngModel)]="email" name="email" placeholder="email@domeniu.ro" required />
+          <label for="email">{{ 'auth.institutionalEmail' | translate }}</label>
+          <input id="email" type="email" [(ngModel)]="email" name="email" placeholder="dr.ionescu@hospital.ro" required />
         </div>
         <div class="form-group">
-          <label for="phoneNumber">Telefon</label>
+          <label for="phoneNumber">{{ 'auth.phone' | translate }} <span class="optional">({{ 'auth.optional' | translate }})</span></label>
           <input id="phoneNumber" type="tel" [(ngModel)]="phoneNumber" name="phoneNumber" placeholder="07xx xxx xxx" />
         </div>
 
         <div class="form-group full">
-          <label for="providerType">Categorie profesională</label>
+          <label for="providerType">{{ 'auth.providerType' | translate }}</label>
           <select id="providerType" [(ngModel)]="providerType" name="providerType" required>
-            <option value="medic">Medic</option>
-            <option value="farmacist">Farmacist</option>
-            <option value="asistent_medical">Asistent medical</option>
-            <option value="asistent_farmacist">Asistent farmacist</option>
+            <option value="medic">{{ 'auth.rolePhysician' | translate }}</option>
+            <option value="farmacist">{{ 'auth.rolePharmacist' | translate }}</option>
+            <option value="asistent_medical">{{ 'auth.roleNurse' | translate }}</option>
+            <option value="asistent_farmacist">{{ 'auth.roleAssistantPharmacist' | translate }}</option>
           </select>
         </div>
 
@@ -84,17 +112,17 @@
         </div>
 
         <div class="form-group full">
-          <label for="password">Parolă (min. 6 caractere)</label>
+          <label for="password">{{ 'auth.password' | translate }}</label>
           <input id="password" type="password" [(ngModel)]="password" name="password" placeholder="••••••••" required minlength="6" />
         </div>
       </div>
       @if (error) {
-        <div class="error-msg">{{ error }}</div>
+        <div class="auth-err">{{ error }}</div>
       }
-      <button type="submit" class="btn-primary" [disabled]="loading">
-        {{ loading ? 'Se înregistrează...' : 'Înregistrare' }}
+      <button type="submit" class="btn-sub" [disabled]="loading">
+        {{ loading ? ('auth.creating' | translate) : ('auth.createAccount' | translate) }}
       </button>
     </form>
-    <p class="login-link">Ai deja cont? <a routerLink="/login">Conectare</a></p>
+    <p class="asw">{{ 'auth.haveAccount' | translate }} <a routerLink="/login">{{ 'ai.signIn' | translate }}</a></p>
   </div>
 </div>

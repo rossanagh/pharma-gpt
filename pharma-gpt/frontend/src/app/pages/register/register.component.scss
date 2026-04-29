@@ -3,7 +3,7 @@
  * „Mai mare” doar de la min-height: 880px în sus.
  * Mobil o coloană: poate scroll — prea multe câmpuri.
  */
-.register-page {
+.auth-page {
   min-height: 100vh;
   min-height: 100dvh;
   display: flex;
@@ -14,75 +14,148 @@
   box-sizing: border-box;
 }
 
-.brand-lock {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 0.55rem;
-  margin-bottom: 0.45rem;
-  width: 100%;
-  text-align: center;
-}
-
-.brand-lock .brand-mark {
-  width: 38px;
-  height: 38px;
-  object-fit: contain;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.12);
-  flex-shrink: 0;
-}
-
-.brand-lock .brand-text {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.brand-lock .brand-name {
-  font-size: 1.15rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.15;
-  color: var(--pg-text-strong, #0f172a);
-}
-
 .optional {
   font-weight: 400;
   font-size: 0.8em;
   color: var(--pg-text-muted, #64748b);
 }
 
-.brand-lock .brand-tagline {
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--pg-text-muted, #64748b);
-  margin-top: 0.05rem;
-}
-
-.register-card {
+.auth-card {
   background: var(--pg-surface, #fff);
-  border-radius: 14px;
-  padding: 0.75rem 1.3rem 0.7rem;
+  border-radius: 18px;
+  padding: 1.25rem 1.6rem 1.15rem;
   width: 100%;
   max-width: 600px;
   box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 12px 40px -12px rgba(12, 74, 110, 0.15);
   border: 1px solid var(--pg-border, #e2e8f0);
   box-sizing: border-box;
+  position: relative;
 
-  h2 {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #111827;
-    text-align: center;
-    width: 100%;
-    margin: 0 0 0.55rem 0;
-    letter-spacing: -0.02em;
-  }
+}
+
+.auth-close {
+  position: absolute;
+  top: 0.8rem;
+  right: 0.85rem;
+  border: none;
+  background: transparent;
+  color: var(--pg-text-muted, #64748b);
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.auth-top {
+  text-align: center;
+  margin-bottom: 0.65rem;
+}
+
+.auth-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  justify-content: center;
+  margin-bottom: 0.6rem;
+}
+
+.auth-logo-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--pg-primary), var(--pg-primary-hover));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 700;
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(182, 91, 52, 0.25);
+}
+
+.auth-logo-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--pg-text-strong);
+  letter-spacing: -0.01em;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.auth-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--pg-text-strong);
+  letter-spacing: -0.02em;
+}
+
+.auth-sub {
+  color: var(--pg-text-muted);
+  font-size: 0.9rem;
+  margin-top: 0.2rem;
+}
+
+.verify-note {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+  padding: 0.75rem 0.85rem;
+  border-radius: 14px;
+  border: 1px solid rgba(232, 221, 208, 0.9);
+  background: rgba(255, 255, 255, 0.7);
+  margin: 0.65rem 0 0.85rem;
+  color: var(--pg-text-muted);
+  line-height: 1.45;
+}
+
+.vn-ic {
+  flex-shrink: 0;
+  font-size: 1rem;
+  margin-top: 1px;
+}
+
+.verify-note strong {
+  color: var(--pg-text-strong);
+}
+
+.role-wrap {
+  margin-bottom: 0.75rem;
+}
+
+.fl {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--pg-text-strong);
+  margin-bottom: 0.4rem;
+}
+
+.role-sel {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.rb {
+  display: inline-flex;
+  gap: 0.45rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--pg-border);
+  background: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--pg-text);
+  font-size: 0.85rem;
+}
+
+.rb.on {
+  border-color: rgba(182, 91, 52, 0.55);
+  background: rgba(182, 91, 52, 0.09);
+  color: var(--pg-primary);
+}
+
+.r-ic {
+  font-size: 1rem;
 }
 
 .form-grid {
@@ -144,16 +217,27 @@
   line-height: 1.3;
 }
 
-.btn-primary {
+.auth-err {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 0.55rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  margin-bottom: 0.6rem;
+  line-height: 1.35;
+}
+
+.btn-sub {
   width: 100%;
-  padding: 0.52rem 1rem;
-  min-height: 2.5rem;
+  padding: 0.78rem 1rem;
+  min-height: 2.8rem;
   background: linear-gradient(135deg, var(--pg-primary) 0%, var(--pg-primary-hover) 100%);
   color: #fff;
   border: none;
-  border-radius: 9px;
-  font-size: 0.9rem;
-  font-weight: 600;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 800;
   cursor: pointer;
   transition: filter 0.15s, box-shadow 0.15s;
   box-shadow: 0 4px 14px rgba(182, 91, 52, 0.22);
@@ -169,7 +253,7 @@
   }
 }
 
-.login-link {
+.asw {
   margin: 0.5rem 0 0 0;
   font-size: 0.82rem;
   color: #6b7280;
@@ -189,7 +273,7 @@
 
 /* Monitor înalt: formular mai aerisit și puțin mai mare */
 @media (min-height: 880px) {
-  .register-page {
+  .auth-page {
     padding: 0.75rem 1rem;
   }
 
@@ -211,15 +295,10 @@
     font-size: 0.72rem;
   }
 
-  .register-card {
+  .auth-card {
     padding: 1.15rem 1.65rem 1rem;
     border-radius: 16px;
     max-width: 640px;
-  }
-
-  .register-card h2 {
-    font-size: 1.4rem;
-    margin-bottom: 0.85rem;
   }
 
   .form-grid {
@@ -240,7 +319,7 @@
     border-radius: 9px;
   }
 
-  .btn-primary {
+  .btn-sub {
     padding: 0.68rem 1.1rem;
     min-height: 2.85rem;
     font-size: 0.98rem;
@@ -248,7 +327,7 @@
     margin-top: 0.45rem;
   }
 
-  .login-link {
+  .asw {
     margin: 0.75rem 0 0 0;
     font-size: 0.9rem;
   }
@@ -294,17 +373,13 @@
 }
 
 @media (max-width: 520px) {
-  .register-page {
+  .auth-page {
     align-items: flex-start;
     padding: 0.65rem;
   }
 
-  .register-card {
+  .auth-card {
     padding: 1rem 1.15rem;
-  }
-
-  .register-card h2 {
-    font-size: 1.25rem;
   }
 
   .form-grid {
@@ -319,7 +394,7 @@
 
 /* Înălțime mică: extra compact (fără scroll) */
 @media (min-width: 521px) and (max-height: 720px) {
-  .register-page {
+  .auth-page {
     padding: 0.2rem 0.45rem;
   }
 
@@ -337,13 +412,8 @@
     font-size: 1rem;
   }
 
-  .register-card {
+  .auth-card {
     padding: 0.5rem 1.05rem 0.5rem;
-  }
-
-  .register-card h2 {
-    font-size: 1.05rem;
-    margin-bottom: 0.35rem;
   }
 
   .form-grid {
@@ -362,14 +432,14 @@
     font-size: 0.8rem;
   }
 
-  .btn-primary {
+  .btn-sub {
     padding: 0.4rem 0.8rem;
     min-height: 2.2rem;
     font-size: 0.82rem;
     margin-top: 0.2rem;
   }
 
-  .login-link {
+  .asw {
     margin: 0.35rem 0 0 0;
     font-size: 0.76rem;
   }

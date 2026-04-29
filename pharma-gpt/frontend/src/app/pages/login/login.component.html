@@ -1,29 +1,39 @@
-<div class="login-page">
-  <div class="login-card">
-    <div class="brand-lock" aria-hidden="true">
-      <img class="brand-mark" src="branding/logo.png" width="56" height="56" alt="" />
-      <div class="brand-text">
-        <span class="brand-name">Pharma-GPT</span>
-        <span class="brand-tagline">Platformă medicală inteligentă</span>
+<div class="auth-page">
+  <div class="auth-card" role="region" [attr.aria-label]="'ai.authTitle' | translate">
+    <button type="button" class="auth-close" routerLink="/dashboard" [attr.aria-label]="'ai.close' | translate">
+      {{ 'ai.close' | translate }}
+    </button>
+
+    <div class="auth-top">
+      <div class="auth-logo" aria-hidden="true">
+        <div class="auth-logo-mark">ME</div>
+        <span class="auth-logo-name">MedicinEvidence</span>
       </div>
+      <div class="auth-title">{{ 'ai.authTitle' | translate }}</div>
+      <div class="auth-sub">{{ 'auth.loginSub' | translate }}</div>
     </div>
-    <h2>Autentificare</h2>
-    <form (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <label for="email">Email</label>
+
+    <form class="auth-body" (ngSubmit)="onSubmit()">
+      @if (error()) {
+        <div class="auth-err">{{ error() }}</div>
+      }
+      <div class="fg">
+        <label class="fl" for="email">{{ 'auth.email' | translate }}</label>
         <input
+          class="fi"
           id="email"
           type="email"
           [(ngModel)]="email"
           name="email"
-          placeholder="nume@domeniu.ro"
+          placeholder="dr.ionescu@hospital.ro"
           required
           autocomplete="email"
         />
       </div>
-      <div class="form-group">
-        <label for="password">Parolă</label>
+      <div class="fg">
+        <label class="fl" for="password">{{ 'auth.password' | translate }}</label>
         <input
+          class="fi"
           id="password"
           type="password"
           [(ngModel)]="password"
@@ -33,13 +43,16 @@
           autocomplete="current-password"
         />
       </div>
-      @if (error()) {
-        <div class="error-msg">{{ error() }}</div>
-      }
-      <button type="submit" class="btn-primary" [disabled]="loading()">
-        {{ loading() ? 'Se conectează...' : 'Conectare' }}
+      <button type="submit" class="btn-sub" [disabled]="loading()">
+        {{ loading() ? ('auth.signingIn' | translate) : ('ai.signIn' | translate) }}
       </button>
+      <p class="asw asw--muted">
+        <a routerLink="/forgot-password">{{ 'auth.forgotPassword' | translate }}</a>
+      </p>
+      <p class="asw">
+        {{ 'auth.noAccount' | translate }}
+        <a routerLink="/register">{{ 'ai.register' | translate }}</a>
+      </p>
     </form>
-    <p class="login-link">Nu ai cont? <a routerLink="/register">Înregistrare</a></p>
   </div>
 </div>
