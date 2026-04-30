@@ -79,3 +79,31 @@ WHERE created_at IS NULL OR attempts IS NULL OR used IS NULL;
 CREATE INDEX IF NOT EXISTS idx_users_email_upper ON public.users (upper(email));
 CREATE INDEX IF NOT EXISTS idx_prc_target ON public.password_reset_codes (target_normalized);
 CREATE INDEX IF NOT EXISTS idx_prc_expires ON public.password_reset_codes (expires_at);
+
+-- Direct messages (real-time chat)
+CREATE TABLE IF NOT EXISTS public.direct_conversations (
+  id BIGSERIAL PRIMARY KEY,
+  user_a_id BIGINT NOT NULL,
+  user_b_id BIGINT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  last_message_at TIMESTAMPTZ,
+  CONSTRAINT uk_direct_conversations_pair UNIQUE (user_a_id, user_b_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_direct_conversations_user_a ON public.direct_conversations (user_a_id);
+CREATE INDEX IF NOT EXISTS idx_direct_conversations_user_b ON public.direct_conversations (user_b_id);
+CREATE INDEX IF NOT EXISTS idx_direct_conversations_last_message_at ON public.direct_conversations (last_message_at);
+
+CREATE TABLE IF NOT EXISTS public.direct_messages (
+  id BIGSERIAL PRIMARY KEY,
+  conversation_id BIGINT NOT NULL REFERENCES public.direct_conversations(id) ON DELETE CASCADE,
+  sender_user_id BIGINT NOT NULL,
+  recipient_user_id BIGINT NOT NULL,
+  content VARCHAR(2000) NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  read_at TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS idx_direct_messages_conversation_created ON public.direct_messages (conversation_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_direct_messages_sender ON public.direct_messages (sender_user_id);
+CREATE INDEX IF NOT EXISTS idx_direct_messages_recipient ON public.direct_messages (recipient_user_id);
