@@ -1,0 +1,62 @@
+[ESC 2024] Hypertension (European Society of Cardiology / European Society of Hypertension):
+- BP targets typically <140/90 mmHg for most; consider <130/80 mmHg if tolerated in high-risk.
+- Assess overall CV risk, comorbidities, and organ damage when choosing therapy.
+
+[EASD/ADA 2024] Type 2 Diabetes:
+- For T2DM with CKD/HF/ASCVD, consider SGLT2 inhibitor and/or GLP-1 RA regardless of baseline HbA1c, individualized.
+- Prioritize cardio-renal protection and hypoglycemia avoidance.
+
+[EMA SmPC] Dosing and contraindications must follow the official Summary of Product Characteristics for each medicine.
+
+[WHO Europe] Use evidence-based guidance, antimicrobial stewardship, and local epidemiology for infectious disease decisions.
+
+---
+RAG NOTES (how to write knowledge):
+- Keep each excerpt short (5–15 lines).
+- Start with a source tag in brackets: [EMA SmPC], [ECDC], [WHO Europe], [MS RO], [CNAS], etc.
+- Prefer actionable bullets + contraindications/thresholds + what-to-do-next.
+
+[EMA SmPC] Off‑label warning:
+- If a requested use is off‑label, say it explicitly and prefer guideline-supported alternatives.
+- Always include key contraindications and clinically relevant interactions when discussing medicines.
+
+[ECDC] Antimicrobial stewardship (core principles):
+- Use antibiotics only when bacterial infection is likely; follow local resistance patterns.
+- Narrow spectrum when possible; reassess at 48–72h (“review and revise”); document indication/duration.
+
+[WHO Europe] Respiratory infections (general):
+- Avoid antibiotics for uncomplicated viral URTI/acute bronchitis; focus on supportive care and safety-net advice.
+- Escalate care for red flags: hypoxia, respiratory distress, sepsis, altered mental status, severe dehydration.
+
+[ESC] Secondary prevention (ASCVD – general):
+- High‑intensity lipid lowering and lifestyle interventions are central; assess blood pressure, diabetes, smoking, and adherence.
+- Consider renal function and drug–drug interactions (e.g., statins, anticoagulants).
+
+[EMA SmPC] Anticoagulants (general safety):
+- Always check renal function (CrCl/eGFR) and interacting drugs (strong CYP/P‑gp inhibitors/inducers where applicable).
+- Bleeding risk mitigation: review antiplatelets/NSAIDs, gastroprotection where appropriate, and patient counselling.
+
+[MS RO] (Romania) Clinical governance:
+- Follow Romanian national protocols/orders where applicable; document clinical reasoning and informed consent.
+- For notifiable diseases and outbreak measures, follow national public health guidance aligned with ECDC/WHO.
+
+[CNAS] (Romania) Reimbursement / prescribing (general):
+- Prescribing and reimbursement rules depend on diagnosis, specialty, and therapeutic line; verify the latest CNAS norms.
+- When relevant, advise to check current national reimbursement criteria and electronic prescription requirements.
+
+[ECDC] Vaccination / prevention (general):
+- Prioritize vaccination for high‑risk groups; ensure up‑to‑date status per national schedules.
+- For exposure management and outbreak response, align with ECDC risk assessments and local public health.
+
+[EMA SmPC] Pregnancy / lactation:
+- If pregnancy or breastfeeding is possible, check SmPC sections for pregnancy/lactation and contraindications.
+- Prefer agents with established safety data; avoid teratogenic medicines and flag need for specialist advice.
+
+[ESC] Hypertension treatment (stepwise, general):
+- Lifestyle + risk reduction are foundational; start pharmacotherapy based on BP level + total CV risk and comorbidities.
+- Ensure correct measurement, assess secondary causes when severe/resistant, and monitor adherence.
+
+[EASD/ADA] Diabetes (cardio‑renal focus, general):
+- For CKD/HF/ASCVD, prioritize therapies with proven outcomes; adjust doses by renal function where relevant.
+- Avoid hypoglycemia in older/frail; individualize glycemic targets.
+

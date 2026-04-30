@@ -1,0 +1,2436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MedicinEvidence — Evidence. Not opinion.</title>
+<meta name="description" content="Instant, evidence-based clinical answers from global guidelines, drug databases and pharmaceutical research. Free for verified clinicians.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>window.__API_BASE__ = window.__API_BASE__ || 'https://api.medicinevidence.com';</script>
+
+<!-- Favicon -->
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="favicon.svg" type="image/svg+xml">
+
+<link rel="stylesheet" href="styles.css">
+
+</head>
+<body>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-row">
+    <span class="ticker-live">Live</span>
+    <div class="ticker-track" id="tickerTrack">
+      <span>ESC 2024: Hypertension threshold lowered — treat at 130/80 mmHg in high-risk patients</span>
+      <span>EMA approves ianalumab for primary Sjögren's syndrome — first biologic indication</span>
+      <span>NEJM: Semaglutide reduces CV events by 20% in non-diabetic obese patients</span>
+      <span>EASD 2024: SGLT2 inhibitors first-line for T2DM with CKD regardless of HbA1c</span>
+      <span>WHO: 15 new essential medicines added including novel antibiotics</span>
+      <span>Cochrane: Beta-blockers post-MI reduce mortality by 23%</span>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <a class="logo" onclick="goPage('land')">
+    <div class="logo-sq">ME</div>
+    <div class="logo-nm">Medicin<span>Evidence</span></div>
+  </a>
+  <div class="nav-center">
+    <button class="ntab act" data-p="consult" onclick="goPage('consult')"><span>🩺</span><span data-t>Consultation</span></button>
+    <button class="ntab" data-p="tools" onclick="goPage('tools')"><span>🔧</span><span data-t>AI Tools</span></button>
+    <button class="ntab" data-p="guides" onclick="goPage('guides')"><span>📋</span><span data-t>Guidelines</span></button>
+    <button class="ntab" data-p="drugs" onclick="goPage('drugs')"><span>💊</span><span data-t>Drugs</span></button>
+    <button class="ntab" data-p="news" onclick="goPage('news')"><span>📰</span><span data-t>News</span></button>
+    <button class="ntab" data-p="rad" onclick="goPage('rad')"><span>🦴</span><span data-t>Radiology</span></button>
+    <button class="ntab" data-p="rez" onclick="goPage('rez')"><span>🎓</span><span data-t>Rezidentiat</span></button>
+  </div>
+  <div class="nav-right">
+    <div class="lang-wrap">
+      <button class="lang" onclick="toggleLang(event)"><span id="langFlag">🇬🇧</span> <span id="langCode">EN</span> ▾</button>
+      <div class="lang-menu" id="langMenu">
+        <button class="act" onclick="setLang('en')">🇬🇧 English</button>
+        <button onclick="setLang('ro')">🇷🇴 Română</button>
+        <button onclick="setLang('de')">🇩🇪 Deutsch</button>
+        <button onclick="setLang('fr')">🇫🇷 Français</button>
+        <button onclick="setLang('it')">🇮🇹 Italiano</button>
+        <button onclick="setLang('es')">🇪🇸 Español</button>
+      </div>
+    </div>
+    <button class="btn-tutor-nav" onclick="goPage('tutor')"><span>🧠</span><span class="txt" data-t>AI Tutor</span></button>
+    <div id="guestBtns" style="display:flex;gap:10px">
+      <button class="btn-signin" onclick="openModal('signin')" data-t>Sign In</button>
+      <button class="btn-primary" onclick="openModal('signup')" data-t>Get Free Access</button>
+    </div>
+    <div class="nav-user" id="navUser">
+      <div class="avatar" id="navAvatar">DR</div>
+      <div class="user-nm"><span id="navUserName">Doctor</span> <small id="navUserMeta" data-t>Physician</small></div>
+      <button class="btn-out" onclick="logout()" data-t>Sign out</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ LANDING ============ -->
+<div class="pg on" id="pg-land">
+<section class="hero">
+  <div class="hero-inner">
+    <div class="badge" data-t>Trusted by clinicians across Europe</div>
+    <h1 class="headline"><span data-t>Evidence.</span><em data-t>Not opinion.</em></h1>
+    <div class="dots"><span></span><span></span><span></span></div>
+    <p class="sub" data-t>Instant, evidence-based responses from global clinical guidelines, drug databases and pharmaceutical research. Free for verified clinicians.</p>
+    <div class="search-wrap">
+      <div class="search">
+        <div class="search-avatar">ME</div>
+        <input type="text" id="heroSearch" placeholder="Ask any clinical question — doses, interactions, guidelines…" data-tph onkeydown="if(event.key==='Enter')heroAsk()">
+        <button class="search-btn" onclick="heroAsk()" aria-label="Search">→</button>
+      </div>
+      <div class="suggestions">
+        <button class="sug" onclick="heroAskSuggestion(0)"><span data-t>First-line treatment for T2DM with high cardiovascular risk?</span><span class="sug-arrow">↗</span></button>
+        <button class="sug" onclick="heroAskSuggestion(1)"><span data-t>Check interactions: warfarin + aspirin + omeprazole</span><span class="sug-arrow">↗</span></button>
+        <button class="sug" onclick="heroAskSuggestion(2)"><span data-t>ESC 2024 hypertension — key recommendations summary</span><span class="sug-arrow">↗</span></button>
+      </div>
+    </div>
+    <div class="stats">
+      <div><div class="stat-num">14K+</div><div class="stat-lbl" data-t>Verified clinicians</div></div>
+      <div><div class="stat-num">3M+</div><div class="stat-lbl" data-t>AI consultations</div></div>
+      <div><div class="stat-num">850+</div><div class="stat-lbl" data-t>Guidelines indexed</div></div>
+      <div><div class="stat-num">99.2%</div><div class="stat-lbl" data-t>Validated accuracy</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="sources">
+  <div class="kicker" data-t>Data sources & institutional partners</div>
+  <h2 data-t>Every answer, fully traceable.</h2>
+  <div class="source-grid">
+    <div class="source"><div class="src-name">EMA</div><div class="src-desc" data-t>European Medicines Agency</div></div>
+    <div class="source"><div class="src-name">ESC</div><div class="src-desc" data-t>Cardiology Guidelines</div></div>
+    <div class="source"><div class="src-name">EASD</div><div class="src-desc" data-t>Diabetes Guidelines</div></div>
+    <div class="source"><div class="src-name">ESMO</div><div class="src-desc" data-t>Oncology Guidelines</div></div>
+    <div class="source"><div class="src-name">ERS</div><div class="src-desc" data-t>Respiratory Society</div></div>
+    <div class="source"><div class="src-name">WHO</div><div class="src-desc" data-t>World Health Organization</div></div>
+    <div class="source"><div class="src-name">Cochrane</div><div class="src-desc" data-t>Systematic Reviews</div></div>
+    <div class="source"><div class="src-name">PubMed</div><div class="src-desc" data-t>Biomedical Literature</div></div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="feat-head">
+    <div class="kicker" data-t>Built for decisions that matter</div>
+    <h2><span data-t>Clinical intelligence,</span> <em data-t>refined.</em></h2>
+    <p data-t>Every answer traceable. Every source verifiable. Free for verified clinicians — funded by pharmaceutical education, not paywalls.</p>
+  </div>
+  <div class="feat-grid">
+    <div class="feat" onclick="goPage('consult')">
+      <div class="feat-ico">🩺</div>
+      <h3 data-t>For physicians</h3>
+      <p data-t>Clinical guidelines, drug interactions, differential diagnosis — contextual answers for the patient in front of you.</p>
+    </div>
+    <div class="feat" onclick="goPage('drugs')">
+      <div class="feat-ico">💊</div>
+      <h3 data-t>For pharmacists</h3>
+      <p data-t>Brand names + INN recognition, interaction screening, dispensing protocols — all unified.</p>
+    </div>
+    <div class="feat" onclick="goPage('rad')">
+      <div class="feat-ico">🩻</div>
+      <h3 data-t>Radiology second-opinion</h3>
+      <p data-t>Upload imaging for an evidence-based AI second read — differential, confidence scores and recommended next steps.</p>
+    </div>
+    <div class="feat" onclick="goPage('rez')">
+      <div class="feat-ico">🎓</div>
+      <h3 data-t>Rezidenţiat & students</h3>
+      <p data-t>Adaptive quizzes generated live by AI, case-based learning, exam preparation tracks across every specialty.</p>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="cta-inner">
+    <div class="kicker" data-t>Free for verified clinicians</div>
+    <h2><span data-t>Where medicine</span> <em data-t>finds its evidence.</em></h2>
+    <p data-t>Join thousands of physicians and pharmacists already using MedicinEvidence for faster, better-informed clinical decisions.</p>
+    <button class="cta-btn" onclick="openModal('signup')" data-t>Request Free Access</button>
+    <div class="cta-note" data-t>Verification required · No credit card · Ad-free for users</div>
+  </div>
+</section>
+</div>
+
+<!-- ============ CONSULTATION ============ -->
+<div class="pg" id="pg-consult">
+  <div class="app tutor-app">
+    <aside class="side">
+      <div class="side-greet">
+        <div class="role" data-t>Physician</div>
+        <h4><span id="sideGreetPrefix" data-t>Good morning,</span> <em id="sideGreetName">Doctor.</em></h4>
+      </div>
+      <div class="side-section">
+        <h5 data-t>Main</h5>
+        <a class="act" onclick="goPage('consult')"><span class="ico">🩺</span><span data-t>Consultation</span></a>
+        <a onclick="goPage('tools')"><span class="ico">🔧</span><span data-t>AI Tools</span></a>
+        <a onclick="goPage('guides')"><span class="ico">📋</span><span data-t>Guidelines</span></a>
+        <a onclick="goPage('drugs')"><span class="ico">💊</span><span data-t>Drug Database</span></a>
+      </div>
+      <div class="side-section">
+        <h5 data-t>Learning</h5>
+        <a onclick="goPage('tutor')"><span class="ico">🧠</span><span data-t>AI Tutor</span></a>
+        <a onclick="goPage('rez')"><span class="ico">🎓</span><span data-t>Rezidentiat</span></a>
+        <a onclick="goPage('rad')"><span class="ico">🩻</span><span data-t>Radiology</span></a>
+      </div>
+      <div class="side-section">
+        <h5 data-t>Quick actions</h5>
+        <a onclick="consultQuick('differential')"><span class="ico">🔍</span><span data-t>Differential Dx</span></a>
+        <a onclick="consultQuick('interactions')"><span class="ico">⚗️</span><span data-t>Drug interactions</span></a>
+        <a onclick="consultQuick('guidelines')"><span class="ico">📋</span><span data-t>Relevant guidelines</span></a>
+        <a onclick="consultQuick('dosing')"><span class="ico">💊</span><span data-t>Dosing & adjustments</span></a>
+        <a onclick="clearConsult()"><span class="ico">🗑️</span><span data-t>Clear consultation</span></a>
+      </div>
+    </aside>
+    <main class="main" style="min-width:0">
+
+      <!-- HEADER -->
+      <div class="consult-header">
+        <div>
+          <h1 class="consult-h1"><span data-t>Clinical</span> <em data-t>consultation.</em></h1>
+          <p class="consult-sub" data-t>Enter patient data below → ask any clinical question → streaming AI with citations</p>
+        </div>
+        <div class="consult-badges">
+          <span class="cbadge">🔴 Live AI</span>
+          <span class="cbadge">📚 ESC · EASD · EMA</span>
+          <span class="cbadge">✓ <span data-t>Always cited</span></span>
+        </div>
+      </div>
+
+      <!-- PATIENT COCKPIT -->
+      <div class="patient-cockpit">
+        <div class="pc-header">
+          <div class="pc-header-left">
+            <div class="pc-avatar">👤</div>
+            <div>
+              <h3 data-t>Patient profile</h3>
+              <p id="pcSummary" style="font-size:13px;color:var(--ink2);margin-top:2px" data-t>Fill in only what's relevant to your query</p>
+            </div>
+          </div>
+          <button class="pc-clear-btn" onclick="clearPatient()" data-t>Clear patient</button>
+        </div>
+
+        <!-- Row 1: Demographics — 4 equal columns -->
+        <div class="pc-section-label" data-t>Demographics</div>
+        <div class="pc-row4">
+          <div class="pc-field">
+            <label data-t>Age</label>
+            <div class="pc-input-wrap"><span class="pc-ico">🎂</span><input type="number" id="pAge" placeholder="65" min="0" max="120" onchange="updatePcSummary()"></div>
+          </div>
+          <div class="pc-field">
+            <label data-t>Sex</label>
+            <div class="pc-input-wrap"><span class="pc-ico">⚥</span>
+              <select id="pSex" onchange="updatePcSummary()">
+                <option value="">—</option>
+                <option value="Male" data-t>Male</option>
+                <option value="Female" data-t>Female</option>
+              </select>
+            </div>
+          </div>
+          <div class="pc-field">
+            <label data-t>Weight (kg)</label>
+            <div class="pc-input-wrap"><span class="pc-ico">⚖️</span><input type="number" id="pWeight" placeholder="78" onchange="updatePcSummary()"></div>
+          </div>
+          <div class="pc-field">
+            <label>BMI <span style="font-size:10px;opacity:.6" data-t>(auto)</span></label>
+            <div class="pc-input-wrap pc-computed"><span class="pc-ico">📊</span><span id="pBMI" style="font-size:13.5px;font-weight:600">—</span></div>
+          </div>
+        </div>
+
+        <!-- Row 2: Labs — 4 equal columns -->
+        <div class="pc-section-label" style="margin-top:16px" data-t>Key labs & vitals</div>
+        <div class="pc-row4">
+          <div class="pc-field">
+            <label>eGFR <span style="font-size:10px;opacity:.6">ml/min</span></label>
+            <div class="pc-input-wrap"><span class="pc-ico">🫘</span><input type="number" id="pEgfr" placeholder="75" onchange="updatePcSummary()"></div>
+          </div>
+          <div class="pc-field">
+            <label>HbA1c <span style="font-size:10px;opacity:.6">%</span></label>
+            <div class="pc-input-wrap"><span class="pc-ico">🩸</span><input type="number" id="pHba1c" placeholder="7.2" step="0.1" onchange="updatePcSummary()"></div>
+          </div>
+          <div class="pc-field">
+            <label>BP <span style="font-size:10px;opacity:.6">mmHg</span></label>
+            <div class="pc-input-wrap"><span class="pc-ico">💓</span><input type="text" id="pBP" placeholder="135/85" onchange="updatePcSummary()"></div>
+          </div>
+          <div class="pc-field">
+            <label>Creatinine <span style="font-size:10px;opacity:.6">mg/dL</span></label>
+            <div class="pc-input-wrap"><span class="pc-ico">🧪</span><input type="number" id="pCreat" placeholder="1.1" step="0.1" onchange="updatePcSummary()"></div>
+          </div>
+        </div>
+
+        <!-- Row 3: Extra labs + lifestyle — 4 equal columns -->
+        <div class="pc-row4" style="margin-top:12px">
+          <div class="pc-field">
+            <label data-t>Other labs</label>
+            <div class="pc-input-wrap"><span class="pc-ico">🔬</span><input type="text" id="pLab" placeholder="Na 138, K 4.2…" onchange="updatePcSummary()"></div>
+          </div>
+          <div class="pc-field">
+            <label data-t>Allergies</label>
+            <div class="pc-input-wrap"><span class="pc-ico">⚠️</span><input type="text" id="pAllergy" placeholder="Penicillin…"></div>
+          </div>
+          <div class="pc-field">
+            <label data-t>Smoking</label>
+            <div class="pc-input-wrap"><span class="pc-ico">🚬</span>
+              <select id="pSmoke"><option value="">—</option><option data-t>Never</option><option data-t>Former</option><option data-t>Current</option></select>
+            </div>
+          </div>
+          <div class="pc-field">
+            <label data-t>Pregnancy</label>
+            <div class="pc-input-wrap"><span class="pc-ico">🤰</span>
+              <select id="pPreg"><option value="">—</option><option data-t>Not pregnant</option><option data-t>Pregnant</option><option data-t>Breastfeeding</option></select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 4: Clinical text areas — 2 equal columns -->
+        <div class="pc-section-label" style="margin-top:16px" data-t>Clinical</div>
+        <div class="pc-row2">
+          <div class="pc-field">
+            <label data-t>Active conditions / diagnoses</label>
+            <div class="pc-textarea-wrap"><span class="pc-ico-top">🏥</span>
+              <textarea id="pConds" placeholder="Type 2 diabetes mellitus, arterial hypertension, CKD stage 3…" rows="2" onchange="updatePcSummary()" data-tph></textarea>
+            </div>
+          </div>
+          <div class="pc-field">
+            <label data-t>Current medications</label>
+            <div class="pc-textarea-wrap"><span class="pc-ico-top">💊</span>
+              <textarea id="pMeds" placeholder="Metformin 1000mg bid, Ramipril 5mg qd, Atorvastatin 40mg…" rows="2" onchange="updatePcSummary()" data-tph></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 5: Investigations + Notes — 2 equal columns -->
+        <div class="pc-row2" style="margin-top:12px">
+          <div class="pc-field">
+            <label data-t>Recent investigations / imaging</label>
+            <div class="pc-textarea-wrap"><span class="pc-ico-top">🩻</span>
+              <textarea id="pInvest" placeholder="Echo: EF 45%, mild MR. ECG: sinus rhythm. CXR: cardiomegaly." rows="2"></textarea>
+            </div>
+          </div>
+          <div class="pc-field">
+            <label data-t>Additional notes</label>
+            <div class="pc-textarea-wrap"><span class="pc-ico-top">📝</span>
+              <textarea id="pNotes" placeholder="Recent hospitalization, family history, social context…" rows="2"></textarea>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- QUICK SUGGESTIONS -->
+      <div class="consult-quick-wrap">
+        <span class="cq-label" data-t>Quick ask:</span>
+        <button class="cq-btn" onclick="consultQuick('differential')" data-t>🔍 Differential diagnosis</button>
+        <button class="cq-btn" onclick="consultQuick('interactions')" data-t>⚗️ Drug interactions</button>
+        <button class="cq-btn" onclick="consultQuick('guidelines')" data-t>📋 Current guidelines</button>
+        <button class="cq-btn" onclick="consultQuick('dosing')" data-t>💊 Dosing & renal adjustment</button>
+        <button class="cq-btn" onclick="consultQuick('risk')" data-t>❤️ Cardiovascular risk</button>
+      </div>
+
+      <!-- CHAT AREA -->
+      <div class="consult-chat-card">
+        <div class="consult-chat-header">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="cch-icon">💬</div>
+            <div>
+              <h3 data-t>Clinical query</h3>
+              <p data-t>Contextual · evidence-based · always cited · streaming</p>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end">
+            <button class="btn-out" onclick="downloadConsultationPdf()" title="Download PDF">⬇️ <span>PDF</span></button>
+            <div class="cch-sources">
+              <span>PubMed</span><span>EMA</span><span>ESC</span><span>EASD</span><span>ESMO</span>
+            </div>
+          </div>
+        </div>
+        <div class="consult-chat-body" id="chatBody">
+          <div class="consult-empty">
+            <div class="ce-icon">🩺</div>
+            <h4 data-t>Ready when you are.</h4>
+            <p data-t>Fill in the patient profile above — only what's relevant — then ask your clinical question. Every response is personalised to your patient and cited.</p>
+            <div class="ce-features">
+              <span>✓ <span data-t>Patient-tailored</span></span>
+              <span>✓ <span data-t>Real-time streaming</span></span>
+              <span>✓ <span data-t>Guideline citations</span></span>
+              <span>✓ <span data-t>Renal & hepatic adjustments</span></span>
+            </div>
+          </div>
+        </div>
+        <div class="consult-chat-footer">
+          <div class="consult-input-row" id="consultInputRow">
+            <div class="cir-avatar">ME</div>
+            <input type="text" id="chatInput" placeholder="Ask a clinical question about this patient…" onkeydown="if(event.key==='Enter')sendChat()" data-tph>
+            <button class="consult-send-btn" id="chatSendBtn" onclick="sendChat()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ============ AI TOOLS ============ -->
+<div class="pg" id="pg-tools">
+  <div class="app">
+    <aside class="side">
+      <div class="side-greet">
+        <div class="role" data-t>Tools</div>
+        <h4><em data-t>Precision</em> <span data-t>in seconds.</span></h4>
+      </div>
+      <div class="side-section">
+        <h5 data-t>Main</h5>
+        <a onclick="goPage('consult')"><span class="ico">🩺</span><span data-t>Consultation</span></a>
+        <a class="act" onclick="goPage('tools')"><span class="ico">🔧</span><span data-t>AI Tools</span></a>
+        <a onclick="goPage('guides')"><span class="ico">📋</span><span data-t>Guidelines</span></a>
+        <a onclick="goPage('drugs')"><span class="ico">💊</span><span data-t>Drug Database</span></a>
+      </div>
+    </aside>
+    <main class="main">
+      <div class="section-head">
+        <h1><em data-t>AI Tools</em></h1>
+        <p data-t>Focused utilities for the most common clinical decisions</p>
+      </div>
+      <div class="tool-grid">
+        <div class="tool" onclick="goPage('consult')">
+          <div class="tool-tag">AI</div>
+          <div class="tool-ico">⚗️</div>
+          <h3 data-t>Drug Interactions</h3>
+          <p data-t>Ask in Consultation: "Check interactions between X, Y, Z" — streaming answer with severity + mechanism.</p>
+        </div>
+        <div class="tool" onclick="goPage('drugs')">
+          <div class="tool-tag">AI</div>
+          <div class="tool-ico">💊</div>
+          <h3 data-t>Drug Lookup</h3>
+          <p data-t>Brand or generic — type Nurofen, Concor, Augmentin, metformin. AI identifies active ingredient and full fact sheet.</p>
+        </div>
+        <div class="tool" onclick="goPage('guides')">
+          <div class="tool-tag">2024</div>
+          <div class="tool-ico">📖</div>
+          <h3 data-t>Guidelines</h3>
+          <p data-t>ESC, EASD, ERS, ESMO, GOLD, CNAS — key recommendations at a glance.</p>
+        </div>
+        <div class="tool" onclick="goPage('rad')">
+          <div class="tool-tag">Vision</div>
+          <div class="tool-ico">🩻</div>
+          <h3 data-t>Radiology AI</h3>
+          <p data-t>Upload an image — AI provides structured read with differential and confidence score.</p>
+        </div>
+        <div class="tool" onclick="goPage('consult')">
+          <div class="tool-tag">AI</div>
+          <div class="tool-ico">🧬</div>
+          <h3 data-t>Differential Diagnosis</h3>
+          <p data-t>Ask in Consultation with patient context — AI ranks differentials with red flags.</p>
+        </div>
+        <div class="tool" onclick="goPage('tutor')">
+          <div class="tool-tag">Tutor</div>
+          <div class="tool-ico">🧠</div>
+          <h3 data-t>AI Tutor (Praxis)</h3>
+          <p data-t>Pick a subject and chat with an AI tutor for board prep and clinical knowledge.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ============ GUIDELINES ============ -->
+<div class="pg" id="pg-guides">
+  <div class="app tutor-app">
+    <aside class="side">
+      <div class="side-greet">
+        <div class="role" data-t>Guidelines</div>
+        <h4><em data-t>Current.</em> <span data-t>Cited.</span></h4>
+      </div>
+      <div class="side-section">
+        <h5 data-t>Main</h5>
+        <a onclick="goPage('consult')"><span class="ico">🩺</span><span data-t>Consultation</span></a>
+        <a onclick="goPage('tools')"><span class="ico">🔧</span><span data-t>AI Tools</span></a>
+        <a class="act" onclick="goPage('guides')"><span class="ico">📋</span><span data-t>Guidelines</span></a>
+        <a onclick="goPage('drugs')"><span class="ico">💊</span><span data-t>Drug Database</span></a>
+      </div>
+      <div class="side-section">
+        <h5 data-t>Categories</h5>
+        <a onclick="filterGuides('all')" class="act" id="gfAll"><span class="ico">📋</span><span data-t>All guidelines</span></a>
+        <a onclick="filterGuides('cardiology')" id="gfCardio"><span class="ico">🫀</span><span data-t>Cardiology</span></a>
+        <a onclick="filterGuides('diabetes')" id="gfDiab"><span class="ico">🧬</span><span data-t>Diabetes & Endo</span></a>
+        <a onclick="filterGuides('oncology')" id="gfOnco"><span class="ico">🎗️</span><span data-t>Oncology</span></a>
+        <a onclick="filterGuides('pulmonology')" id="gfPulm"><span class="ico">🫁</span><span data-t>Pulmonology</span></a>
+        <a onclick="filterGuides('neurology')" id="gfNeuro"><span class="ico">🧠</span><span data-t>Neurology</span></a>
+        <a onclick="filterGuides('psychiatry')" id="gfPsy"><span class="ico">🧩</span><span data-t>Psychiatry</span></a>
+        <a onclick="filterGuides('nephrology')" id="gfNeph"><span class="ico">🫘</span><span data-t>Nephrology</span></a>
+        <a onclick="filterGuides('rheumatology')" id="gfRheum"><span class="ico">💪</span><span data-t>Rheumatology</span></a>
+        <a onclick="filterGuides('gastro')" id="gfGastro"><span class="ico">🫃</span><span data-t>Gastroenterology</span></a>
+        <a onclick="filterGuides('ophthalmology')" id="gfOphth"><span class="ico">👁️</span><span data-t>Ophthalmology</span></a>
+        <a onclick="filterGuides('ent')" id="gfENT"><span class="ico">👂</span><span data-t>ENT</span></a>
+        <a onclick="filterGuides('dermatology')" id="gfDerm"><span class="ico">🧴</span><span data-t>Dermatology</span></a>
+        <a onclick="filterGuides('surgery')" id="gfSurg"><span class="ico">✂️</span><span data-t>Surgery & ICU</span></a>
+        <a onclick="filterGuides('infectious')" id="gfInfect"><span class="ico">🦠</span><span data-t>Infectious</span></a>
+        <a onclick="filterGuides('romania')" id="gfRO"><span class="ico">🇷🇴</span><span data-t>Romania / CNAS</span></a>
+      </div>
+    </aside>
+    <main class="main">
+
+      <!-- HERO SEARCH -->
+      <div class="guides-hero">
+        <div class="guides-hero-inner">
+          <div class="kicker" data-t>850+ guidelines indexed · Always current</div>
+          <h1 class="guides-h1"><em data-t>Clinical Guidelines</em></h1>
+          <p class="guides-sub" data-t>Search any guideline — AI synthesizes ESC, ACC/AHA, EASD, ESMO, WHO, CNAS and more into a single evidence-based answer, cited and current.</p>
+          <div class="guides-search">
+            <span class="gs-icon">🔍</span>
+            <input type="text" id="guidesSearchInput" placeholder="Search guideline, topic, or ask a question…" onkeydown="if(event.key==='Enter')searchGuideline()" data-tph>
+            <button class="gs-btn" onclick="searchGuideline()"><span data-t>Search</span></button>
+          </div>
+          <div class="guides-quick-search">
+            <button class="gqs-btn" onclick="quickGuide('ESC 2024 hypertension management key recommendations and targets')">ESC 2024 HTN</button>
+            <button class="gqs-btn" onclick="quickGuide('EASD 2024 type 2 diabetes management algorithm SGLT2 GLP1')">EASD 2024 T2DM</button>
+            <button class="gqs-btn" onclick="quickGuide('ACC AHA 2023 dyslipidemia LDL cholesterol targets statin therapy')">ACC/AHA Dyslipidemia</button>
+            <button class="gqs-btn" onclick="quickGuide('ESC 2023 acute coronary syndromes ACS management')">ESC 2023 ACS</button>
+            <button class="gqs-btn" onclick="quickGuide('GOLD 2024 COPD management algorithm')">GOLD 2024 COPD</button>
+            <button class="gqs-btn" onclick="quickGuide('CNAS 2024 protocoale terapeutice Romania compensate')">CNAS 2024</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI ANSWER PANEL -->
+      <div class="guides-answer-panel" id="guidesAnswerPanel" style="display:none">
+        <div class="gap-header">
+          <div class="gap-title">
+            <span class="gap-icon">🤖</span>
+            <div>
+              <h3 id="gapTitle">AI Synthesis</h3>
+              <p id="gapSubtitle" style="font-size:13px;color:var(--ink2);margin-top:2px"></p>
+            </div>
+          </div>
+          <button class="gap-close" onclick="closeGuideAnswer()">✕</button>
+        </div>
+        <div class="gap-body" id="gapBody">
+          <div class="typing-dots" style="justify-content:center;padding:30px"><span></span><span></span><span></span></div>
+        </div>
+        <div class="gap-footer">
+          <div class="gap-sources">
+            <span class="gap-src-label" data-t>Sources:</span>
+            <span id="gapSources"></span>
+          </div>
+          <button class="gap-ask-more" onclick="askMoreAboutGuide()">💬 <span data-t>Ask follow-up</span></button>
+        </div>
+      </div>
+
+      <!-- STATS BAR -->
+      <div class="guides-stats-bar">
+        <div class="gsb-item"><span class="gsb-n">850+</span><span class="gsb-l" data-t>Guidelines indexed</span></div>
+        <div class="gsb-sep"></div>
+        <div class="gsb-item"><span class="gsb-n">28</span><span class="gsb-l" data-t>Societies</span></div>
+        <div class="gsb-sep"></div>
+        <div class="gsb-item"><span class="gsb-n">6</span><span class="gsb-l" data-t>Languages</span></div>
+        <div class="gsb-sep"></div>
+        <div class="gsb-item"><span class="gsb-n" id="guidesCountBadge">42</span><span class="gsb-l" data-t>Shown</span></div>
+      </div>
+
+      <!-- GUIDELINES GRID -->
+      <div class="guides-grid" id="guidesGrid">
+
+        <div class="guides-cat-header" data-cat="cardiology">🫀 <span data-t>Cardiology</span></div>
+        <div class="guides-grid-inner">
+          <div class="gcard" data-cat="cardiology" onclick="quickGuide('ESC 2024 arterial hypertension guidelines key recommendations treatment targets')">
+          <div class="gc-top">
+          <span class="gc-badge gc-esc">ESC 2024</span>
+          <span class="gc-new">🔴 NEW</span>
+          <span class="gc-lang">EN · RO · DE · FR</span>
+          </div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Management of Arterial Hypertension</h3>
+          <p class="gc-desc" data-t>Target 130/80 mmHg in high-risk · First-line ACEi/ARB+CCB · Updated thresholds</p>
+          <div class="gc-keys">
+          <span class="gc-key">130/80 target</span>
+          <span class="gc-key">ACEi/ARB+CCB</span>
+          <span class="gc-key">High-risk threshold</span>
+          </div>
+          </div>
+          <div class="gc-footer">
+          <span class="gc-society">🏛 ESC · EAS</span>
+          <span class="gc-ask">AI summary →</span>
+          </div>
+          </div>
+          <div class="gcard" data-cat="cardiology" onclick="quickGuide('ESC 2023 acute coronary syndromes NSTEMI STEMI management antithrombotic')">
+          <div class="gc-top">
+          <span class="gc-badge gc-esc">ESC 2023</span>
+          <span class="gc-lang">EN · FR · DE</span>
+          </div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Acute Coronary Syndromes</h3>
+          <p class="gc-desc" data-t>NSTEMI/STEMI unified pathway · Antiplatelet strategy · Early invasive approach</p>
+          <div class="gc-keys">
+          <span class="gc-key">DAPT duration</span>
+          <span class="gc-key">GRACE score</span>
+          <span class="gc-key">PCI timing</span>
+          </div>
+          </div>
+          <div class="gc-footer">
+          <span class="gc-society">🏛 ESC</span>
+          <span class="gc-ask">AI summary →</span>
+          </div>
+          </div>
+          <div class="gcard" data-cat="cardiology" onclick="quickGuide('ESC 2022 heart failure HFrEF HFpEF management four pillars SGLT2')">
+          <div class="gc-top">
+          <span class="gc-badge gc-esc">ESC 2022</span>
+          <span class="gc-lang">EN · RO · IT</span>
+          </div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Heart Failure — Diagnosis & Treatment</h3>
+          <p class="gc-desc" data-t>Four-pillar therapy HFrEF · SGLT2i for all EF &lt;40% · HFpEF algorithm</p>
+          <div class="gc-keys">
+          <span class="gc-key">ARNI</span>
+          <span class="gc-key">SGLT2i</span>
+          <span class="gc-key">MRA</span>
+          </div>
+          </div>
+          <div class="gc-footer">
+          <span class="gc-society">🏛 ESC · HFA</span>
+          <span class="gc-ask">AI summary →</span>
+          </div>
+          </div>
+          <div class="gcard" data-cat="cardiology" onclick="quickGuide('ACC AHA 2023 dyslipidemia cholesterol guidelines LDL targets statin therapy PCSK9')">
+          <div class="gc-top">
+          <span class="gc-badge gc-aha">ACC/AHA 2023</span>
+          <span class="gc-new">🔴 NEW</span>
+          <span class="gc-lang">EN · ES</span>
+          </div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Dyslipidemia — Cholesterol Management</h3>
+          <p class="gc-desc" data-t>LDL targets by risk · Statin intensity · PCSK9 inhibitors indications</p>
+          <div class="gc-keys">
+          <span class="gc-key">LDL &lt;55 mg/dL</span>
+          <span class="gc-key">PCSK9i</span>
+          <span class="gc-key">Lp(a)</span>
+          </div>
+          </div>
+          <div class="gc-footer">
+          <span class="gc-society">🏛 ACC · AHA</span>
+          <span class="gc-ask">AI summary →</span>
+          </div>
+          </div>
+          <div class="gcard" data-cat="cardiology" onclick="quickGuide('ESC 2022 atrial fibrillation AF management anticoagulation ablation CHA2DS2-VASc')">
+          <div class="gc-top">
+          <span class="gc-badge gc-esc">ESC 2022</span>
+          <span class="gc-lang">EN · DE · FR</span>
+          </div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Atrial Fibrillation</h3>
+          <p class="gc-desc" data-t>CHA₂DS₂-VASc · DOAC first-line · AF ablation expanded indications</p>
+          <div class="gc-keys">
+          <span class="gc-key">DOAC</span>
+          <span class="gc-key">Rate vs rhythm</span>
+          <span class="gc-key">Ablation</span>
+          </div>
+          </div>
+          <div class="gc-footer">
+          <span class="gc-society">🏛 ESC · EHRA</span>
+          <span class="gc-ask">AI summary →</span>
+          </div>
+          </div>
+          <div class="gcard" data-cat="cardiology" onclick="quickGuide('ESC 2021 cardiovascular prevention primary secondary risk scores SCORE2')">
+          <div class="gc-top">
+          <span class="gc-badge gc-esc">ESC 2021</span>
+          <span class="gc-lang">EN · RO</span>
+          </div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Cardiovascular Prevention</h3>
+          <p class="gc-desc" data-t>SCORE2 risk algorithm · Lifestyle interventions · Polypill strategy</p>
+          <div class="gc-keys">
+          <span class="gc-key">SCORE2</span>
+          <span class="gc-key">Risk factors</span>
+          <span class="gc-key">Polypill</span>
+          </div>
+          </div>
+          <div class="gc-footer">
+          <span class="gc-society">🏛 ESC</span>
+          <span class="gc-ask">AI summary →</span>
+          </div>
+          </div>
+          <div class="gcard" data-cat="cardiology" onclick="quickGuide('ESC 2023 valvular heart disease management aortic stenosis mitral regurgitation TAVI')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ESC 2023</span><span class="gc-lang">EN · RO · DE</span></div>
+          <h3 class="gc-title">Valvular Heart Disease</h3>
+          <p class="gc-desc">TAVI vs SAVR decision · Mitral regurgitation timing · Endocarditis prophylaxis</p>
+          <div class="gc-keys"><span class="gc-key">TAVI criteria</span><span class="gc-key">Heart team</span><span class="gc-key">Watchful waiting</span></div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESC</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="cardiology" onclick="quickGuide('ESC 2022 ventricular arrhythmias sudden cardiac death prevention ICD implantation')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ESC 2022</span><span class="gc-lang">EN · RO</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Ventricular Arrhythmias & SCD</h3>
+          <p class="gc-desc">ICD indications · Catheter ablation VT · Risk stratification channelopathies</p>
+          <div class="gc-keys"><span class="gc-key">ICD indications</span><span class="gc-key">Brugada</span><span class="gc-key">LQTS</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESC</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="cardiology" onclick="quickGuide('ESC 2023 cardiomyopathies HCM DCM ACM management diagnosis genetic testing')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ESC 2023</span><span class="gc-new">🔴 NEW</span><span class="gc-lang">EN · DE · FR</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Cardiomyopathies</h3>
+          <p class="gc-desc">HCM obstruction management · Genetic testing indications · Sports participation</p>
+          <div class="gc-keys"><span class="gc-key">HCM</span><span class="gc-key">DCM</span><span class="gc-key">ARVC</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESC</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="cardiology" onclick="quickGuide('ESC 2021 cardiac pacing CRT implantation indications bradycardia AV block')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ESC 2021</span><span class="gc-lang">EN · RO</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Cardiac Pacing & CRT</h3>
+          <p class="gc-desc">Bradycardia pacing indications · CRT criteria EF &lt;35% · Leadless pacemakers</p>
+          <div class="gc-keys"><span class="gc-key">AV block</span><span class="gc-key">CRT-D</span><span class="gc-key">LBBP</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESC · EHRA</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+        </div>
+
+        <div class="guides-cat-header" data-cat="diabetes">🧬 <span data-t>Diabetes & Endocrinology</span></div>
+        <div class="guides-grid-inner">
+          <div class="gcard" data-cat="diabetes" onclick="quickGuide('EASD 2024 hyperglycemia type 2 diabetes management SGLT2 GLP1 first-line algorithm')">
+          <div class="gc-top">
+          <span class="gc-badge gc-easd">EASD 2024</span>
+          <span class="gc-new">🔴 NEW</span>
+          <span class="gc-lang">EN · RO · DE · FR · IT · ES</span>
+          </div>
+          <h3 class="gc-title" data-t>Management of Hyperglycaemia in T2DM</h3>
+          <p class="gc-desc" data-t>SGLT2i first-line for CKD · GLP-1 RA for CVD · Personalized HbA1c targets</p>
+          <div class="gc-keys">
+          <span class="gc-key">SGLT2i CKD</span>
+          <span class="gc-key">GLP-1 CVD</span>
+          <span class="gc-key">HbA1c &lt;7%</span>
+          </div>
+          <div class="gc-footer">
+          <span class="gc-society">🏛 EASD · ADA</span>
+          <span class="gc-ask">AI summary →</span>
+          </div>
+          </div>
+          <div class="gcard" data-cat="diabetes" onclick="quickGuide('ADA 2024 diabetes care standards classification diagnosis treatment')">
+          <div class="gc-top">
+          <span class="gc-badge gc-ada">ADA 2024</span>
+          <span class="gc-new">🔴 NEW</span>
+          <span class="gc-lang">EN · ES</span>
+          </div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Standards of Care in Diabetes</h3>
+          <p class="gc-desc" data-t>Classification · Diagnostic criteria · Glycemic targets · Technology in diabetes</p>
+          <div class="gc-keys">
+          <span class="gc-key">CGM</span>
+          <span class="gc-key">TIR target</span>
+          <span class="gc-key">T1DM technology</span>
+          </div>
+          </div>
+          <div class="gc-footer">
+          <span class="gc-society">🏛 ADA</span>
+          <span class="gc-ask">AI summary →</span>
+          </div>
+          </div>
+          <div class="gcard" data-cat="diabetes" onclick="quickGuide('ESC EASD 2023 diabetes cardiovascular disease prevention CVOT trials')">
+          <div class="gc-top">
+          <span class="gc-badge gc-esc">ESC/EASD 2023</span>
+          <span class="gc-lang">EN · DE</span>
+          </div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Diabetes & Cardiovascular Disease</h3>
+          <p class="gc-desc" data-t>CVOT evidence · Cardioprotective agents · Risk stratification in T2DM</p>
+          <div class="gc-keys">
+          <span class="gc-key">SGLT2i HF</span>
+          <span class="gc-key">GLP-1 atherosclerosis</span>
+          <span class="gc-key">CKD protection</span>
+          </div>
+          </div>
+          <div class="gc-footer">
+          <span class="gc-society">🏛 ESC · EASD</span>
+          <span class="gc-ask">AI summary →</span>
+          </div>
+          </div>
+          <div class="gcard" data-cat="diabetes" onclick="quickGuide('ETA 2023 thyroid nodule management guidelines TSH ultrasound FNA biopsy')">
+          <div class="gc-top">
+          <span class="gc-badge gc-who">ETA 2023</span>
+          <span class="gc-lang">EN · FR · IT</span>
+          </div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Thyroid Nodule Management</h3>
+          <p class="gc-desc" data-t>Ultrasound risk stratification · FNA indications · EU-TIRADS classification</p>
+          <div class="gc-keys">
+          <span class="gc-key">EU-TIRADS</span>
+          <span class="gc-key">FNA criteria</span>
+          <span class="gc-key">Ablation</span>
+          </div>
+          </div>
+          <div class="gc-footer">
+          <span class="gc-society">🏛 ETA</span>
+          <span class="gc-ask">AI summary →</span>
+          </div>
+          </div>
+          <div class="gcard" data-cat="diabetes" onclick="quickGuide('EASD 2023 type 1 diabetes management insulin pump CGM technology hybrid closed loop')">
+          <div class="gc-top"><span class="gc-badge gc-esc">EASD 2023</span><span class="gc-lang">EN · RO · DE</span></div>
+          <h3 class="gc-title">Type 1 Diabetes & Technology</h3>
+          <p class="gc-desc">Hybrid closed loop systems · CGM targets · Insulin pump initiation criteria</p>
+          <div class="gc-keys"><span class="gc-key">CGM targets</span><span class="gc-key">TIR</span><span class="gc-key">Closed loop</span></div>
+          <div class="gc-footer"><span class="gc-society">🏛 EASD · ADA</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="diabetes" onclick="quickGuide('Endocrine Society 2023 obesity management GLP-1 bariatric surgery weight loss treatment')">
+          <div class="gc-top"><span class="gc-badge gc-esc">Endo 2023</span><span class="gc-new">🔴 NEW</span><span class="gc-lang">EN · FR · DE</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Obesity Management</h3>
+          <p class="gc-desc">GLP-1 RA for obesity · Bariatric surgery indications · Weight-centric care</p>
+          <div class="gc-keys"><span class="gc-key">Semaglutide</span><span class="gc-key">Tirzepatide</span><span class="gc-key">Bariatric</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 Endocrine Society · EASO</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="diabetes" onclick="quickGuide('ESC EASD 2023 heart failure diabetes management SGLT2 inhibitors cardiorenal')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ESC 2023</span><span class="gc-lang">EN · RO</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Diabetes & Heart Failure</h3>
+          <p class="gc-desc">SGLT2i in HFpEF and HFrEF · Cardiorenal syndrome · GLP-1 RA safety in HF</p>
+          <div class="gc-keys"><span class="gc-key">Empagliflozin</span><span class="gc-key">Dapagliflozin</span><span class="gc-key">Cardiorenal</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESC · EASD</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="diabetes" onclick="quickGuide('ETA 2023 hyperthyroidism hypothyroidism management Graves disease thyroid hormones')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ETA 2023</span><span class="gc-lang">EN · RO · DE</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Hypo & Hyperthyroidism</h3>
+          <p class="gc-desc">Graves disease — antithyroid drugs vs radioiodine · Hypothyroidism T4 targets</p>
+          <div class="gc-keys"><span class="gc-key">Graves</span><span class="gc-key">Methimazole</span><span class="gc-key">TSH targets</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ETA · ATA</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+        </div>
+
+        <div class="guides-cat-header" data-cat="oncology">🎗️ <span data-t>Oncology</span></div>
+        <div class="guides-grid-inner">
+          <div class="gcard" data-cat="oncology" onclick="quickGuide('ESMO 2023 breast cancer early advanced HER2 hormonal therapy recommendations')">
+          <div class="gc-top">
+          <span class="gc-badge gc-esmo">ESMO 2023</span>
+          <span class="gc-lang">EN · FR · ES</span>
+          </div>
+          <h3 class="gc-title" data-t>Breast Cancer — Early & Advanced</h3>
+          <p class="gc-desc" data-t>HER2+ first-line therapy · CDK4/6 inhibitors · Neoadjuvant strategies</p>
+          <div class="gc-keys">
+          <span class="gc-key">T-DM1</span>
+          <span class="gc-key">CDK4/6i</span>
+          <span class="gc-key">BRCA testing</span>
+          </div>
+          <div class="gc-footer">
+          <span class="gc-society">🏛 ESMO · ASCO</span>
+          <span class="gc-ask">AI summary →</span>
+          </div>
+          </div>
+          <div class="gcard" data-cat="oncology" onclick="quickGuide('ESMO 2023 lung cancer NSCLC SCLC targeted therapy immunotherapy PD-L1')">
+          <div class="gc-top">
+          <span class="gc-badge gc-esmo">ESMO 2023</span>
+          <span class="gc-new">🔴 NEW</span>
+          <span class="gc-lang">EN · DE · FR</span>
+          </div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Lung Cancer — NSCLC & SCLC</h3>
+          <p class="gc-desc" data-t>Biomarker-driven therapy · EGFR/ALK/ROS1 · Immunotherapy combinations</p>
+          <div class="gc-keys">
+          <span class="gc-key">PD-L1</span>
+          <span class="gc-key">EGFR TKI</span>
+          <span class="gc-key">Immunotherapy</span>
+          </div>
+          </div>
+          <div class="gc-footer">
+          <span class="gc-society">🏛 ESMO</span>
+          <span class="gc-ask">AI summary →</span>
+          </div>
+          </div>
+          <div class="gcard" data-cat="oncology" onclick="quickGuide('ESMO 2023 colorectal cancer CRC management surgery adjuvant chemotherapy')">
+          <div class="gc-top">
+          <span class="gc-badge gc-esmo">ESMO 2023</span>
+          <span class="gc-lang">EN · IT · ES</span>
+          </div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Colorectal Cancer</h3>
+          <p class="gc-desc" data-t>MSI testing · Adjuvant chemotherapy selection · Metastatic CRC sequencing</p>
+          <div class="gc-keys">
+          <span class="gc-key">MSI-H</span>
+          <span class="gc-key">BRAF V600E</span>
+          <span class="gc-key">Anti-VEGF</span>
+          </div>
+          </div>
+          <div class="gc-footer">
+          <span class="gc-society">🏛 ESMO · ASCO</span>
+          <span class="gc-ask">AI summary →</span>
+          </div>
+          </div>
+          <div class="gcard" data-cat="oncology" onclick="quickGuide('ESMO 2023 prostate cancer hormone therapy enzalutamide abiraterone castration resistant')">
+          <div class="gc-top"><span class="gc-badge gc-esmo">ESMO 2023</span><span class="gc-lang">EN · DE · FR</span></div>
+          <h3 class="gc-title">Prostate Cancer</h3>
+          <p class="gc-desc">CRPC management · ARPIs first-line · PSMA PET staging · BRCA2 PARP inhibitors</p>
+          <div class="gc-keys"><span class="gc-key">Enzalutamide</span><span class="gc-key">PARP inhibitors</span><span class="gc-key">PSMA</span></div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESMO · EAU</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="oncology" onclick="quickGuide('ESMO 2023 gastric cancer HER2 PD-L1 immunotherapy first line treatment')">
+          <div class="gc-top"><span class="gc-badge gc-esmo">ESMO 2023</span><span class="gc-lang">EN · FR</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Gastric & Esophageal Cancer</h3>
+          <p class="gc-desc">HER2 testing · Nivolumab + chemo first-line · Perioperative FLOT chemotherapy</p>
+          <div class="gc-keys"><span class="gc-key">HER2+</span><span class="gc-key">Nivolumab</span><span class="gc-key">FLOT</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESMO · ESSO</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="oncology" onclick="quickGuide('ESMO 2024 lymphoma Hodgkin non-Hodgkin DLBCL treatment CAR-T cell therapy')">
+          <div class="gc-top"><span class="gc-badge gc-esmo">ESMO 2024</span><span class="gc-new">🔴 NEW</span><span class="gc-lang">EN · DE</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Lymphoma — Hodgkin & DLBCL</h3>
+          <p class="gc-desc">R-CHOP backbone · CAR-T cell therapy indications · Brentuximab vedotin HL</p>
+          <div class="gc-keys"><span class="gc-key">R-CHOP</span><span class="gc-key">CAR-T</span><span class="gc-key">BV-AVD</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESMO · EHA</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="oncology" onclick="quickGuide('ESMO 2023 melanoma immunotherapy BRAF inhibitors adjuvant treatment metastatic')">
+          <div class="gc-top"><span class="gc-badge gc-esmo">ESMO 2023</span><span class="gc-lang">EN · FR · ES</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Melanoma</h3>
+          <p class="gc-desc">BRAF/MEK inhibitors · Anti-PD1 adjuvant · Nivolumab + ipilimumab metastatic</p>
+          <div class="gc-keys"><span class="gc-key">BRAF V600E</span><span class="gc-key">Pembrolizumab</span><span class="gc-key">Adjuvant</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESMO · EADO</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+        </div>
+
+        <div class="guides-cat-header" data-cat="pulmonology">🫁 <span data-t>Pulmonology</span></div>
+        <div class="guides-grid-inner">
+          <div class="gcard" data-cat="pulmonology" onclick="quickGuide('GOLD 2024 COPD global strategy diagnosis management spirometry bronchodilators')">
+          <div class="gc-top">
+          <span class="gc-badge gc-who">GOLD 2024</span>
+          <span class="gc-new">🔴 NEW</span>
+          <span class="gc-lang">EN · DE · RO</span>
+          </div>
+          <h3 class="gc-title" data-t>COPD — Global Strategy (GOLD 2024)</h3>
+          <p class="gc-desc" data-t>LAMA monotherapy first-line · LAMA+LABA for persistent · ICS narrow indications</p>
+          <div class="gc-keys">
+          <span class="gc-key">LAMA</span>
+          <span class="gc-key">LAMA+LABA</span>
+          <span class="gc-key">Exacerbations</span>
+          </div>
+          <div class="gc-footer">
+          <span class="gc-society">🏛 GOLD</span>
+          <span class="gc-ask">AI summary →</span>
+          </div>
+          </div>
+          <div class="gcard" data-cat="pulmonology" onclick="quickGuide('GINA 2024 asthma management diagnosis treatment ICS LABA biologic therapy')">
+          <div class="gc-top">
+          <span class="gc-badge gc-who">GINA 2024</span>
+          <span class="gc-new">🔴 NEW</span>
+          <span class="gc-lang">EN · FR · ES</span>
+          </div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Asthma — Global Strategy (GINA 2024)</h3>
+          <p class="gc-desc" data-t>ICS-formoterol reliever · Biologics for severe asthma · Step-up/down protocol</p>
+          <div class="gc-keys">
+          <span class="gc-key">ICS-LABA PRN</span>
+          <span class="gc-key">Biologic step 5</span>
+          <span class="gc-key">Phenotyping</span>
+          </div>
+          </div>
+          <div class="gc-footer">
+          <span class="gc-society">🏛 GINA</span>
+          <span class="gc-ask">AI summary →</span>
+          </div>
+          </div>
+          <div class="gcard" data-cat="pulmonology" onclick="quickGuide('ERS ATS 2022 idiopathic pulmonary fibrosis IPF diagnosis treatment antifibrotic')">
+          <div class="gc-top">
+          <span class="gc-badge gc-esc">ERS/ATS 2022</span>
+          <span class="gc-lang">EN · DE</span>
+          </div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Idiopathic Pulmonary Fibrosis (IPF)</h3>
+          <p class="gc-desc" data-t>HRCT diagnostic criteria · Antifibrotic therapy (nintedanib/pirfenidone) · Lung transplant</p>
+          <div class="gc-keys">
+          <span class="gc-key">HRCT UIP pattern</span>
+          <span class="gc-key">Nintedanib</span>
+          <span class="gc-key">Transplant</span>
+          </div>
+          </div>
+          <div class="gc-footer">
+          <span class="gc-society">🏛 ERS · ATS</span>
+          <span class="gc-ask">AI summary →</span>
+          </div>
+          </div>
+          <div class="gcard" data-cat="pulmonology" onclick="quickGuide('ERS 2023 pulmonary hypertension diagnosis classification treatment ERA PDE5 prostacyclin')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ERS 2023</span><span class="gc-lang">EN · DE · FR</span></div>
+          <h3 class="gc-title">Pulmonary Hypertension</h3>
+          <p class="gc-desc">WHO Group classification · ERA + PDE5i combination · IV prostacyclin in group 1</p>
+          <div class="gc-keys"><span class="gc-key">PAH treatment</span><span class="gc-key">Macitentan</span><span class="gc-key">Selexipag</span></div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESC · ERS</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="pulmonology" onclick="quickGuide('ERS 2022 pleural disease management pleural effusion pneumothorax thoracentesis')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ERS 2022</span><span class="gc-lang">EN · RO</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Pleural Disease</h3>
+          <p class="gc-desc">Exudate vs transudate criteria · Malignant effusion management · Primary spontaneous pneumothorax</p>
+          <div class="gc-keys"><span class="gc-key">Light's criteria</span><span class="gc-key">IPC</span><span class="gc-key">VATS</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ERS · BTS</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="pulmonology" onclick="quickGuide('AASM 2023 obstructive sleep apnea OSA diagnosis CPAP hypoglossal nerve stimulation')">
+          <div class="gc-top"><span class="gc-badge gc-esc">AASM 2023</span><span class="gc-lang">EN · DE · RO</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Obstructive Sleep Apnea</h3>
+          <p class="gc-desc">CPAP first-line · HNS for CPAP-intolerant · Cardiovascular risk reduction</p>
+          <div class="gc-keys"><span class="gc-key">AHI ≥15</span><span class="gc-key">CPAP</span><span class="gc-key">MAD</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 AASM · ERS</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="pulmonology" onclick="quickGuide('ERS 2023 bronchiectasis non-CF management airway clearance antibiotics exacerbations')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ERS 2023</span><span class="gc-lang">EN · RO</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Bronchiectasis (non-CF)</h3>
+          <p class="gc-desc">Airway clearance devices · Long-term azithromycin · Exacerbation antibiotic choice</p>
+          <div class="gc-keys"><span class="gc-key">Airway clearance</span><span class="gc-key">Azithromycin</span><span class="gc-key">Pseudomonas</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ERS</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+        </div>
+
+        <div class="guides-cat-header" data-cat="neurology">🧠 <span data-t>Neurology</span></div>
+        <div class="guides-grid-inner">
+          <div class="gcard" data-cat="neurology" onclick="quickGuide('ESO 2021 ischaemic stroke management thrombolysis thrombectomy prevention')">
+          <div class="gc-top">
+          <span class="gc-badge gc-esc">ESO 2021</span>
+          <span class="gc-lang">EN · DE · FR · RO</span>
+          </div>
+          <h3 class="gc-title" data-t>Ischaemic Stroke & TIA</h3>
+          <p class="gc-desc" data-t>IV thrombolysis up to 4.5h · Thrombectomy up to 24h · Secondary prevention</p>
+          <div class="gc-keys">
+          <span class="gc-key">tPA 4.5h</span>
+          <span class="gc-key">Thrombectomy</span>
+          <span class="gc-key">Antiplatelet</span>
+          </div>
+          <div class="gc-footer">
+          <span class="gc-society">🏛 ESO</span>
+          <span class="gc-ask">AI summary →</span>
+          </div>
+          </div>
+          <div class="gcard" data-cat="neurology" onclick="quickGuide('EAN 2022 epilepsy diagnosis antiepileptic drug treatment first seizure')">
+          <div class="gc-top">
+          <span class="gc-badge gc-who">EAN 2022</span>
+          <span class="gc-lang">EN · DE · IT</span>
+          </div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Epilepsy — Diagnosis & Treatment</h3>
+          <p class="gc-desc" data-t>First seizure management · AED selection · Drug-resistant epilepsy pathway</p>
+          <div class="gc-keys">
+          <span class="gc-key">First-line AED</span>
+          <span class="gc-key">Drug resistance</span>
+          <span class="gc-key">EEG</span>
+          </div>
+          </div>
+          <div class="gc-footer">
+          <span class="gc-society">🏛 EAN · ILAE</span>
+          <span class="gc-ask">AI summary →</span>
+          </div>
+          </div>
+          <div class="gcard" data-cat="neurology" onclick="quickGuide('EAN 2023 multiple sclerosis relapsing remitting disease modifying therapy DMT natalizumab')">
+          <div class="gc-top"><span class="gc-badge gc-esc">EAN 2023</span><span class="gc-new">🔴 NEW</span><span class="gc-lang">EN · DE · FR</span></div>
+          <h3 class="gc-title">Multiple Sclerosis</h3>
+          <p class="gc-desc">High-efficacy DMT early · Natalizumab JC risk · Ocrelizumab PPMS · MRI monitoring</p>
+          <div class="gc-keys"><span class="gc-key">Natalizumab</span><span class="gc-key">Ocrelizumab</span><span class="gc-key">NEDA</span></div>
+          <div class="gc-footer"><span class="gc-society">🏛 EAN · ECTRIMS</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="neurology" onclick="quickGuide('EAN 2023 Parkinson disease levodopa dopamine agonist deep brain stimulation management')">
+          <div class="gc-top"><span class="gc-badge gc-esc">EAN 2023</span><span class="gc-lang">EN · RO · DE</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Parkinson's Disease</h3>
+          <p class="gc-desc">Levodopa initiation · DBS criteria · Non-motor symptoms management · LSVT</p>
+          <div class="gc-keys"><span class="gc-key">Levodopa</span><span class="gc-key">DBS</span><span class="gc-key">Non-motor</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 EAN · MDS</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="neurology" onclick="quickGuide('ESO 2023 secondary stroke prevention antiplatelet anticoagulation carotid stenosis management')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ESO 2023</span><span class="gc-lang">EN · RO · FR</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Stroke Secondary Prevention</h3>
+          <p class="gc-desc">DAPT 21 days post minor stroke · AF detection · Carotid endarterectomy timing</p>
+          <div class="gc-keys"><span class="gc-key">DAPT</span><span class="gc-key">DOAC in AF</span><span class="gc-key">CEA timing</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESO · ESC</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="neurology" onclick="quickGuide('EAN 2022 dementia Alzheimer diagnosis biomarkers anti-amyloid therapy lecanemab')">
+          <div class="gc-top"><span class="gc-badge gc-esc">EAN 2022</span><span class="gc-lang">EN · DE · FR</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Dementia & Alzheimer's</h3>
+          <p class="gc-desc">CSF/PET biomarkers · Lecanemab indications · Cholinesterase inhibitors · Caregiver support</p>
+          <div class="gc-keys"><span class="gc-key">Amyloid PET</span><span class="gc-key">Lecanemab</span><span class="gc-key">MMSE staging</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 EAN · AAN</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="neurology" onclick="quickGuide('AAN 2023 migraine prevention treatment CGRP antagonists triptans acute prophylaxis')">
+          <div class="gc-top"><span class="gc-badge gc-esc">AAN 2023</span><span class="gc-lang">EN · RO · IT</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Migraine — Acute & Prevention</h3>
+          <p class="gc-desc">CGRP mAbs — erenumab, fremanezumab · Triptan optimization · Gepants for acute</p>
+          <div class="gc-keys"><span class="gc-key">CGRP mAbs</span><span class="gc-key">Triptans</span><span class="gc-key">Gepants</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 AAN · EHF</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+        </div>
+
+        <div class="guides-cat-header" data-cat="infectious">🦠 <span data-t>Infectious Diseases</span></div>
+        <div class="guides-grid-inner">
+          <div class="gcard" data-cat="infectious" onclick="quickGuide('IDSA ESCMID 2023 sepsis septic shock management antibiotics Surviving Sepsis Campaign')">
+          <div class="gc-top">
+          <span class="gc-badge gc-who">SSC 2021</span>
+          <span class="gc-lang">EN · DE · FR · ES</span>
+          </div>
+          <h3 class="gc-title" data-t>Sepsis & Septic Shock</h3>
+          <p class="gc-desc" data-t>1-hour bundle · Broad-spectrum antibiotics · Fluid resuscitation · Vasopressors</p>
+          <div class="gc-keys">
+          <span class="gc-key">Hour-1 bundle</span>
+          <span class="gc-key">qSOFA</span>
+          <span class="gc-key">Noradrenaline</span>
+          </div>
+          <div class="gc-footer">
+          <span class="gc-society">🏛 SSC · SCCM · ESICM</span>
+          <span class="gc-ask">AI summary →</span>
+          </div>
+          </div>
+          <div class="gcard" data-cat="infectious" onclick="quickGuide('ESCMID 2023 community acquired pneumonia CAP management antibiotic severity')">
+          <div class="gc-top">
+          <span class="gc-badge gc-esc">ESCMID 2023</span>
+          <span class="gc-lang">EN · DE · FR</span>
+          </div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Community-Acquired Pneumonia</h3>
+          <p class="gc-desc" data-t>CRB-65 severity score · Empirical antibiotic therapy · Biomarker-guided duration</p>
+          <div class="gc-keys">
+          <span class="gc-key">CRB-65</span>
+          <span class="gc-key">Procalcitonin</span>
+          <span class="gc-key">Atypicals</span>
+          </div>
+          </div>
+          <div class="gc-footer">
+          <span class="gc-society">🏛 ESCMID · ERS</span>
+          <span class="gc-ask">AI summary →</span>
+          </div>
+          </div>
+          <div class="gcard" data-cat="infectious" onclick="quickGuide('EACS 2023 HIV antiretroviral therapy guidelines treatment naive switch')">
+          <div class="gc-top">
+          <span class="gc-badge gc-who">EACS 2023</span>
+          <span class="gc-new">🔴 NEW</span>
+          <span class="gc-lang">EN · FR · ES · RO</span>
+          </div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>HIV — Antiretroviral Therapy</h3>
+          <p class="gc-desc" data-t>Bictegravir/TAF/FTC preferred · Two-drug regimens · Opportunistic infections</p>
+          <div class="gc-keys">
+          <span class="gc-key">INSTI first-line</span>
+          <span class="gc-key">2-drug BIC/FTC</span>
+          <span class="gc-key">PrEP</span>
+          </div>
+          </div>
+          <div class="gc-footer">
+          <span class="gc-society">🏛 EACS · WHO</span>
+          <span class="gc-ask">AI summary →</span>
+          </div>
+          </div>
+          <div class="gcard" data-cat="infectious" onclick="quickGuide('ESCMID 2023 Clostridioides difficile CDI treatment vancomycin fidaxomicin bezlotoxumab')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ESCMID 2023</span><span class="gc-lang">EN · RO · DE</span></div>
+          <h3 class="gc-title">C. difficile Infection</h3>
+          <p class="gc-desc">Fidaxomicin preferred · Bezlotoxumab for recurrence · FMT third recurrence</p>
+          <div class="gc-keys"><span class="gc-key">Fidaxomicin</span><span class="gc-key">FMT</span><span class="gc-key">Bezlotoxumab</span></div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESCMID</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="infectious" onclick="quickGuide('ESCMID 2022 invasive candidiasis candidemia management echinocandin fluconazole prophylaxis')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ESCMID 2022</span><span class="gc-lang">EN · DE</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Invasive Candidiasis</h3>
+          <p class="gc-desc">Echinocandin first-line · Step-down fluconazole criteria · Prophylaxis ICU patients</p>
+          <div class="gc-keys"><span class="gc-key">Caspofungin</span><span class="gc-key">Step-down</span><span class="gc-key">C. auris</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESCMID · ISHAM</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="infectious" onclick="quickGuide('ESCMID 2023 urinary tract infection UTI cystitis pyelonephritis antibiotic resistance')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ESCMID 2023</span><span class="gc-new">🔴 NEW</span><span class="gc-lang">EN · RO · FR</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Urinary Tract Infections</h3>
+          <p class="gc-desc">Nitrofurantoin/fosfomycin uncomplicated UTI · ESBL treatment · Recurrent UTI prevention</p>
+          <div class="gc-keys"><span class="gc-key">ESBL</span><span class="gc-key">Fosfomycin</span><span class="gc-key">Recurrent UTI</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESCMID · EAU</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="infectious" onclick="quickGuide('WHO 2023 tuberculosis treatment drug resistant TB bedaquiline delamanid regimen')">
+          <div class="gc-top"><span class="gc-badge gc-who">WHO 2023</span><span class="gc-lang">EN · RO · FR</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Tuberculosis</h3>
+          <p class="gc-desc">BPaL regimen for XDR-TB · Short-course 4-month regimen · Preventive therapy LTBI</p>
+          <div class="gc-keys"><span class="gc-key">Bedaquiline</span><span class="gc-key">BPaL</span><span class="gc-key">LTBI</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 WHO · ECDC</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+        </div>
+
+        <div class="guides-cat-header" data-cat="romania">🇷🇴 <span data-t>Romania / CNAS Protocols</span></div>
+        <div class="guides-grid-inner">
+          <div class="gcard gcard-ro" data-cat="romania" onclick="quickGuide('CNAS 2024 protocoale terapeutice Romania diabet zaharat tip 2 compensate lista')">
+          <div class="gc-top">
+          <span class="gc-badge gc-ro">CNAS 2024</span>
+          <span class="gc-new">🔴 ACTUALIZAT</span>
+          <span class="gc-lang">RO</span>
+          </div>
+          <h3 class="gc-title">Diabet Zaharat Tip 2 — Protocol Terapeutic</h3>
+          <p class="gc-desc">Algoritm CNAS compensat · Metformin prima linie · SGLT2i/GLP-1 condiții rambursare</p>
+          <div class="gc-keys">
+          <span class="gc-key">Criteriu SGLT2i</span>
+          <span class="gc-key">Compensat 90%</span>
+          <span class="gc-key">Rambursare</span>
+          </div>
+          <div class="gc-footer">
+          <span class="gc-society">🏛 CNAS · MS România</span>
+          <span class="gc-ask">Sinteză AI →</span>
+          </div>
+          </div>
+          <div class="gcard gcard-ro" data-cat="romania" onclick="quickGuide('CNAS 2024 protocol terapeutic hipertensiune arteriala Romania compensate')">
+          <div class="gc-top">
+          <span class="gc-badge gc-ro">CNAS 2024</span>
+          <span class="gc-lang">RO</span>
+          </div>
+          <div class="gc-body">
+          <h3 class="gc-title">Hipertensiune Arterială — Protocol Terapeutic</h3>
+          <p class="gc-desc">Lista compensate HTA · IEC/BRA+BCC prima linie · Combinații recomandate CNAS</p>
+          <div class="gc-keys">
+          <span class="gc-key">IEC/BRA</span>
+          <span class="gc-key">Compensat 90%</span>
+          <span class="gc-key">Monitorizare</span>
+          </div>
+          </div>
+          <div class="gc-footer">
+          <span class="gc-society">🏛 CNAS · MS România</span>
+          <span class="gc-ask">Sinteză AI →</span>
+          </div>
+          </div>
+          <div class="gcard gcard-ro" data-cat="romania" onclick="quickGuide('CNAS 2024 protocol terapeutic insuficienta cardiaca Romania compensare medicamente')">
+          <div class="gc-top">
+          <span class="gc-badge gc-ro">CNAS 2024</span>
+          <span class="gc-lang">RO</span>
+          </div>
+          <div class="gc-body">
+          <h3 class="gc-title">Insuficiență Cardiacă — Protocol CNAS</h3>
+          <p class="gc-desc">Compensare IECA+betablocant+MRA+SGLT2i · Criterii HFrEF · Dozare optimă</p>
+          <div class="gc-keys">
+          <span class="gc-key">Patru piloni</span>
+          <span class="gc-key">SGLT2i compensat</span>
+          <span class="gc-key">ARNI</span>
+          </div>
+          </div>
+          <div class="gc-footer">
+          <span class="gc-society">🏛 CNAS · MS România</span>
+          <span class="gc-ask">Sinteză AI →</span>
+          </div>
+          </div>
+          <div class="gcard gcard-ro" data-cat="romania" onclick="quickGuide('Ministerul Sanatate Romania 2024 ghiduri protocoale nationale boli cronice')">
+          <div class="gc-top">
+          <span class="gc-badge gc-ro">MS 2024</span>
+          <span class="gc-lang">RO</span>
+          </div>
+          <div class="gc-body">
+          <h3 class="gc-title">Ghiduri Naționale MS România 2024</h3>
+          <p class="gc-desc">Protocoale boli cronice · Planuri management · Prevenție și screening național</p>
+          <div class="gc-keys">
+          <span class="gc-key">Boli cronice</span>
+          <span class="gc-key">Screening</span>
+          <span class="gc-key">Prevenție</span>
+          </div>
+          </div>
+          <div class="gc-footer">
+          <span class="gc-society">🏛 Ministerul Sănătății</span>
+          <span class="gc-ask">Sinteză AI →</span>
+          </div>
+          <!-- CARDIOLOGY extra cards -->
+          <div class="gcard" data-cat="cardiology" onclick="quickGuide('ESC 2023 valvular heart disease management aortic stenosis mitral regurgitation TAVI')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ESC 2023</span><span class="gc-lang">EN · RO · DE</span></div>
+          <h3 class="gc-title">Valvular Heart Disease</h3>
+          <p class="gc-desc">TAVI vs SAVR decision · Mitral regurgitation timing · Endocarditis prophylaxis</p>
+          <div class="gc-keys"><span class="gc-key">TAVI criteria</span><span class="gc-key">Heart team</span><span class="gc-key">Watchful waiting</span></div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESC</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="cardiology" onclick="quickGuide('ESC 2022 ventricular arrhythmias sudden cardiac death prevention ICD implantation')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ESC 2022</span><span class="gc-lang">EN · RO</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Ventricular Arrhythmias & SCD</h3>
+          <p class="gc-desc">ICD indications · Catheter ablation VT · Risk stratification channelopathies</p>
+          <div class="gc-keys"><span class="gc-key">ICD indications</span><span class="gc-key">Brugada</span><span class="gc-key">LQTS</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESC</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="cardiology" onclick="quickGuide('ESC 2023 cardiomyopathies HCM DCM ACM management diagnosis genetic testing')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ESC 2023</span><span class="gc-new">🔴 NEW</span><span class="gc-lang">EN · DE · FR</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Cardiomyopathies</h3>
+          <p class="gc-desc">HCM obstruction management · Genetic testing indications · Sports participation</p>
+          <div class="gc-keys"><span class="gc-key">HCM</span><span class="gc-key">DCM</span><span class="gc-key">ARVC</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESC</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="cardiology" onclick="quickGuide('ESC 2021 cardiac pacing CRT implantation indications bradycardia AV block')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ESC 2021</span><span class="gc-lang">EN · RO</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Cardiac Pacing & CRT</h3>
+          <p class="gc-desc">Bradycardia pacing indications · CRT criteria EF &lt;35% · Leadless pacemakers</p>
+          <div class="gc-keys"><span class="gc-key">AV block</span><span class="gc-key">CRT-D</span><span class="gc-key">LBBP</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESC · EHRA</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <!-- DIABETES extra cards -->
+          <div class="gcard" data-cat="diabetes" onclick="quickGuide('EASD 2023 type 1 diabetes management insulin pump CGM technology hybrid closed loop')">
+          <div class="gc-top"><span class="gc-badge gc-esc">EASD 2023</span><span class="gc-lang">EN · RO · DE</span></div>
+          <h3 class="gc-title">Type 1 Diabetes & Technology</h3>
+          <p class="gc-desc">Hybrid closed loop systems · CGM targets · Insulin pump initiation criteria</p>
+          <div class="gc-keys"><span class="gc-key">CGM targets</span><span class="gc-key">TIR</span><span class="gc-key">Closed loop</span></div>
+          <div class="gc-footer"><span class="gc-society">🏛 EASD · ADA</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="diabetes" onclick="quickGuide('Endocrine Society 2023 obesity management GLP-1 bariatric surgery weight loss treatment')">
+          <div class="gc-top"><span class="gc-badge gc-esc">Endo 2023</span><span class="gc-new">🔴 NEW</span><span class="gc-lang">EN · FR · DE</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Obesity Management</h3>
+          <p class="gc-desc">GLP-1 RA for obesity · Bariatric surgery indications · Weight-centric care</p>
+          <div class="gc-keys"><span class="gc-key">Semaglutide</span><span class="gc-key">Tirzepatide</span><span class="gc-key">Bariatric</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 Endocrine Society · EASO</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="diabetes" onclick="quickGuide('ESC EASD 2023 heart failure diabetes management SGLT2 inhibitors cardiorenal')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ESC 2023</span><span class="gc-lang">EN · RO</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Diabetes & Heart Failure</h3>
+          <p class="gc-desc">SGLT2i in HFpEF and HFrEF · Cardiorenal syndrome · GLP-1 RA safety in HF</p>
+          <div class="gc-keys"><span class="gc-key">Empagliflozin</span><span class="gc-key">Dapagliflozin</span><span class="gc-key">Cardiorenal</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESC · EASD</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="diabetes" onclick="quickGuide('ETA 2023 hyperthyroidism hypothyroidism management Graves disease thyroid hormones')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ETA 2023</span><span class="gc-lang">EN · RO · DE</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Hypo & Hyperthyroidism</h3>
+          <p class="gc-desc">Graves disease — antithyroid drugs vs radioiodine · Hypothyroidism T4 targets</p>
+          <div class="gc-keys"><span class="gc-key">Graves</span><span class="gc-key">Methimazole</span><span class="gc-key">TSH targets</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ETA · ATA</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <!-- ONCOLOGY extra cards -->
+          <div class="gcard" data-cat="oncology" onclick="quickGuide('ESMO 2023 prostate cancer hormone therapy enzalutamide abiraterone castration resistant')">
+          <div class="gc-top"><span class="gc-badge gc-esmo">ESMO 2023</span><span class="gc-lang">EN · DE · FR</span></div>
+          <h3 class="gc-title">Prostate Cancer</h3>
+          <p class="gc-desc">CRPC management · ARPIs first-line · PSMA PET staging · BRCA2 PARP inhibitors</p>
+          <div class="gc-keys"><span class="gc-key">Enzalutamide</span><span class="gc-key">PARP inhibitors</span><span class="gc-key">PSMA</span></div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESMO · EAU</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="oncology" onclick="quickGuide('ESMO 2023 gastric cancer HER2 PD-L1 immunotherapy first line treatment')">
+          <div class="gc-top"><span class="gc-badge gc-esmo">ESMO 2023</span><span class="gc-lang">EN · FR</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Gastric & Esophageal Cancer</h3>
+          <p class="gc-desc">HER2 testing · Nivolumab + chemo first-line · Perioperative FLOT chemotherapy</p>
+          <div class="gc-keys"><span class="gc-key">HER2+</span><span class="gc-key">Nivolumab</span><span class="gc-key">FLOT</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESMO · ESSO</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="oncology" onclick="quickGuide('ESMO 2024 lymphoma Hodgkin non-Hodgkin DLBCL treatment CAR-T cell therapy')">
+          <div class="gc-top"><span class="gc-badge gc-esmo">ESMO 2024</span><span class="gc-new">🔴 NEW</span><span class="gc-lang">EN · DE</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Lymphoma — Hodgkin & DLBCL</h3>
+          <p class="gc-desc">R-CHOP backbone · CAR-T cell therapy indications · Brentuximab vedotin HL</p>
+          <div class="gc-keys"><span class="gc-key">R-CHOP</span><span class="gc-key">CAR-T</span><span class="gc-key">BV-AVD</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESMO · EHA</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="oncology" onclick="quickGuide('ESMO 2023 melanoma immunotherapy BRAF inhibitors adjuvant treatment metastatic')">
+          <div class="gc-top"><span class="gc-badge gc-esmo">ESMO 2023</span><span class="gc-lang">EN · FR · ES</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Melanoma</h3>
+          <p class="gc-desc">BRAF/MEK inhibitors · Anti-PD1 adjuvant · Nivolumab + ipilimumab metastatic</p>
+          <div class="gc-keys"><span class="gc-key">BRAF V600E</span><span class="gc-key">Pembrolizumab</span><span class="gc-key">Adjuvant</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESMO · EADO</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <!-- PULMONOLOGY extra cards -->
+          <div class="gcard" data-cat="pulmonology" onclick="quickGuide('ERS 2023 pulmonary hypertension diagnosis classification treatment ERA PDE5 prostacyclin')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ERS 2023</span><span class="gc-lang">EN · DE · FR</span></div>
+          <h3 class="gc-title">Pulmonary Hypertension</h3>
+          <p class="gc-desc">WHO Group classification · ERA + PDE5i combination · IV prostacyclin in group 1</p>
+          <div class="gc-keys"><span class="gc-key">PAH treatment</span><span class="gc-key">Macitentan</span><span class="gc-key">Selexipag</span></div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESC · ERS</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="pulmonology" onclick="quickGuide('ERS 2022 pleural disease management pleural effusion pneumothorax thoracentesis')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ERS 2022</span><span class="gc-lang">EN · RO</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Pleural Disease</h3>
+          <p class="gc-desc">Exudate vs transudate criteria · Malignant effusion management · Primary spontaneous pneumothorax</p>
+          <div class="gc-keys"><span class="gc-key">Light's criteria</span><span class="gc-key">IPC</span><span class="gc-key">VATS</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ERS · BTS</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="pulmonology" onclick="quickGuide('AASM 2023 obstructive sleep apnea OSA diagnosis CPAP hypoglossal nerve stimulation')">
+          <div class="gc-top"><span class="gc-badge gc-esc">AASM 2023</span><span class="gc-lang">EN · DE · RO</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Obstructive Sleep Apnea</h3>
+          <p class="gc-desc">CPAP first-line · HNS for CPAP-intolerant · Cardiovascular risk reduction</p>
+          <div class="gc-keys"><span class="gc-key">AHI ≥15</span><span class="gc-key">CPAP</span><span class="gc-key">MAD</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 AASM · ERS</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="pulmonology" onclick="quickGuide('ERS 2023 bronchiectasis non-CF management airway clearance antibiotics exacerbations')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ERS 2023</span><span class="gc-lang">EN · RO</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Bronchiectasis (non-CF)</h3>
+          <p class="gc-desc">Airway clearance devices · Long-term azithromycin · Exacerbation antibiotic choice</p>
+          <div class="gc-keys"><span class="gc-key">Airway clearance</span><span class="gc-key">Azithromycin</span><span class="gc-key">Pseudomonas</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ERS</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <!-- NEUROLOGY extra cards -->
+          <div class="gcard" data-cat="neurology" onclick="quickGuide('EAN 2023 multiple sclerosis relapsing remitting disease modifying therapy DMT natalizumab')">
+          <div class="gc-top"><span class="gc-badge gc-esc">EAN 2023</span><span class="gc-new">🔴 NEW</span><span class="gc-lang">EN · DE · FR</span></div>
+          <h3 class="gc-title">Multiple Sclerosis</h3>
+          <p class="gc-desc">High-efficacy DMT early · Natalizumab JC risk · Ocrelizumab PPMS · MRI monitoring</p>
+          <div class="gc-keys"><span class="gc-key">Natalizumab</span><span class="gc-key">Ocrelizumab</span><span class="gc-key">NEDA</span></div>
+          <div class="gc-footer"><span class="gc-society">🏛 EAN · ECTRIMS</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="neurology" onclick="quickGuide('EAN 2023 Parkinson disease levodopa dopamine agonist deep brain stimulation management')">
+          <div class="gc-top"><span class="gc-badge gc-esc">EAN 2023</span><span class="gc-lang">EN · RO · DE</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Parkinson's Disease</h3>
+          <p class="gc-desc">Levodopa initiation · DBS criteria · Non-motor symptoms management · LSVT</p>
+          <div class="gc-keys"><span class="gc-key">Levodopa</span><span class="gc-key">DBS</span><span class="gc-key">Non-motor</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 EAN · MDS</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="neurology" onclick="quickGuide('ESO 2023 secondary stroke prevention antiplatelet anticoagulation carotid stenosis management')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ESO 2023</span><span class="gc-lang">EN · RO · FR</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Stroke Secondary Prevention</h3>
+          <p class="gc-desc">DAPT 21 days post minor stroke · AF detection · Carotid endarterectomy timing</p>
+          <div class="gc-keys"><span class="gc-key">DAPT</span><span class="gc-key">DOAC in AF</span><span class="gc-key">CEA timing</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESO · ESC</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="neurology" onclick="quickGuide('EAN 2022 dementia Alzheimer diagnosis biomarkers anti-amyloid therapy lecanemab')">
+          <div class="gc-top"><span class="gc-badge gc-esc">EAN 2022</span><span class="gc-lang">EN · DE · FR</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Dementia & Alzheimer's</h3>
+          <p class="gc-desc">CSF/PET biomarkers · Lecanemab indications · Cholinesterase inhibitors · Caregiver support</p>
+          <div class="gc-keys"><span class="gc-key">Amyloid PET</span><span class="gc-key">Lecanemab</span><span class="gc-key">MMSE staging</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 EAN · AAN</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="neurology" onclick="quickGuide('AAN 2023 migraine prevention treatment CGRP antagonists triptans acute prophylaxis')">
+          <div class="gc-top"><span class="gc-badge gc-esc">AAN 2023</span><span class="gc-lang">EN · RO · IT</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Migraine — Acute & Prevention</h3>
+          <p class="gc-desc">CGRP mAbs — erenumab, fremanezumab · Triptan optimization · Gepants for acute</p>
+          <div class="gc-keys"><span class="gc-key">CGRP mAbs</span><span class="gc-key">Triptans</span><span class="gc-key">Gepants</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 AAN · EHF</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <!-- INFECTIOUS DISEASES extra cards -->
+          <div class="gcard" data-cat="infectious" onclick="quickGuide('ESCMID 2023 Clostridioides difficile CDI treatment vancomycin fidaxomicin bezlotoxumab')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ESCMID 2023</span><span class="gc-lang">EN · RO · DE</span></div>
+          <h3 class="gc-title">C. difficile Infection</h3>
+          <p class="gc-desc">Fidaxomicin preferred · Bezlotoxumab for recurrence · FMT third recurrence</p>
+          <div class="gc-keys"><span class="gc-key">Fidaxomicin</span><span class="gc-key">FMT</span><span class="gc-key">Bezlotoxumab</span></div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESCMID</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="infectious" onclick="quickGuide('ESCMID 2022 invasive candidiasis candidemia management echinocandin fluconazole prophylaxis')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ESCMID 2022</span><span class="gc-lang">EN · DE</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Invasive Candidiasis</h3>
+          <p class="gc-desc">Echinocandin first-line · Step-down fluconazole criteria · Prophylaxis ICU patients</p>
+          <div class="gc-keys"><span class="gc-key">Caspofungin</span><span class="gc-key">Step-down</span><span class="gc-key">C. auris</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESCMID · ISHAM</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="infectious" onclick="quickGuide('ESCMID 2023 urinary tract infection UTI cystitis pyelonephritis antibiotic resistance')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ESCMID 2023</span><span class="gc-new">🔴 NEW</span><span class="gc-lang">EN · RO · FR</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Urinary Tract Infections</h3>
+          <p class="gc-desc">Nitrofurantoin/fosfomycin uncomplicated UTI · ESBL treatment · Recurrent UTI prevention</p>
+          <div class="gc-keys"><span class="gc-key">ESBL</span><span class="gc-key">Fosfomycin</span><span class="gc-key">Recurrent UTI</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESCMID · EAU</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="infectious" onclick="quickGuide('WHO 2023 tuberculosis treatment drug resistant TB bedaquiline delamanid regimen')">
+          <div class="gc-top"><span class="gc-badge gc-who">WHO 2023</span><span class="gc-lang">EN · RO · FR</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Tuberculosis</h3>
+          <p class="gc-desc">BPaL regimen for XDR-TB · Short-course 4-month regimen · Preventive therapy LTBI</p>
+          <div class="gc-keys"><span class="gc-key">Bedaquiline</span><span class="gc-key">BPaL</span><span class="gc-key">LTBI</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 WHO · ECDC</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <!-- ROMANIA extra cards -->
+          <div class="gcard gcard-ro" data-cat="romania" onclick="quickGuide('CNAS 2024 protocol terapeutic spondilita anchilozanta artrita psoriazica biologice Romania')">
+          <div class="gc-top"><span class="gc-badge gc-ro">CNAS 2024</span><span class="gc-lang">RO</span></div>
+          <h3 class="gc-title">Protocol CNAS — Spondilită & Artrită</h3>
+          <p class="gc-desc">Biologice compensate · Anti-TNF, IL-17 · Criterii de inițiere și continuare</p>
+          <div class="gc-keys"><span class="gc-key">Adalimumab</span><span class="gc-key">Secukinumab</span><span class="gc-key">Compensare</span></div>
+          <div class="gc-footer"><span class="gc-society">🏛 CNAS · MS România</span><span class="gc-ask">Sinteză AI →</span></div>
+          </div>
+          <div class="gcard gcard-ro" data-cat="romania" onclick="quickGuide('CNAS 2024 protocol terapeutic cancer san pulmon colon biologice Romania compensate')">
+          <div class="gc-top"><span class="gc-badge gc-ro">CNAS 2024</span><span class="gc-lang">RO</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Protocol CNAS — Oncologie</h3>
+          <p class="gc-desc">Biologice compensate oncologie · Imunoterapie · Criterii acces program national</p>
+          <div class="gc-keys"><span class="gc-key">Pembrolizumab</span><span class="gc-key">Trastuzumab</span><span class="gc-key">Program național</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 CNAS · INSP</span><span class="gc-ask">Sinteză AI →</span></div>
+          </div>
+          <div class="gcard gcard-ro" data-cat="romania" onclick="quickGuide('Ministerul Sanatate Romania 2024 vacccinare calendar national vaccinuri copii adulti')">
+          <div class="gc-top"><span class="gc-badge gc-ro">MS 2024</span><span class="gc-new">🔴 NEW</span><span class="gc-lang">RO</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title">Calendar Vaccinare Național</h3>
+          <p class="gc-desc">Schema completă copii și adulți · HPV extins · Pneumococic adulți ≥65 ani</p>
+          <div class="gc-keys"><span class="gc-key">HPV</span><span class="gc-key">Pneumococic</span><span class="gc-key">Adulți</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 MS România</span><span class="gc-ask">Sinteză AI →</span></div>
+          </div>
+          <!-- Category: PSYCHIATRY -->
+          </div>
+        </div>
+
+        <div class="guides-cat-header" data-cat="psychiatry">🧩 <span data-t>Psychiatry</span></div>
+        <div class="guides-grid-inner">
+          <div class="gcard" data-cat="psychiatry" onclick="quickGuide('WFSBP 2023 major depressive disorder treatment guidelines antidepressants first-line')">
+          <div class="gc-top"><span class="gc-badge gc-esc">WFSBP 2023</span><span class="gc-new">🔴 NEW</span><span class="gc-lang">EN · DE · FR</span></div>
+          <h3 class="gc-title" data-t>Major Depressive Disorder</h3>
+          <p class="gc-desc" data-t>SSRI/SNRI first-line · Augmentation strategies · Treatment-resistant depression</p>
+          <div class="gc-keys"><span class="gc-key">SSRI first-line</span><span class="gc-key">Augmentation</span><span class="gc-key">ECT criteria</span></div>
+          <div class="gc-footer"><span class="gc-society">🏛 WFSBP · EPA</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="psychiatry" onclick="quickGuide('NICE 2023 schizophrenia treatment antipsychotics clozapine psychosis management')">
+          <div class="gc-top"><span class="gc-badge gc-nice">NICE 2023</span><span class="gc-lang">EN · DE</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Schizophrenia & Psychosis</h3>
+          <p class="gc-desc" data-t>Second-generation antipsychotics first-line · Clozapine for treatment-resistant · LAI strategy</p>
+          <div class="gc-keys"><span class="gc-key">SGA first-line</span><span class="gc-key">Clozapine</span><span class="gc-key">LAI depot</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 NICE · EPA · WFSBP</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="psychiatry" onclick="quickGuide('CANMAT 2023 bipolar disorder treatment mood stabilizers lithium guidelines')">
+          <div class="gc-top"><span class="gc-badge gc-aha">CANMAT 2023</span><span class="gc-lang">EN · FR · ES</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Bipolar Disorder</h3>
+          <p class="gc-desc" data-t>Lithium first-line maintenance · Acute mania · Bipolar depression management</p>
+          <div class="gc-keys"><span class="gc-key">Lithium</span><span class="gc-key">Quetiapine</span><span class="gc-key">Valproate</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 CANMAT · BAP</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="psychiatry" onclick="quickGuide('NICE 2020 anxiety disorders GAD panic disorder treatment CBT SSRI guidelines')">
+          <div class="gc-top"><span class="gc-badge gc-nice">NICE 2020</span><span class="gc-lang">EN · DE · FR</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Anxiety & Panic Disorders</h3>
+          <p class="gc-desc" data-t>CBT first-line · SSRI/SNRI pharmacotherapy · Stepped care model</p>
+          <div class="gc-keys"><span class="gc-key">CBT</span><span class="gc-key">SSRI</span><span class="gc-key">Stepped care</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 NICE · BAP</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+        </div>
+
+        <div class="guides-cat-header" data-cat="nephrology">🫘 <span data-t>Nephrology</span></div>
+        <div class="guides-grid-inner">
+          <div class="gcard" data-cat="nephrology" onclick="quickGuide('KDIGO 2024 chronic kidney disease CKD management guidelines proteinuria SGLT2')">
+          <div class="gc-top"><span class="gc-badge gc-esc">KDIGO 2024</span><span class="gc-new">🔴 NEW</span><span class="gc-lang">EN · DE · FR · ES</span></div>
+          <h3 class="gc-title" data-t>Chronic Kidney Disease (CKD)</h3>
+          <p class="gc-desc" data-t>SGLT2i first-line regardless of DM · ACEi/ARB for proteinuria · GFR staging</p>
+          <div class="gc-keys"><span class="gc-key">SGLT2i all CKD</span><span class="gc-key">eGFR staging</span><span class="gc-key">ACEi/ARB</span></div>
+          <div class="gc-footer"><span class="gc-society">🏛 KDIGO · ERA</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="nephrology" onclick="quickGuide('KDIGO 2021 acute kidney injury AKI staging management prevention guidelines')">
+          <div class="gc-top"><span class="gc-badge gc-esc">KDIGO 2021</span><span class="gc-lang">EN · DE</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Acute Kidney Injury (AKI)</h3>
+          <p class="gc-desc" data-t>KDIGO staging · Prevention strategies · Contrast-induced AKI · RRT indications</p>
+          <div class="gc-keys"><span class="gc-key">KDIGO stages</span><span class="gc-key">Contrast nephropathy</span><span class="gc-key">RRT</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 KDIGO</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="nephrology" onclick="quickGuide('ERA 2023 hypertension chronic kidney disease blood pressure targets management')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ERA 2023</span><span class="gc-lang">EN · DE · FR</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Hypertension in CKD</h3>
+          <p class="gc-desc" data-t>BP target &lt;130/80 · ACEi/ARB first-line · Combined RAAS blockade risks</p>
+          <div class="gc-keys"><span class="gc-key">BP &lt;130/80</span><span class="gc-key">RAAS blockade</span><span class="gc-key">Diuretics</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ERA · ESH</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+        </div>
+
+        <div class="guides-cat-header" data-cat="rheumatology">💪 <span data-t>Rheumatology</span></div>
+        <div class="guides-grid-inner">
+          <div class="gcard" data-cat="rheumatology" onclick="quickGuide('EULAR 2023 rheumatoid arthritis treatment guidelines DMARDs biologics JAK inhibitors')">
+          <div class="gc-top"><span class="gc-badge gc-eular">EULAR 2023</span><span class="gc-new">🔴 NEW</span><span class="gc-lang">EN · DE · FR · ES · IT</span></div>
+          <h3 class="gc-title" data-t>Rheumatoid Arthritis</h3>
+          <p class="gc-desc" data-t>Methotrexate anchor · bDMARDs after failure · JAKi second-line · T2T strategy</p>
+          <div class="gc-keys"><span class="gc-key">Methotrexate</span><span class="gc-key">bDMARD</span><span class="gc-key">Treat-to-target</span></div>
+          <div class="gc-footer"><span class="gc-society">🏛 EULAR</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="rheumatology" onclick="quickGuide('EULAR 2023 systemic lupus erythematosus SLE management hydroxychloroquine belimumab')">
+          <div class="gc-top"><span class="gc-badge gc-eular">EULAR 2023</span><span class="gc-lang">EN · DE · FR</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Systemic Lupus Erythematosus (SLE)</h3>
+          <p class="gc-desc" data-t>Hydroxychloroquine for all · Belimumab for active disease · Lupus nephritis protocol</p>
+          <div class="gc-keys"><span class="gc-key">HCQ baseline</span><span class="gc-key">Belimumab</span><span class="gc-key">Lupus nephritis</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 EULAR · ACR</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="rheumatology" onclick="quickGuide('EULAR ACR 2023 gout management guidelines urate lowering allopurinol colchicine')">
+          <div class="gc-top"><span class="gc-badge gc-eular">EULAR 2022</span><span class="gc-lang">EN · FR · DE</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Gout — Management & Prevention</h3>
+          <p class="gc-desc" data-t>Target urate &lt;0.36 mmol/L · Allopurinol first-line · Colchicine flare prophylaxis</p>
+          <div class="gc-keys"><span class="gc-key">Urate &lt;0.36</span><span class="gc-key">Allopurinol</span><span class="gc-key">Colchicine</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 EULAR · ACR</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="rheumatology" onclick="quickGuide('EULAR 2023 osteoporosis fracture risk FRAX bisphosphonate denosumab treatment')">
+          <div class="gc-top"><span class="gc-badge gc-eular">IOF/ESCEO 2023</span><span class="gc-new">🔴 NEW</span><span class="gc-lang">EN · DE · FR · IT</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Osteoporosis & Fracture Prevention</h3>
+          <p class="gc-desc" data-t>FRAX score · Bisphosphonates first-line · Denosumab for high-risk · Romosozumab</p>
+          <div class="gc-keys"><span class="gc-key">FRAX</span><span class="gc-key">Bisphosphonates</span><span class="gc-key">Denosumab</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 IOF · ESCEO</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+        </div>
+
+        <div class="guides-cat-header" data-cat="gastro">🫃 <span data-t>Gastroenterology</span></div>
+        <div class="guides-grid-inner">
+          <div class="gcard" data-cat="gastro" onclick="quickGuide('ECCO 2023 Crohn disease inflammatory bowel disease management biologic therapy')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ECCO 2023</span><span class="gc-new">🔴 NEW</span><span class="gc-lang">EN · DE · FR</span></div>
+          <h3 class="gc-title" data-t>Crohn's Disease (IBD)</h3>
+          <p class="gc-desc" data-t>Anti-TNF first biologic · Ustekinumab/vedolizumab alternatives · Treat-to-target</p>
+          <div class="gc-keys"><span class="gc-key">Anti-TNF</span><span class="gc-key">Ustekinumab</span><span class="gc-key">Mucosal healing</span></div>
+          <div class="gc-footer"><span class="gc-society">🏛 ECCO · ESPGHAN</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="gastro" onclick="quickGuide('EASL 2023 liver cirrhosis portal hypertension management variceal bleeding guidelines')">
+          <div class="gc-top"><span class="gc-badge gc-esc">EASL 2023</span><span class="gc-lang">EN · DE · FR · ES</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Liver Cirrhosis & Portal Hypertension</h3>
+          <p class="gc-desc" data-t>Non-selective beta-blocker prophylaxis · Carvedilol · SBP prevention · TIPS criteria</p>
+          <div class="gc-keys"><span class="gc-key">NSBB prophylaxis</span><span class="gc-key">SBP</span><span class="gc-key">TIPS</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 EASL · AASLD</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="gastro" onclick="quickGuide('ESGE 2022 upper GI bleeding variceal non-variceal management PPI endoscopy')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ESGE 2022</span><span class="gc-lang">EN · DE · FR</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Upper GI Bleeding</h3>
+          <p class="gc-desc" data-t>Rockford/Glasgow-Blatchford · IV PPI · Endoscopy within 24h · H. pylori eradication</p>
+          <div class="gc-keys"><span class="gc-key">Blatchford score</span><span class="gc-key">IV PPI</span><span class="gc-key">Endoscopy 24h</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESGE · BSG</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="gastro" onclick="quickGuide('EASL 2024 hepatocellular carcinoma HCC surveillance diagnosis treatment Barcelona')">
+          <div class="gc-top"><span class="gc-badge gc-esc">EASL 2024</span><span class="gc-new">🔴 NEW</span><span class="gc-lang">EN · DE · FR</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Hepatocellular Carcinoma (HCC)</h3>
+          <p class="gc-desc" data-t>BCLC staging · Curative resection/ablation · Sorafenib/atezolizumab systemic therapy</p>
+          <div class="gc-keys"><span class="gc-key">BCLC staging</span><span class="gc-key">TACE</span><span class="gc-key">Immunotherapy</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 EASL · ESMO</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+        </div>
+
+        <div class="guides-cat-header" data-cat="ophthalmology">👁️ <span data-t>Ophthalmology</span></div>
+        <div class="guides-grid-inner">
+          <div class="gcard" data-cat="ophthalmology" onclick="quickGuide('EGS 2020 glaucoma European guidelines diagnosis IOP lowering treatment')">
+          <div class="gc-top"><span class="gc-badge gc-esc">EGS 2020</span><span class="gc-lang">EN · DE · FR · IT · ES</span></div>
+          <h3 class="gc-title" data-t>Glaucoma — Diagnosis & Treatment</h3>
+          <p class="gc-desc" data-t>IOP lowering first-line · Prostaglandin analogues · Laser trabeculoplasty · Surgery criteria</p>
+          <div class="gc-keys"><span class="gc-key">Prostaglandins</span><span class="gc-key">SLT laser</span><span class="gc-key">IOP target</span></div>
+          <div class="gc-footer"><span class="gc-society">🏛 EGS · AAO</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="ophthalmology" onclick="quickGuide('EURETINA 2023 diabetic retinopathy classification management anti-VEGF laser')">
+          <div class="gc-top"><span class="gc-badge gc-esc">EURETINA 2023</span><span class="gc-new">🔴 NEW</span><span class="gc-lang">EN · DE · FR · IT</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Diabetic Retinopathy</h3>
+          <p class="gc-desc" data-t>Screening intervals · Anti-VEGF for DME · Panretinal photocoagulation · Vitreoretinal surgery</p>
+          <div class="gc-keys"><span class="gc-key">Anti-VEGF</span><span class="gc-key">PRP laser</span><span class="gc-key">Screening</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 EURETINA · AAO</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="ophthalmology" onclick="quickGuide('EURETINA 2022 age-related macular degeneration AMD anti-VEGF treatment guidelines')">
+          <div class="gc-top"><span class="gc-badge gc-esc">EURETINA 2022</span><span class="gc-lang">EN · DE · FR · IT · ES</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Age-Related Macular Degeneration (AMD)</h3>
+          <p class="gc-desc" data-t>Anti-VEGF for wet AMD · Treat-and-extend · Supplements for dry AMD</p>
+          <div class="gc-keys"><span class="gc-key">Ranibizumab</span><span class="gc-key">Treat-and-extend</span><span class="gc-key">AREDS2</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 EURETINA · NICE</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="ophthalmology" onclick="quickGuide('EOP 2023 dry eye disease diagnosis management artificial tears cyclosporine')">
+          <div class="gc-top"><span class="gc-badge gc-esc">TFOS 2023</span><span class="gc-new">🔴 NEW</span><span class="gc-lang">EN · DE · FR</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Dry Eye Disease</h3>
+          <p class="gc-desc" data-t>DEWS II classification · Artificial tears stepwise · Cyclosporine/lifitegrast · Meibomian gland</p>
+          <div class="gc-keys"><span class="gc-key">DEWS II</span><span class="gc-key">Cyclosporine</span><span class="gc-key">MGD treatment</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 TFOS · AAO</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+        </div>
+
+        <div class="guides-cat-header" data-cat="ent">👂 <span data-t>ENT — Ear, Nose & Throat</span></div>
+        <div class="guides-grid-inner">
+          <div class="gcard" data-cat="ent" onclick="quickGuide('EAONO 2023 chronic otitis media management tympanoplasty hearing loss guidelines')">
+          <div class="gc-top"><span class="gc-badge gc-esc">EAONO 2023</span><span class="gc-lang">EN · DE · FR · IT</span></div>
+          <h3 class="gc-title" data-t>Chronic Otitis Media</h3>
+          <p class="gc-desc" data-t>Active medical management · Surgical indications · Tympanoplasty · Cholesteatoma</p>
+          <div class="gc-keys"><span class="gc-key">Tympanoplasty</span><span class="gc-key">Cholesteatoma</span><span class="gc-key">Hearing aids</span></div>
+          <div class="gc-footer"><span class="gc-society">🏛 EAONO · AAO-HNS</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="ent" onclick="quickGuide('EPOS 2020 rhinosinusitis chronic sinusitis endoscopic surgery nasal polyps guidelines')">
+          <div class="gc-top"><span class="gc-badge gc-esc">EPOS 2020</span><span class="gc-lang">EN · DE · FR · IT · ES</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Chronic Rhinosinusitis & Nasal Polyps</h3>
+          <p class="gc-desc" data-t>Intranasal corticosteroids · Biologics for CRSwNP · FESS surgical indications</p>
+          <div class="gc-keys"><span class="gc-key">INCS first-line</span><span class="gc-key">Dupilumab</span><span class="gc-key">FESS</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 EPOS · EUFOREA</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="ent" onclick="quickGuide('IFOS 2023 sudden sensorineural hearing loss treatment corticosteroids guidelines')">
+          <div class="gc-top"><span class="gc-badge gc-esc">AAO-HNS 2022</span><span class="gc-lang">EN · DE · FR</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Sudden Sensorineural Hearing Loss</h3>
+          <p class="gc-desc" data-t>Oral corticosteroids within 14 days · Intratympanic steroids · HBO therapy</p>
+          <div class="gc-keys"><span class="gc-key">Steroids 14d</span><span class="gc-key">IT steroids</span><span class="gc-key">HBO</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 AAO-HNS</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="ent" onclick="quickGuide('ERS 2022 obstructive sleep apnea OSA diagnosis CPAP management guidelines')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ERS 2022</span><span class="gc-new">🔴 NEW</span><span class="gc-lang">EN · DE · FR · ES</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Obstructive Sleep Apnoea (OSA)</h3>
+          <p class="gc-desc" data-t>AHI severity thresholds · CPAP first-line · MAD alternatives · Surgical options</p>
+          <div class="gc-keys"><span class="gc-key">AHI staging</span><span class="gc-key">CPAP</span><span class="gc-key">MAD</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ERS · ESRS</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+        </div>
+
+        <div class="guides-cat-header" data-cat="dermatology">🧴 <span data-t>Dermatology</span></div>
+        <div class="guides-grid-inner">
+          <div class="gcard" data-cat="dermatology" onclick="quickGuide('EDF 2023 psoriasis treatment guidelines biologics IL-17 IL-23 methotrexate')">
+          <div class="gc-top"><span class="gc-badge gc-esc">EDF 2023</span><span class="gc-new">🔴 NEW</span><span class="gc-lang">EN · DE · FR · IT · ES</span></div>
+          <h3 class="gc-title" data-t>Psoriasis — Moderate to Severe</h3>
+          <p class="gc-desc" data-t>IL-17/IL-23 biologics for moderate-severe · Methotrexate · PASI 90 target</p>
+          <div class="gc-keys"><span class="gc-key">IL-17i</span><span class="gc-key">IL-23i</span><span class="gc-key">PASI 90</span></div>
+          <div class="gc-footer"><span class="gc-society">🏛 EDF · AAD</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="dermatology" onclick="quickGuide('EADV 2023 atopic dermatitis eczema treatment dupilumab biologics guidelines')">
+          <div class="gc-top"><span class="gc-badge gc-esc">EADV 2023</span><span class="gc-lang">EN · DE · FR · IT</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Atopic Dermatitis (Eczema)</h3>
+          <p class="gc-desc" data-t>Topical corticosteroids · Dupilumab/tralokinumab biologics · JAK inhibitors · Phototherapy</p>
+          <div class="gc-keys"><span class="gc-key">Dupilumab</span><span class="gc-key">JAKi</span><span class="gc-key">TCS stepwise</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 EADV · AAD</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="dermatology" onclick="quickGuide('ESMO 2022 melanoma cutaneous treatment immunotherapy BRAF targeted guidelines')">
+          <div class="gc-top"><span class="gc-badge gc-esmo">ESMO 2022</span><span class="gc-lang">EN · DE · FR · ES</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Melanoma — Cutaneous</h3>
+          <p class="gc-desc" data-t>Sentinel node biopsy · Adjuvant immunotherapy · BRAF/MEK inhibitors · PD-1 for advanced</p>
+          <div class="gc-keys"><span class="gc-key">Pembrolizumab</span><span class="gc-key">BRAF+MEK</span><span class="gc-key">SNB</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESMO · EADO</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+        </div>
+
+        <div class="guides-cat-header" data-cat="surgery">✂️ <span data-t>Surgery & Critical Care</span></div>
+        <div class="guides-grid-inner">
+          <div class="gcard" data-cat="surgery" onclick="quickGuide('ERAS 2023 enhanced recovery after surgery protocol perioperative care guidelines')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ERAS 2023</span><span class="gc-new">🔴 NEW</span><span class="gc-lang">EN · DE · FR · ES</span></div>
+          <h3 class="gc-title" data-t>Enhanced Recovery After Surgery (ERAS)</h3>
+          <p class="gc-desc" data-t>Preoperative carbohydrate loading · Multimodal analgesia · Early mobilization · Drain policy</p>
+          <div class="gc-keys"><span class="gc-key">Carb loading</span><span class="gc-key">Multimodal analgesia</span><span class="gc-key">Early mobilization</span></div>
+          <div class="gc-footer"><span class="gc-society">🏛 ERAS Society</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="surgery" onclick="quickGuide('ESICM 2023 mechanical ventilation ARDS ICU management lung protective strategy')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ESICM 2023</span><span class="gc-lang">EN · DE · FR</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>ARDS & Mechanical Ventilation</h3>
+          <p class="gc-desc" data-t>Lung-protective ventilation 6ml/kg · Prone positioning · PEEP optimization · Extubation criteria</p>
+          <div class="gc-keys"><span class="gc-key">6ml/kg TV</span><span class="gc-key">Prone 16h</span><span class="gc-key">PEEP ladder</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESICM · SCCM</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="surgery" onclick="quickGuide('ERC 2021 cardiac arrest resuscitation CPR advanced life support guidelines')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ERC 2021</span><span class="gc-lang">EN · DE · FR · IT · ES · RO</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Cardiac Arrest & CPR (Advanced Life Support)</h3>
+          <p class="gc-desc" data-t>BLS/ALS algorithms · Shockable vs non-shockable · Post-resuscitation care · TTM</p>
+          <div class="gc-keys"><span class="gc-key">ALS algorithm</span><span class="gc-key">Adrenaline</span><span class="gc-key">TTM</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ERC · AHA</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+          <div class="gcard" data-cat="surgery" onclick="quickGuide('ESPEN 2023 nutritional support ICU critical care enteral parenteral guidelines')">
+          <div class="gc-top"><span class="gc-badge gc-esc">ESPEN 2023</span><span class="gc-lang">EN · DE · FR</span></div>
+          <div class="gc-body">
+          <h3 class="gc-title" data-t>Nutritional Support in ICU</h3>
+          <p class="gc-desc" data-t>Early enteral within 24-48h · Protein 1.3g/kg · Parenteral if EN inadequate · Monitoring</p>
+          <div class="gc-keys"><span class="gc-key">Early EN 24h</span><span class="gc-key">1.3g/kg protein</span><span class="gc-key">Micronutrients</span></div>
+          </div>
+          <div class="gc-footer"><span class="gc-society">🏛 ESPEN · SCCM</span><span class="gc-ask">AI summary →</span></div>
+          </div>
+        </div>
+
+      </main>
+  </div>
+</div>
+
+<!-- ============ DRUGS (AI with streaming) ============ -->
+<div class="pg" id="pg-drugs">
+  <div class="app">
+    <aside class="side">
+      <div class="side-greet">
+        <div class="role" data-t>Drug database</div>
+        <h4><em data-t>Brand + INN</em></h4>
+      </div>
+      <div class="side-section">
+        <h5 data-t>Main</h5>
+        <a onclick="goPage('consult')"><span class="ico">🩺</span><span data-t>Consultation</span></a>
+        <a onclick="goPage('tools')"><span class="ico">🔧</span><span data-t>AI Tools</span></a>
+        <a onclick="goPage('guides')"><span class="ico">📋</span><span data-t>Guidelines</span></a>
+        <a class="act" onclick="goPage('drugs')"><span class="ico">💊</span><span data-t>Drug Database</span></a>
+      </div>
+    </aside>
+    <main class="main">
+      <div class="section-head">
+        <h1><em data-t>Drug Database</em></h1>
+        <p data-t>Search by brand name or INN · AI recognizes Romanian & European commercial names</p>
+      </div>
+      <div class="drug-search">
+        <div class="search-row">
+          <input type="text" id="drugQuery" placeholder="Nurofen, Concor, Augmentin, metformin, warfarin…" data-tph onkeydown="if(event.key==='Enter')searchDrug()">
+          <button onclick="searchDrug()" id="drugBtn"><span data-t>Search</span></button>
+        </div>
+        <div class="drug-hint"><strong data-t>Try:</strong> <span data-t>Nurofen, Concor, Tertensif, Prestarium, Augmentin, Xarelto, metformin, semaglutide, ramipril</span></div>
+      </div>
+      <div id="drugResults"></div>
+    </main>
+  </div>
+</div>
+
+<!-- ============ NEWS ============ -->
+<div class="pg" id="pg-news">
+  <div class="app">
+    <aside class="side">
+      <div class="side-greet">
+        <div class="role" data-t>Medical news</div>
+        <h4><em data-t>Daily.</em> <span data-t>Curated.</span></h4>
+      </div>
+      <div class="side-section">
+        <h5 data-t>Main</h5>
+        <a onclick="goPage('consult')"><span class="ico">🩺</span><span data-t>Consultation</span></a>
+        <a onclick="goPage('tools')"><span class="ico">🔧</span><span data-t>AI Tools</span></a>
+        <a onclick="goPage('guides')"><span class="ico">📋</span><span data-t>Guidelines</span></a>
+        <a onclick="goPage('drugs')"><span class="ico">💊</span><span data-t>Drugs</span></a>
+        <a class="act" onclick="goPage('news')"><span class="ico">📰</span><span data-t>News</span></a>
+      </div>
+    </aside>
+    <main class="main">
+      <div class="section-head">
+        <h1><em data-t>Medical News</em></h1>
+        <p data-t>Breaking research, approvals and guideline updates</p>
+      </div>
+      <div class="list-card" onclick="askGuideline('ESC 2024 hypertension guidelines 130/80 mmHg recommendations')">
+        <div class="top"><span class="list-tag">ESC 2024</span><span class="list-date" data-t>2 hours ago</span></div>
+        <h4 data-t>New hypertension guidelines: treat at 130/80 mmHg in high-risk patients</h4>
+        <p data-t>ESC lowers threshold following analysis of cardiovascular risk data from European cohorts.</p>
+      </div>
+      <div class="list-card" onclick="askGuideline('ianalumab primary Sjogren syndrome EMA approval')">
+        <div class="top"><span class="list-tag">EMA</span><span class="list-date" data-t>5 hours ago</span></div>
+        <h4 data-t>Ianalumab approved for primary Sjögren's syndrome — first biologic indication</h4>
+        <p data-t>Anti-BAFF monoclonal antibody shows significant symptom improvement in phase III.</p>
+      </div>
+      <div class="list-card" onclick="askGuideline('semaglutide SELECT trial cardiovascular events obese non-diabetic')">
+        <div class="top"><span class="list-tag">NEJM</span><span class="list-date" data-t>1 day ago</span></div>
+        <h4 data-t>Semaglutide cuts CV events 20% in non-diabetic obese patients</h4>
+        <p data-t>SELECT trial results expand indication rationale beyond glycaemic control.</p>
+      </div>
+      <div class="list-card" onclick="askGuideline('SGLT2 inhibitors T2DM CKD first-line EASD 2024')">
+        <div class="top"><span class="list-tag">EASD</span><span class="list-date" data-t>2 days ago</span></div>
+        <h4 data-t>SGLT2i now first-line for T2DM with CKD regardless of HbA1c</h4>
+        <p data-t>Updated algorithm emphasizes renal protection as primary driver of choice.</p>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ============ TUTOR (AI chat on subject) ============ -->
+<div class="pg" id="pg-tutor">
+  <div class="app tutor-app">
+    <aside class="side">
+      <div class="side-greet">
+        <div class="role" data-t>AI Tutor</div>
+        <h4><em data-t>Praxis.</em> <span data-t>Learn by doing.</span></h4>
+      </div>
+      <div class="side-section">
+        <h5 data-t>Learning</h5>
+        <a class="act" onclick="goPage('tutor')"><span class="ico">🧠</span><span data-t>AI Tutor</span></a>
+        <a onclick="goPage('rez')"><span class="ico">🎓</span><span data-t>Rezidentiat</span></a>
+        <a onclick="goPage('rad')"><span class="ico">🩻</span><span data-t>Radiology</span></a>
+      </div>
+      <div class="side-section">
+        <h5 data-t>Main</h5>
+        <a onclick="goPage('consult')"><span class="ico">🩺</span><span data-t>Consultation</span></a>
+        <a onclick="goPage('guides')"><span class="ico">📋</span><span data-t>Guidelines</span></a>
+        <a onclick="goPage('drugs')"><span class="ico">💊</span><span data-t>Drugs</span></a>
+      </div>
+    </aside>
+    <main class="main">
+      <div class="tutor-hero">
+        <div>
+          <div class="kicker" data-t>Adaptive learning</div>
+          <h2><em data-t>Praxis AI</em> <span data-t>— your personal tutor.</span></h2>
+          <p data-t>Pick your faculty, year, and subject. Upload your course, ask anything, test yourself — Praxis AI evaluates your level and guides you where to focus.</p>
+        </div>
+        <div class="big-ico">🧠</div>
+      </div>
+
+      <!-- STEP 1: Faculty + Year + Subject pickers -->
+      <div class="tutor-section">
+        <div class="tutor-section-head">
+          <span class="step-num">1</span>
+          <h3 data-t>Choose faculty, year & subject</h3>
+        </div>
+
+        <label class="tutor-label" data-t>Faculty</label>
+        <div class="faculty-grid">
+          <button class="faculty-btn act" data-fac="medicine" onclick="pickFaculty(this)">
+            <span class="fi">🩺</span>
+            <span class="fn" data-t>Medicine (6 years)</span>
+          </button>
+          <button class="faculty-btn" data-fac="pharmacy" onclick="pickFaculty(this)">
+            <span class="fi">💊</span>
+            <span class="fn" data-t>Pharmacy (5 years)</span>
+          </button>
+          <button class="faculty-btn" data-fac="dentistry" onclick="pickFaculty(this)">
+            <span class="fi">🦷</span>
+            <span class="fn" data-t>Dentistry (6 years)</span>
+          </button>
+        </div>
+
+        <label class="tutor-label" style="margin-top:20px" data-t>Year of study</label>
+        <div class="year-grid" id="yearGrid"></div>
+
+        <label class="tutor-label" style="margin-top:20px" data-t>Subject</label>
+        <div class="subject-grid-big" id="subjectGridBig"></div>
+
+        <div class="selection-summary" id="selSummary" style="display:none">
+          <div class="sel-row">
+            <span class="sel-label" data-t>Current selection:</span>
+            <span class="sel-chip" id="selFac"></span>
+            <span class="sel-chip" id="selYear"></span>
+            <span class="sel-chip sel-chip-main" id="selSubject"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: Course upload / paste -->
+      <div class="tutor-section">
+        <div class="tutor-section-head">
+          <span class="step-num">2</span>
+          <h3 data-t>Your course material (optional)</h3>
+        </div>
+        <p class="tutor-desc" data-t>Upload a PDF of your course or paste text. Praxis AI will use it to answer your questions and generate quizzes tailored to your material. If you skip this step, the AI uses its general medical knowledge.</p>
+
+        <div class="course-tabs">
+          <button class="course-tab act" data-ctab="paste" onclick="switchCourseTab(this)" data-t>📝 Paste text</button>
+          <button class="course-tab" data-ctab="pdf" onclick="switchCourseTab(this)" data-t>📄 Upload PDF</button>
+        </div>
+
+        <div class="course-tab-body" id="ctPaste">
+          <textarea class="course-textarea" id="courseText" placeholder="Paste your course notes or textbook chapter here…" data-tph></textarea>
+        </div>
+
+        <div class="course-tab-body" id="ctPdf" style="display:none">
+          <label for="coursePdfFile" class="pdf-drop" id="pdfDrop">
+            <div class="pdf-ico">📄</div>
+            <h4 data-t>Drop PDF here or click to select</h4>
+            <p data-t>Only text-based PDFs work (not scanned images) · Max 20 MB</p>
+            <input type="file" id="coursePdfFile" style="display:none" accept="application/pdf" onchange="loadCoursePdf(this.files[0])">
+          </label>
+          <div class="pdf-status" id="pdfStatus"></div>
+        </div>
+
+        <div class="course-actions">
+          <div class="course-stats" id="courseStats"><span data-t>No course loaded yet.</span></div>
+          <button class="btn-ghost" onclick="clearCourse()" data-t>Clear</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Tabs — Chat / Quiz / Progress -->
+      <div class="tutor-section no-pad">
+        <div class="mode-tabs">
+          <button class="mode-tab act" data-mode="chat" onclick="switchMode(this)"><span>💬</span> <span data-t>Ask anything</span></button>
+          <button class="mode-tab" data-mode="quiz" onclick="switchMode(this)"><span>📝</span> <span data-t>Test yourself</span></button>
+          <button class="mode-tab" data-mode="progress" onclick="switchMode(this)"><span>📊</span> <span data-t>My level</span></button>
+        </div>
+
+        <!-- CHAT mode -->
+        <div class="mode-body" id="modeChat">
+          <div class="chat-card big-chat">
+            <div class="chat-head">
+              <div>
+                <h3>💬 <span data-t>Ask your tutor —</span> <span id="tutorSubject" style="color:var(--accent)" data-t>Anatomy</span></h3>
+                <p data-t>Ask any question · evidence-based · uses your course if uploaded · streaming</p>
+              </div>
+            </div>
+            <div class="chat-body big-chat-body" id="tutorBody">
+              <div class="chat-empty">
+                <div class="ico">🧠</div>
+                <h4 data-t>Ready to learn.</h4>
+                <p data-t>Pick your subject above, optionally upload your course, then ask anything — mechanisms, definitions, clinical reasoning.</p>
+              </div>
+            </div>
+            <div class="chat-foot">
+              <div class="chat-input-row big-input">
+                <input type="text" id="tutorInput" placeholder="Ask anything about your subject…" onkeydown="if(event.key==='Enter')sendTutor()" data-tph>
+                <button class="send-btn" id="tutorSendBtn" onclick="sendTutor()">→</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- QUIZ mode -->
+        <div class="mode-body" id="modeQuiz" style="display:none">
+          <div class="quiz-config">
+            <div class="qc-row">
+              <div class="qc-field">
+                <label data-t>Number of questions</label>
+                <div class="qc-seg">
+                  <button class="qc-seg-btn" data-qcnt="5" onclick="pickQuizCount(this)">5</button>
+                  <button class="qc-seg-btn act" data-qcnt="10" onclick="pickQuizCount(this)">10</button>
+                  <button class="qc-seg-btn" data-qcnt="15" onclick="pickQuizCount(this)">15</button>
+                  <button class="qc-seg-btn" data-qcnt="20" onclick="pickQuizCount(this)">20</button>
+                </div>
+              </div>
+              <div class="qc-field">
+                <label data-t>Difficulty</label>
+                <div class="qc-seg">
+                  <button class="qc-seg-btn act" data-qdiff="easy" onclick="pickQuizDiff(this)" data-t>Easy</button>
+                  <button class="qc-seg-btn" data-qdiff="medium" onclick="pickQuizDiff(this)" data-t>Medium</button>
+                  <button class="qc-seg-btn" data-qdiff="hard" onclick="pickQuizDiff(this)" data-t>Hard</button>
+                </div>
+              </div>
+            </div>
+            <button class="btn-primary-big" id="startQuizBtn" onclick="startQuiz()">
+              <span>🚀</span> <span data-t>Start quiz</span>
+            </button>
+          </div>
+
+          <div class="quiz-area" id="quizArea"></div>
+        </div>
+
+        <!-- PROGRESS mode -->
+        <div class="mode-body" id="modeProgress" style="display:none">
+          <div class="progress-card">
+            <h3 data-t>Your learning level</h3>
+            <p class="tutor-desc" data-t>Take quizzes to build your level. Praxis AI tracks your accuracy per subject and tells you exactly where to focus.</p>
+            <div class="progress-empty" id="progressEmpty">
+              <div class="big-ico" style="font-size:64px">📊</div>
+              <p data-t>No quiz attempts yet. Start a quiz above to begin.</p>
+            </div>
+            <div class="progress-list" id="progressList" style="display:none"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ============ REZIDENTIAT (AI quiz) ============ -->
+<div class="pg" id="pg-rez">
+  <div class="app tutor-app">
+    <aside class="side">
+      <div class="side-greet">
+        <div class="role" data-t>Rezidentiat</div>
+        <h4><em data-t>Exam prep.</em> <span data-t>Serious.</span></h4>
+      </div>
+      <div class="side-section">
+        <h5 data-t>Learning</h5>
+        <a onclick="goPage('tutor')"><span class="ico">🧠</span><span data-t>AI Tutor</span></a>
+        <a class="act" onclick="goPage('rez')"><span class="ico">🎓</span><span data-t>Rezidentiat</span></a>
+        <a onclick="goPage('rad')"><span class="ico">🩻</span><span data-t>Radiology</span></a>
+      </div>
+      <div class="side-section">
+        <h5 data-t>Main</h5>
+        <a onclick="goPage('consult')"><span class="ico">🩺</span><span data-t>Consultation</span></a>
+        <a onclick="goPage('guides')"><span class="ico">📋</span><span data-t>Guidelines</span></a>
+      </div>
+      <div class="side-section">
+        <h5 data-t>Quick actions</h5>
+        <a onclick="startQuickSession()" id="sideQuickBtn"><span class="ico">⚡</span><span data-t>Quick session</span></a>
+        <a onclick="switchRezTab('heatmap')" ><span class="ico">📊</span><span data-t>My heatmap</span></a>
+        <a onclick="switchRezTab('history')"><span class="ico">📈</span><span data-t>History</span></a>
+      </div>
+    </aside>
+    <main class="main">
+
+      <!-- HERO -->
+      <div class="tutor-hero rez-hero">
+        <div>
+          <div class="kicker" data-t>Residency exam preparation</div>
+          <h2><em data-t>Rezidențiat AI</em> <span data-t>— exactly like the real exam.</span></h2>
+          <p data-t>Choose your faculty and study topic. Practice with 10-25 questions or simulate the full 200-question exam. Every mistake gets a star and a professor's explanation. Track your heatmap and know exactly where to focus.</p>
+        </div>
+        <div class="big-ico">🎓</div>
+      </div>
+
+      <!-- STEP 1: Faculty + Topic -->
+      <div class="tutor-section">
+        <div class="tutor-section-head">
+          <span class="step-num">1</span>
+          <h3 data-t>Choose faculty & study topic</h3>
+        </div>
+
+        <label class="tutor-label" data-t>Faculty</label>
+        <div class="faculty-grid">
+          <button class="faculty-btn act" data-rfac="medicine" onclick="pickRezFaculty(this)">
+            <span class="fi">🩺</span><span class="fn" data-t>Medicine (MG)</span>
+          </button>
+          <button class="faculty-btn" data-rfac="pharmacy" onclick="pickRezFaculty(this)">
+            <span class="fi">💊</span><span class="fn" data-t>Pharmacy</span>
+          </button>
+          <button class="faculty-btn" data-rfac="dentistry" onclick="pickRezFaculty(this)">
+            <span class="fi">🦷</span><span class="fn" data-t>Dentistry</span>
+          </button>
+        </div>
+
+        <label class="tutor-label" style="margin-top:20px" data-t>Study topic</label>
+        <div class="subject-grid-big rez-spec-grid" id="rezTopicGrid"></div>
+
+        <div class="selection-summary" id="rezSelSummary" style="display:none">
+          <div class="sel-row">
+            <span class="sel-label" data-t>Selected:</span>
+            <span class="sel-chip" id="rezSelFac"></span>
+            <span class="sel-chip sel-chip-main" id="rezSelSpec"></span>
+            <span class="rez-quick-stats" id="rezQuickStats"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABS -->
+      <div class="tutor-section no-pad">
+        <div class="mode-tabs rez-tabs" id="rezTabBar">
+          <button class="mode-tab act" data-rtab="practice" onclick="switchRezTab('practice')"><span>📝</span> <span data-t>Practice test</span></button>
+          <button class="mode-tab" data-rtab="exam" onclick="switchRezTab('exam')"><span>⏱️</span> <span data-t>Full exam (200)</span></button>
+          <button class="mode-tab" data-rtab="heatmap" onclick="switchRezTab('heatmap')"><span>📊</span> <span data-t>My heatmap</span></button>
+          <button class="mode-tab" data-rtab="history" onclick="switchRezTab('history')"><span>📈</span> <span data-t>History</span></button>
+        </div>
+
+        <!-- PRACTICE -->
+        <div class="mode-body" id="rezTabPractice">
+          <div class="quiz-config">
+            <div class="qc-row">
+              <div class="qc-field">
+                <label data-t>Number of questions</label>
+                <div class="qc-seg">
+                  <button class="qc-seg-btn" data-rqcnt="10" onclick="pickRezCount(this)">10</button>
+                  <button class="qc-seg-btn act" data-rqcnt="20" onclick="pickRezCount(this)">20</button>
+                  <button class="qc-seg-btn" data-rqcnt="25" onclick="pickRezCount(this)">25</button>
+                </div>
+              </div>
+              <div class="qc-field">
+                <label data-t>Difficulty</label>
+                <div class="qc-seg">
+                  <button class="qc-seg-btn" data-rqdiff="easy" onclick="pickRezDiff(this)" data-t>Easy</button>
+                  <button class="qc-seg-btn act" data-rqdiff="medium" onclick="pickRezDiff(this)" data-t>Medium</button>
+                  <button class="qc-seg-btn" data-rqdiff="hard" onclick="pickRezDiff(this)" data-t>Hard</button>
+                </div>
+              </div>
+            </div>
+            <button class="btn-primary-big" id="rezStartBtn" onclick="startRezPractice()">
+              <span>🚀</span> <span data-t>Start practice test</span>
+            </button>
+          </div>
+          <div id="rezPracticeArea"></div>
+        </div>
+
+        <!-- FULL EXAM -->
+        <div class="mode-body" id="rezTabExam" style="display:none">
+          <div class="exam-intro" id="examIntroCard">
+            <div class="exam-intro-head">
+              <div class="exam-intro-ico">⏱️</div>
+              <div>
+                <h3 data-t>Full exam simulation — exactly like the real thing</h3>
+                <p data-t>200 questions · 4 hours · mixed topics · pass = 50% · explanations unlocked after submission</p>
+              </div>
+            </div>
+            <div class="exam-rules">
+              <div class="exam-rule"><span class="er-n">1</span><span data-t>200 questions from all topics of your faculty, mixed difficulties</span></div>
+              <div class="exam-rule"><span class="er-n">2</span><span data-t>Timer counts down from 4 hours — cannot be paused</span></div>
+              <div class="exam-rule"><span class="er-n">3</span><span data-t>Auto-submits when time runs out</span></div>
+              <div class="exam-rule"><span class="er-n">4</span><span data-t>Explanations + professor mode unlocked after you submit</span></div>
+              <div class="exam-rule"><span class="er-n">5</span><span data-t>Pass: 50% · Merit: 70% · Distinction: 85% · AI estimates your national ranking</span></div>
+            </div>
+            <button class="btn-primary-big" id="rezExamStartBtn" onclick="startFullExam()">
+              <span>🎯</span> <span data-t>Start full exam simulation</span>
+            </button>
+          </div>
+          <div id="rezExamArea"></div>
+        </div>
+
+        <!-- HEATMAP -->
+        <div class="mode-body" id="rezTabHeatmap" style="display:none">
+          <div id="heatmapArea"></div>
+        </div>
+
+        <!-- HISTORY -->
+        <div class="mode-body" id="rezTabHistory" style="display:none">
+          <div id="rezHistoryArea"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ============ RADIOLOGY (AI vision) ============ -->
+<div class="pg" id="pg-rad">
+  <div class="app">
+    <aside class="side">
+      <div class="side-greet">
+        <div class="role" data-t>Radiology</div>
+        <h4><em data-t>AI Vision</em> <span data-t>second-opinion.</span></h4>
+      </div>
+      <div class="side-section">
+        <h5 data-t>Learning</h5>
+        <a onclick="goPage('tutor')"><span class="ico">🧠</span><span data-t>AI Tutor</span></a>
+        <a onclick="goPage('rez')"><span class="ico">🎓</span><span data-t>Rezidentiat</span></a>
+        <a class="act" onclick="goPage('rad')"><span class="ico">🩻</span><span data-t>Radiology</span></a>
+      </div>
+      <div class="side-section">
+        <h5 data-t>Main</h5>
+        <a onclick="goPage('consult')"><span class="ico">🩺</span><span data-t>Consultation</span></a>
+        <a onclick="goPage('tools')"><span class="ico">🔧</span><span data-t>AI Tools</span></a>
+      </div>
+    </aside>
+    <main class="main">
+      <div class="section-head">
+        <h1><em data-t>Radiology AI</em></h1>
+        <p data-t>Upload imaging for an evidence-based second-opinion · JPG, PNG · AI Vision</p>
+      </div>
+
+      <label for="radFile" class="rad-upload" id="radDrop">
+        <div class="ico">🩻</div>
+        <h3 data-t>Drop imaging here or click to upload</h3>
+        <p data-t>Supports JPG, PNG · HIPAA/GDPR compliant · Anonymized at upload · Max 5MB</p>
+        <input type="file" id="radFile" style="display:none" accept="image/jpeg,image/png,image/webp" onchange="radUpload(this.files[0])">
+      </label>
+
+      <div class="rad-preview" id="radPreview">
+        <img id="radImg" alt="Uploaded image">
+        <div class="ctrls">
+          <button class="analyze" id="radAnalyzeBtn" onclick="radAnalyze()">🤖 <span data-t>Analyze with AI</span></button>
+          <button class="clear" onclick="radClear()"><span data-t>Clear</span></button>
+        </div>
+      </div>
+
+      <div class="rad-result" id="radResult"></div>
+
+      <div class="rad-info">
+        <div class="card">
+          <div class="ico">⚡</div>
+          <h5 data-t>Fast turnaround</h5>
+          <p data-t>Results typically under 30 seconds</p>
+        </div>
+        <div class="card">
+          <div class="ico">🎯</div>
+          <h5 data-t>Structured read</h5>
+          <p data-t>Findings + differential with confidence</p>
+        </div>
+        <div class="card">
+          <div class="ico">📖</div>
+          <h5 data-t>Guidelines-backed</h5>
+          <p data-t>Recommendations link to evidence</p>
+        </div>
+      </div>
+
+      <div class="rad-disclaimer">
+        <strong>⚠ <span data-t>Clinical disclaimer:</span></strong> <span data-t>Radiology AI provides decision-support only. It is not a substitute for formal radiological interpretation by a licensed radiologist. All findings must be clinically correlated and verified.</span>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ============ MESSAGES (DIRECT CHAT) ============ -->
+<div class="pg" id="pg-dm">
+  <div class="app">
+    <aside class="side">
+      <div class="side-greet">
+        <div class="role">Messages</div>
+        <h4><em>Direct</em> <span>chat.</span></h4>
+      </div>
+      <div class="side-section">
+        <h5>Main</h5>
+        <a onclick="goPage('consult')"><span class="ico">🩺</span><span>Consultation</span></a>
+        <a onclick="goPage('guides')"><span class="ico">📋</span><span>Guidelines</span></a>
+        <a onclick="goPage('tools')"><span class="ico">🔧</span><span>AI Tools</span></a>
+      </div>
+      <div class="side-section">
+        <h5>People</h5>
+        <div class="dm-search">
+          <input id="dmUserSearch" type="text" placeholder="Search users…" oninput="dmSearchUsers(this.value)" autocomplete="off">
+        </div>
+        <div class="dm-results" id="dmSearchResults"></div>
+      </div>
+    </aside>
+    <main class="main" style="min-width:0">
+      <div class="dm-wrap">
+        <div class="dm-left">
+          <div class="dm-head">
+            <div class="dm-title">Conversations</div>
+            <button class="btn-out" onclick="dmRefresh()" title="Refresh">↻</button>
+          </div>
+          <div class="dm-list" id="dmConversations"></div>
+        </div>
+        <div class="dm-right">
+          <div class="dm-thread-head">
+            <div class="dm-peer" id="dmPeerLabel">Select a user to chat</div>
+          </div>
+          <div class="dm-thread" id="dmThread"></div>
+          <div class="dm-compose">
+            <input id="dmMsgInput" type="text" placeholder="Type a message…" onkeydown="if(event.key==='Enter')dmSend()" autocomplete="off">
+            <button class="btn-primary" onclick="dmSend()">Send</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-inner">
+    <div class="foot-brand">
+      <div class="logo" style="gap:10px">
+        <div class="logo-sq">ME</div>
+        <div class="logo-nm">Medicin<span>Evidence</span></div>
+      </div>
+      <p data-t>Evidence-based clinical decision support for verified healthcare professionals across Europe.</p>
+    </div>
+    <div class="foot-links">
+      <div class="foot-col">
+        <h4 data-t>Platform</h4>
+        <a onclick="goPage('consult')" data-t>Consultation</a>
+        <a onclick="goPage('tools')" data-t>AI Tools</a>
+        <a onclick="goPage('guides')" data-t>Guidelines</a>
+        <a onclick="goPage('drugs')" data-t>Drugs</a>
+        <a onclick="goPage('news')" data-t>News</a>
+      </div>
+      <div class="foot-col">
+        <h4 data-t>Learning</h4>
+        <a onclick="goPage('tutor')" data-t>AI Tutor</a>
+        <a onclick="goPage('rez')" data-t>Rezidentiat</a>
+        <a onclick="goPage('rad')" data-t>Radiology</a>
+      </div>
+      <div class="foot-col">
+        <h4 data-t>Legal</h4>
+        <a data-t>Privacy Policy</a>
+        <a data-t>Terms of Use</a>
+        <a data-t>GDPR</a>
+      </div>
+    </div>
+  </div>
+  <div class="foot-bottom" data-t>© 2026 MedicinEvidence. All rights reserved. Clinical information for healthcare professionals only — not medical advice.</div>
+</footer>
+
+<!-- MODALS -->
+<div class="ov" id="ovSignin">
+  <div class="md">
+    <button class="md-close" onclick="closeModal()">×</button>
+    <div class="md-logo"><div class="logo-sq">ME</div><span>MedicinEvidence</span></div>
+    <h3 data-t>Welcome back</h3>
+    <p class="md-sub" data-t>Sign in to your verified account</p>
+    <label data-t>Email</label><input id="signinEmail" type="email" placeholder="you@hospital.eu" autocomplete="email">
+    <label data-t>Password</label><input id="signinPassword" type="password" placeholder="••••••••" autocomplete="current-password">
+    <button class="md-btn" onclick="login()" data-t>Sign in</button>
+    <div class="md-foot">
+      <a onclick="openModal('forgot')" style="display:inline-block;margin-bottom:8px" data-t>Forgot password?</a><br>
+      <span data-t>No account yet?</span> <a onclick="openModal('signup')" data-t>Register free</a>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="ovSignup">
+  <div class="md">
+    <button class="md-close" onclick="closeModal()">×</button>
+    <div class="md-logo"><div class="logo-sq">ME</div><span>MedicinEvidence</span></div>
+    <h3 data-t>Create your account</h3>
+    <p class="md-sub" data-t>Free for verified healthcare professionals</p>
+    <div class="md-info"><strong data-t>🔐 Verified access only.</strong> <span data-t>We verify credentials to keep the community clinically focused and ad-free for users.</span></div>
+    <label data-t>I am a…</label>
+    <div class="role-grid">
+      <button class="role-btn act" data-role="doctor" onclick="pickRole(this)"><span class="ico">👨‍⚕️</span><span data-t>Doctor</span></button>
+      <button class="role-btn" data-role="pharmacist" onclick="pickRole(this)"><span class="ico">💊</span><span data-t>Pharmacist</span></button>
+      <button class="role-btn" data-role="student" onclick="pickRole(this)"><span class="ico">🎓</span><span data-t>Student</span></button>
+    </div>
+    <label data-t>Full name</label><input id="signupName" type="text" placeholder="Dr. Jane Doe" autocomplete="name">
+    <label data-t>Institutional email</label><input id="signupEmail" type="email" placeholder="jane.doe@hospital.eu" autocomplete="email">
+    <label>Parafa (cod medic)</label><input id="signupParafa" type="text" placeholder="Ex: RO-123456" autocomplete="off">
+    <label data-t>Password</label><input id="signupPassword" type="password" placeholder="At least 8 characters" autocomplete="new-password">
+    <button class="md-btn" onclick="register()" data-t>Create free account</button>
+    <div class="md-foot"><span data-t>Already registered?</span> <a onclick="openModal('signin')" data-t>Sign in</a></div>
+  </div>
+</div>
+
+<div class="ov" id="ovForgot">
+  <div class="md">
+    <button class="md-close" onclick="closeModal()">×</button>
+    <div class="md-logo"><div class="logo-sq">ME</div><span>MedicinEvidence</span></div>
+    <h3 data-t>Reset password</h3>
+    <p class="md-sub" data-t>We will email you a 6-digit code.</p>
+
+    <div id="fpStep1">
+      <label data-t>Email</label><input id="fpEmail" type="email" placeholder="you@hospital.eu" autocomplete="email">
+      <button class="md-btn" onclick="requestPasswordReset()" data-t>Send code</button>
+      <div class="md-foot"><a onclick="openModal('signin')" data-t>Back to sign in</a></div>
+    </div>
+
+    <div id="fpStep2" style="display:none">
+      <label data-t>6-digit code</label><input id="fpCode" type="text" inputmode="numeric" maxlength="6" placeholder="123456" autocomplete="one-time-code">
+      <label data-t>New password</label><input id="fpNewPassword" type="password" placeholder="At least 6 characters" autocomplete="new-password">
+      <button class="md-btn" onclick="confirmPasswordReset()" data-t>Set new password</button>
+      <div class="md-foot"><a onclick="openModal('signin')" data-t>Back to sign in</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE (popup) -->
+<div class="ov" id="ovProfile">
+  <div class="md">
+    <button class="md-close" onclick="closeModal()">×</button>
+    <div class="md-logo"><div class="logo-sq">ME</div><span>MedicinEvidence</span></div>
+    <h3>Profile</h3>
+    <p class="md-sub">Your account details.</p>
+
+    <label>Full name</label><input id="pfFullName" type="text" readonly>
+    <label>Email</label><input id="pfEmail" type="text" readonly>
+    <label>Role</label><input id="pfRole" type="text" readonly>
+    <label>Parafa</label><input id="pfParafa" type="text" readonly>
+  </div>
+</div>
+
+<!-- Floating chat launcher (shows only when logged in) -->
+<button class="chat-launcher" id="chatLauncher" onclick="openDmFromLauncher()" title="Messages" aria-label="Messages">
+  💬 <span class="txt">Chat</span>
+</button>
+
+<script src="script.js?v=20260430c"></script>
+
+</body>
+</html>
