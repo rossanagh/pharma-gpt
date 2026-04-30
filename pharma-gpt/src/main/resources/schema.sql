@@ -63,6 +63,12 @@ ALTER TABLE public.password_reset_codes
   ADD COLUMN IF NOT EXISTS attempts INTEGER,
   ADD COLUMN IF NOT EXISTS used BOOLEAN;
 
+-- Legacy cleanup: previous schemas used `target` and/or `used_at`.
+-- They can break inserts because the app writes only `target_normalized`.
+ALTER TABLE public.password_reset_codes
+  DROP COLUMN IF EXISTS target,
+  DROP COLUMN IF EXISTS used_at;
+
 UPDATE public.password_reset_codes
 SET
   created_at = COALESCE(created_at, now()),
