@@ -46,12 +46,41 @@ WHERE role IS NULL OR created_at IS NULL;
 -- Password reset codes
 CREATE TABLE IF NOT EXISTS public.password_reset_codes (
   id BIGSERIAL PRIMARY KEY,
-  target TEXT NOT NULL,
+  target_normalized TEXT NOT NULL,
   code_hash TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   expires_at TIMESTAMPTZ NOT NULL,
-  used_at TIMESTAMPTZ,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  attempts INTEGER NOT NULL DEFAULT 0,
+  used BOOLEAN NOT NULL DEFAULT FALSE
 );
 
+-- Legacy compatibility: older tables may have different columns (target / used_at)
+ALTER TABLE public.password_reset_codes
+  ADD COLUMN IF NOT EXISTS target_normalized TEXT,
+  ADD COLUMN IF NOT EXISTS code_hash TEXT,
+  ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS expires_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS attempts INTEGER,
+  ADD COLUMN IF NOT EXISTS used BOOLEAN;
+
+-- If legacy column `target` exists, copy it into `target_normalized`
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema='public' AND table_name='password_reset_codes' AND column_name='target'
+  ) THEN
+    EXECUTE 'UPDATE public.password_reset_codes SET target_normalized = COALESCE(target_normalized, target) WHERE target_normalized IS NULL';
+  END IF;
+END $$;
+
+UPDATE public.password_reset_codes
+SET
+  created_at = COALESCE(created_at, now()),
+  attempts = COALESCE(attempts, 0),
+  used = COALESCE(used, FALSE)
+WHERE created_at IS NULL OR attempts IS NULL OR used IS NULL;
+
 CREATE INDEX IF NOT EXISTS idx_users_email_upper ON public.users (upper(email));
-CREATE INDEX IF NOT EXISTS idx_prc_target_upper ON public.password_reset_codes (upper(target));
+CREATE INDEX IF NOT EXISTS idx_prc_target ON public.password_reset_codes (target_normalized);
+CREATE INDEX IF NOT EXISTS idx_prc_expires ON public.password_reset_codes (expires_at);
