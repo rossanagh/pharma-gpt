@@ -16,3 +16,10 @@ backend/.env.*.local
 .DS_Store
 Thumbs.db
 
+
+# Editor/IDE junk
+.vs/
+**/.vs/
+*.suo
+*.sqlite
+
