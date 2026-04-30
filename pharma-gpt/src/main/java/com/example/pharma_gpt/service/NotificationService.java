@@ -8,6 +8,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.CompletableFuture;
+
 @Service
 public class NotificationService {
     private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
@@ -33,23 +35,26 @@ public class NotificationService {
         if (mailSender == null) {
             return;
         }
-        try {
-            SimpleMailMessage msg = new SimpleMailMessage();
-            msg.setFrom(from);
-            msg.setTo(to);
-            msg.setSubject("MedicinEvidence — password reset code");
-            msg.setText("""
-                Your MedicinEvidence password reset code is:
+        // Send async so API responses aren't blocked by SMTP timeouts.
+        CompletableFuture.runAsync(() -> {
+            try {
+                SimpleMailMessage msg = new SimpleMailMessage();
+                msg.setFrom(from);
+                msg.setTo(to);
+                msg.setSubject("MedicinEvidence — password reset code");
+                msg.setText("""
+                    Your MedicinEvidence password reset code is:
 
-                %s
+                    %s
 
-                This code expires in 10 minutes. If you did not request a reset, ignore this email.
-                """.formatted(code));
-            mailSender.send(msg);
-        } catch (Exception e) {
-            // Don't leak delivery failures to attacker; still log for ops.
-            log.error("Failed to send reset email to {}", to, e);
-        }
+                    This code expires in 10 minutes. If you did not request a reset, ignore this email.
+                    """.formatted(code));
+                mailSender.send(msg);
+            } catch (Exception e) {
+                // Don't leak delivery failures to attacker; still log for ops.
+                log.error("Failed to send reset email to {}", to, e);
+            }
+        });
     }
 
     /** Placeholder: integrate SMS provider (Twilio/Vonage/etc) when ready. */
