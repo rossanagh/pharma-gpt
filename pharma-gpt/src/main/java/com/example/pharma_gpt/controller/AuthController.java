@@ -50,7 +50,17 @@ public class AuthController {
             .filter(user -> passwordEncoder.matches(password, user.getPassword()));
         if (userOpt.isPresent()) {
             var user = userOpt.get();
-            String token = jwtConfig.generateToken(user.getEmail(), user.getFullName());
+            String fullName = user.getFullName();
+            if (fullName == null || fullName.isBlank()) {
+                user.syncFullName();
+                fullName = user.getFullName();
+                if (fullName == null || fullName.isBlank()) {
+                    fullName = user.getEmail();
+                } else {
+                    userRepository.save(user);
+                }
+            }
+            String token = jwtConfig.generateToken(user.getEmail(), fullName);
             return ResponseEntity.ok(buildLoginResponse(token, user));
         }
         return ResponseEntity.status(401).body(Map.of("error", "Credențiale invalide"));
@@ -100,7 +110,17 @@ public class AuthController {
             user.setAcademicTitles(request.academicTitles().trim());
         }
         userRepository.save(user);
-        String token = jwtConfig.generateToken(user.getEmail(), user.getFullName());
+        String fullName = user.getFullName();
+        if (fullName == null || fullName.isBlank()) {
+            user.syncFullName();
+            fullName = user.getFullName();
+            if (fullName == null || fullName.isBlank()) {
+                fullName = user.getEmail();
+            } else {
+                userRepository.save(user);
+            }
+        }
+        String token = jwtConfig.generateToken(user.getEmail(), fullName);
         return ResponseEntity.ok(buildLoginResponse(token, user));
     }
 
