@@ -796,6 +796,7 @@ async function authInit(){
 async function login(){
   const email = (document.getElementById("signinEmail")?.value || "").trim();
   const password = (document.getElementById("signinPassword")?.value || "");
+  if(!email || !password){ alert("Email and password required"); return; }
   try{
     const r = await apiJson("/api/auth/login",{
       method:"POST",
@@ -804,6 +805,7 @@ async function login(){
     });
     // Spring returns LoginResponse (token + user fields flat)
     const token = r.token || r.jwt || r.accessToken;
+    if(!token) throw new Error("Missing token from server");
     setAuthToken(token);
     const user = r.user ? r.user : {
       email: r.email || email,
@@ -815,7 +817,10 @@ async function login(){
       parafa: r.parafa,
       name: r.fullName || [r.firstName, r.lastName].filter(Boolean).join(" ").trim()
     };
-    setAuthUI(user);
+    // Always load canonical profile after login (includes id/email/etc.)
+    const fresh = await fetchMeFresh();
+    __DM__.me = fresh || user;
+    setAuthUI(__DM__.me);
     closeModal();
     goPage("consult");
   }catch(e){
@@ -845,6 +850,7 @@ async function register(){
   const password = (document.getElementById("signupPassword")?.value || "");
   const parafa = (document.getElementById("signupParafa")?.value || "").trim();
   const role = (document.querySelector(".role-btn.act")?.dataset?.role || "doctor").toLowerCase();
+  if(!name || !email || !password || !parafa){ alert("Please fill all fields"); return; }
   try{
     const nm = splitName(name);
     const providerType = mapRoleToProvider(role);
@@ -868,6 +874,7 @@ async function register(){
       })
     });
     const token = r.token || r.jwt || r.accessToken;
+    if(!token) throw new Error("Missing token from server");
     setAuthToken(token);
     const user = r.user ? r.user : {
       email: r.email || email,
@@ -879,7 +886,9 @@ async function register(){
       parafa: r.parafa,
       name: r.fullName || [r.firstName, r.lastName].filter(Boolean).join(" ").trim()
     };
-    setAuthUI(user);
+    const fresh = await fetchMeFresh();
+    __DM__.me = fresh || user;
+    setAuthUI(__DM__.me);
     closeModal();
     goPage("consult");
   }catch(e){
