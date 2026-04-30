@@ -3,6 +3,7 @@ package com.example.pharma_gpt.dto;
 /** Răspuns JSON pentru GET/PUT /api/users/me (serializare Jackson). */
 public final class UserProfileResponse {
 
+    private final Long id;
     private final String email;
     private final String firstName;
     private final String lastName;
@@ -15,6 +16,7 @@ public final class UserProfileResponse {
     private final boolean hasAvatar;
 
     public UserProfileResponse(
+        Long id,
         String email,
         String firstName,
         String lastName,
@@ -26,6 +28,7 @@ public final class UserProfileResponse {
         String academicTitles,
         boolean hasAvatar
     ) {
+        this.id = id;
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -36,6 +39,10 @@ public final class UserProfileResponse {
         this.specialty = specialty;
         this.academicTitles = academicTitles;
         this.hasAvatar = hasAvatar;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getEmail() {

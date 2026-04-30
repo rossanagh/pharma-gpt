@@ -88,6 +88,7 @@ public class UserController {
 
     private static UserProfileResponse toProfileResponse(User u) {
         return new UserProfileResponse(
+            u.getId(),
             u.getEmail(),
             u.getFirstName(),
             u.getLastName(),
