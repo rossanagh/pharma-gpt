@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 import java.util.Locale;
@@ -64,9 +66,9 @@ public class User {
     @Column(name = "academic_titles")
     private String academicTitles;
 
-    @Lob
     @Basic(fetch = FetchType.LAZY)
-    @Column(name = "avatar_bytes")
+    @JdbcTypeCode(SqlTypes.BINARY)
+    @Column(name = "avatar_bytes", columnDefinition = "bytea")
     private byte[] avatarBytes;
 
     @Column(name = "avatar_content_type")
