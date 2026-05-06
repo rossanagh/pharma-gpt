@@ -411,8 +411,27 @@ function openModal(which){
   }
 }
 function closeModal(){document.querySelectorAll('.ov').forEach(o=>o.classList.remove('on'));document.body.style.overflow='';}
-document.querySelectorAll('.ov').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)closeModal();});});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+function closeLegal(){
+  const el = document.getElementById('ovLegal');
+  if(el) el.classList.remove('on');
+  // Only unlock scroll if no other modals are open
+  if(!document.querySelector('.ov.on')) document.body.style.overflow='';
+}
+
+document.querySelectorAll('.ov').forEach(o=>{
+  o.addEventListener('click',e=>{
+    if(e.target!==o) return;
+    if(o.id === 'ovLegal') closeLegal();
+    else closeModal();
+  });
+});
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape') return;
+  // Close Legal first if it's open, otherwise close all modals
+  const legal = document.getElementById('ovLegal');
+  if(legal && legal.classList.contains('on')) closeLegal();
+  else closeModal();
+});
 
 /* ============ LEGAL (GDPR / Cookies / Terms) ============ */
 function legalPick(which){
@@ -425,7 +444,9 @@ function legalPick(which){
 }
 
 function openLegal(which){
-  openModal('legal');
+  // Open Legal on top of the current modal (do NOT close signin/signup flow)
+  const el = document.getElementById('ovLegal');
+  if(el){ el.classList.add('on'); document.body.style.overflow='hidden'; }
   // Fill content lazily
   const p = document.getElementById('legal-privacy');
   const c = document.getElementById('legal-cookies');
