@@ -60,3 +60,314 @@ RAG NOTES (how to write knowledge):
 - For CKD/HF/ASCVD, prioritize therapies with proven outcomes; adjust doses by renal function where relevant.
 - Avoid hypoglycemia in older/frail; individualize glycemic targets.
 
+---
+
+[MedicinEvidence Radiology RAG Spec v1.0 (Apr 2025)] Radiology AI architecture (Claude Vision + RAG + DICOM):
+- Vision: Claude Vision analyzes pixels from uploaded images (JPG/PNG/screenshots) to detect findings and describe anatomy.
+- RAG: Ground interpretations with specialist sources (Radiopaedia, ACR RADS, Fleischner, ESC/ERS/ESMO) and cite verifiable sources (DOI/URL where available).
+- DICOM: For .dcm files/series, use a browser DICOM viewer (e.g., dwv.js) to render slices, then export the relevant slice to image (canvas to DataURL) for vision analysis.
+
+---
+
+[MedicinEvidence Radiology RAG Spec v1.0 (Apr 2025)] File handling guidance (Radiology module):
+- JPG/PNG/WebP/BMP: send to vision model + include modality/type selected by clinician for correct report structure.
+- PDF (labs/reports): extract text and analyze as text-only; explicitly state when image interpretation is not possible from PDFs.
+- DICOM on CD: clinician selects relevant slices; avoid uploading patient identifiers; emphasize anonymization and clinical correlation.
+
+---
+
+[MedicinEvidence Radiology RAG Spec v1.0 (Apr 2025)] Indexed sources (examples):
+- Radiopaedia (articles/cases) for radiology patterns and differential diagnosis.
+- ACR Reporting and Data Systems: Lung-RADS, BI-RADS, PI-RADS, TI-RADS, LI-RADS (apply when relevant).
+- Fleischner Society pulmonary nodule guidance (2017 and updates) for follow-up recommendations.
+- ESC/ERS/ESMO guideline imaging sections for modality-specific recommendations (echo/CT/CMR; chest CT in ILD; staging imaging).
+
+---
+
+[Radiology Sources — Link Index (public)] ACR RADS (official pages):
+- ACR Lung-RADS: https://www.acr.org/Clinical-Resources/Clinical-Tools-and-Reference/Reporting-and-Data-Systems/Lung-RADS
+- ACR BI-RADS: https://www.acr.org/Clinical-Resources/Clinical-Tools-and-Reference/Reporting-and-Data-Systems/Bi-Rads
+- ACR PI-RADS: https://www.acr.org/Clinical-Resources/Clinical-Tools-and-Reference/Reporting-and-Data-Systems/PI-RADS
+- ACR TI-RADS: https://www.acr.org/Clinical-Resources/Clinical-Tools-and-Reference/Reporting-and-Data-Systems/TI-RADS
+- ACR LI-RADS: https://www.acr.org/Clinical-Resources/Clinical-Tools-and-Reference/Reporting-and-Data-Systems/LI-RADS
+- ACR NI-RADS: https://www.acr.org/Clinical-Resources/Clinical-Tools-and-Reference/Reporting-and-Data-Systems/NI-RADS
+- ACR RADS hub (news/announcements): https://www.acr.org/Clinical-Resources/Clinical-Tools-and-Reference/Reporting-and-Data-Systems
+
+---
+
+[Radiology Sources — Link Index (public)] European societies guideline hubs:
+- ESC Guidelines hub + “All ESC Practice Guidelines”: https://www.escardio.org/Guidelines (see “All ESC Clinical Practice Guidelines” link)
+- ERS Guidelines hub (filterable list of official ERS/Joint docs): https://www.ersnet.org/guidelines/
+- ESMO Guidelines hub: https://www.esmo.org/guidelines (some content may require login / region access)
+- EURETINA Guidelines: https://www.euretina.org/guidelines
+
+---
+
+[Radiology Sources — Link Index (limited access)] Radiopaedia:
+- Radiopaedia actively blocks unsanctioned scraping; use their official API and token-based access.
+- API landing: https://radiopaedia.org/api/v1 (may require authenticated access / may change)
+- Example searches (human browsing): https://radiopaedia.org/search?lang=en&q=lung · https://radiopaedia.org/search?q=brain+mri · https://radiopaedia.org/search?q=msk
+
+---
+
+[Fleischner Society] Pulmonary nodule guidance (DOI index):
+- Solid pulmonary nodules (2017): DOI 10.1148/radiol.2017161659
+- Subsolid pulmonary nodules (2017): DOI 10.1148/radiol.2017161832
+- 2022 update: DOI 10.1148/radiol.2022222090
+- Incidental pulmonary embolism (2020): DOI 10.1148/radiol.2020192586
+- Note: for RAG ingestion, prefer official publisher/PubMed pages that allow access; do not quote full text unless it is openly available.
+
+
+---
+
+[ESC Guidelines hub] (public ingest, 2026-05-06)
+- URL: https://www.escardio.org/Guidelines
+- Note: hub page (links to all guidelines)
+- ESC Guidelines: Discover, Download, Apply
+- ESC eLearning
+- ESC eLearning
+- ESC eLearning
+- Membership
+- Communities
+- Public Health
+- Data Science
+- Guidelines
+- Publications
+- Who we are
+- How we work
+- Our partnerships
+- Communities
+- Communities
+- Associations
+- Working Groups
+- Cardiac Societies
+
+---
+
+[ERS Guidelines hub] (public ingest, 2026-05-06)
+- URL: https://www.ersnet.org/guidelines/
+- Note: filterable list of ERS/Joint docs
+- Guidelines - ERS Respiratory Channel
+- CDN Connection Issue
+- It appears that your current network does not allow connection to the CDN (Content Delivery Network) required for this service to function properly.
+- To resolve this issue, please try the following actions :
+- &bull; Contact your network administrator :
+- Inform them of this restriction so they can adjust the network settings accordingly.
+- &bull; Use another network :
+- Try connecting from a different network, such as another Wi-Fi network or a mobile connection.
+- We apologize for the inconvenience and thank you for your understanding.
+- ERS website
+- RESPIRATORY CHANNEL
+- Watch/listen now
+- Videos Series
+- Coffee Talk
+- Ask the Expert
+- ERS Vision Live
+- Respiratory News Live
+- Guidelines in Focus
+
+---
+
+[EURETINA Guidelines] (public ingest, 2026-05-06)
+- URL: https://www.euretina.org/guidelines
+- Note: guideline list page
+- Guidelines &#8211; EURETINA
+- Euretina 2026 Vienna
+- Abstract Submission
+- Session Submission
+- Registration
+- EuroVeRsion Case Contest
+- Meeting Policy
+- Euretina Innovation Spotlight (EIS) 2026
+- Registration
+- Application for Emerging Companies
+- Special Focus Meeting 2026 &#8211; AI in Retina
+- Registration
+- Post-Event Hub
+- Poster Submission
+- Euretina 2025 Paris
+- Congress Daily &#038; Photo Gallery
+- Registration
+- Keynote Lectures
+
+---
+
+[ESMO Guidelines hub] (public ingest, 2026-05-06)
+- URL: https://www.esmo.org/guidelines
+- Note: may show limited content without login
+- Guidelines | ESMO
+- Meeting Calendar
+- OncologyPRO
+- Daily Reporter
+- No results found
+- Useful links
+- About ESMO
+- Contact us
+
+---
+
+[ACR RADS hub] (public ingest, 2026-05-06)
+- URL: https://www.acr.org/Clinical-Resources/Clinical-Tools-and-Reference/Reporting-and-Data-Systems
+- Note: often dynamic
+- Reporting and Data Systems (RADS) Skip to Main Content
+- Main Content
+- Reporting and Data Systems (RADS)
+- By adopting RADS, your practice puts standard terminology in place to improve reporting and clarify communication between radiologists and referring physicians.
+- Clinical Resources
+- Clinical Tools and References
+- Clinical Tools and Reference
+- Add to Reading List Share
+- News and Announcements
+- Access the latest content and resources related to RADS.
+- NI-RADS MRI v2025: Advancing Head & Neck Cancer Surveillance
+- BI-RADS® v2025 Manual
+- Purchase today
+- Soft Tissue-RADS: An ACR Work-in-Progress Framework for Standardized Reporting of Soft-Tissue Lesions on MRI
+- Learn more
+- Loading component...
+- RADS in Progress
+- RADS in progress are programs approved by the RADS steering committee who are working on their first system. If you are interested in joining a RADS, contact RADS@acr.org. Current RADS in Progress include:
+
+---
+
+[ACR Lung-RADS] (public ingest, 2026-05-06)
+- URL: https://www.acr.org/Clinical-Resources/Clinical-Tools-and-Reference/Reporting-and-Data-Systems/Lung-RADS
+- Note: often dynamic
+- ACR Lung CT Screening Reporting & Data System (Lung-RADS®) Skip to Main Content
+- Main Content
+- Lung-RADS®
+- Lung CT Screening Reporting and Data System
+- Clinical Resources
+- Clinical Tools and References
+- Lung-RADS®
+- Reporting and Data Systems
+- Add to Reading List Share
+- Loading component...
+- Loading component...
+- Loading component...
+- Lung-RADS Archive
+- Loading component...
+- Loading component...
+- Loading component...
+- Loading component...
+- Current Release
+
+---
+
+[ACR BI-RADS] (public ingest, 2026-05-06)
+- URL: https://www.acr.org/Clinical-Resources/Clinical-Tools-and-Reference/Reporting-and-Data-Systems/Bi-Rads
+- Note: often dynamic
+- ACR Breast Imaging Reporting & Data System (BI-RADS®) Skip to Main Content
+- Main Content
+- ACR Breast Imaging Reporting and Data System
+- Clinical Resources
+- Clinical Tools and References
+- Reporting and Data Systems
+- Add to Reading List Share
+- Loading component...
+- Loading component...
+- Loading component...
+- Loading component...
+- Loading component...
+- Current Release
+- Purchase BI-RADS BI-RADS Bulk Pricing List
+- The illustrated BI-RADS&reg; v2025 Manual is an extension of the 5th Edition of the BI-RADS Atlas. The BI-RADS manual provides standardized breast imaging terminology, report organization, assessment structure and a clas…
+- Through a medical audit and outcome monitoring, the system provides important mechanisms for peer review and quality assurance data to improve the quality of patient care. Standardized results permit maintenance and anal…
+- The BI-RADS manual includes:
+- Over 900 clinical images
+
+---
+
+[ACR PI-RADS] (public ingest, 2026-05-06)
+- URL: https://www.acr.org/Clinical-Resources/Clinical-Tools-and-Reference/Reporting-and-Data-Systems/PI-RADS
+- Note: often dynamic
+- ACR Prostate Imaging Reporting & Data System (PI-RADS®) Skip to Main Content
+- Main Content
+- Prostate Imaging Reporting and Data System
+- Clinical Resources
+- Clinical Tools and References
+- Reporting and Data Systems
+- Add to Reading List Share
+- Loading component...
+- Loading component...
+- Related Resources
+- Loading component...
+- PI-RADS Archive
+- PI-RADS v2 Module
+- Loading component...
+- Loading component...
+- Loading component...
+- Loading component...
+- Current Release
+
+---
+
+[ACR TI-RADS] (public ingest, 2026-05-06)
+- URL: https://www.acr.org/Clinical-Resources/Clinical-Tools-and-Reference/Reporting-and-Data-Systems/TI-RADS
+- Note: often dynamic
+- ACR Thyroid Imaging Reporting & Data System (TI-RADS™) Skip to Main Content
+- Main Content
+- Thyroid Imaging Reporting and Data System
+- Clinical Resources
+- Clinical Tools and References
+- Reporting and Data Systems
+- Add to Reading List Share
+- Loading component...
+- Loading component...
+- Loading component...
+- Loading component...
+- Loading component...
+- Current Release
+- Access TI-RADS Learn more (JACR) Copy Citation
+- Thyroid nodules are exceedingly common, leading to costly interventions for many lesions that ultimately prove benign. In response, ACR committees were formed to accomplish three goals:
+- Develop management guidelines for nodules that are discovered incidentally on CT, MRI, PET or ultrasound.
+- Produce a lexicon to describe all thyroid nodules on sonography.
+- Develop a standardized TI-RADS risk-stratification system based on the lexicon to inform practitioners about which nodules warrant biopsy.
+
+---
+
+[ACR LI-RADS] (public ingest, 2026-05-06)
+- URL: https://www.acr.org/Clinical-Resources/Clinical-Tools-and-Reference/Reporting-and-Data-Systems/LI-RADS
+- Note: often dynamic
+- ACR Liver Imaging Reporting & Data System (LI-RADS®) Skip to Main Content
+- Main Content
+- Liver Imaging Reporting and Data System
+- Clinical Resources
+- Clinical Tools and References
+- Reporting and Data Systems
+- Add to Reading List Share
+- Loading component...
+- Loading component...
+- Loading component...
+- Loading component...
+- Loading component...
+- Loading component...
+- Current Releases
+- Access LI-RADS:
+- US Surveillance v2024 Core
+- CEUS Nonradiation TRA v2024 Core
+- CT/MR Nonradiation TRA v2024 Core
+
+---
+
+[ACR NI-RADS] (public ingest, 2026-05-06)
+- URL: https://www.acr.org/Clinical-Resources/Clinical-Tools-and-Reference/Reporting-and-Data-Systems/NI-RADS
+- Note: often dynamic
+- ACR Neck Imaging Reporting & Data System (NI-RADS™) Skip to Main Content
+- Main Content
+- Neck Imaging Reporting and Data System
+- Clinical Resources
+- Clinical Tools and References
+- Reporting and Data Systems
+- Add to Reading List Share
+- Loading component...
+- Loading component...
+- Loading component...
+- Loading component...
+- NI-RADS Archive
+- Loading component...
+- Related Resources
+- Loading component...
+- Loading component...
+- Loading component...
+- Loading component...

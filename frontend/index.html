@@ -207,173 +207,173 @@
         </div>
       </div>
 
-      <!-- PATIENT COCKPIT -->
-      <div class="patient-cockpit">
-        <div class="pc-header">
-          <div class="pc-header-left">
-            <div class="pc-avatar">👤</div>
+      <!-- DEMO-LIKE CONSULTATION BODY (header kept above) -->
+      <div class="c2-layout">
+        <div class="c2-left">
+          <div class="c2-card">
+            <div class="c2-card-head">
+              <div class="c2-ico">💬</div>
+              <div>
+                <div class="c2-t">Consultație rapidă</div>
+                <div class="c2-s">Descrieți pacientul natural — vârstă, afecțiuni, medicație, întrebare</div>
+              </div>
+            </div>
+            <textarea class="c2-ta" id="mainQ" oninput="c2UpdateChar()" placeholder="ex: Pacient de 72 ani, bărbat, DZ tip 2, HTA grad I, CKD stadiu 3a cu eGFR 48 ml/min. Pe Metformin 1000mg bid și Ramipril 5mg qd. Ar trebui să inițiez un SGLT2i?"></textarea>
+            <div class="c2-chips">
+              <span class="c2-chlbl">Completează rapid:</span>
+              <button class="c2-chip" onclick="c2AddCtx('vârstă: ')">+ Vârstă</button>
+              <button class="c2-chip" onclick="c2AddCtx('eGFR: ')">+ eGFR</button>
+              <button class="c2-chip" onclick="c2AddCtx('HbA1c: ')">+ HbA1c</button>
+              <button class="c2-chip" onclick="c2AddCtx('TA: ')">+ Tensiune</button>
+              <button class="c2-chip" onclick="c2AddCtx('medicație: ')">+ Medicație</button>
+              <button class="c2-chip" onclick="c2AddCtx('alergie la ')">+ Alergie</button>
+            </div>
+            <div class="c2-card-foot">
+              <div style="display:flex;align-items:center;gap:14px">
+                <span class="c2-char" id="charCt">0</span>
+                <div class="c2-src-tags"><span>PubMed</span><span>ESC</span><span>EASD</span><span>CNAS</span></div>
+              </div>
+              <button class="c2-btn" id="sendBtn" onclick="askAI()">Consultă</button>
+            </div>
+            <div class="c2-qa">
+              <div class="c2-qa-lbl">Acțiuni rapide pe profilul introdus:</div>
+              <button class="c2-btn2" onclick="quickAction('interactions')">⚗️ Interacțiuni</button>
+              <button class="c2-btn2" onclick="quickAction('dosing')">💊 Ajustări renale</button>
+              <button class="c2-btn2" onclick="quickAction('guidelines')">📋 Ghiduri</button>
+              <button class="c2-btn2" onclick="quickAction('risk')">❤️ Risc CV</button>
+            </div>
+          </div>
+
+          <button class="c2-expand" onclick="toggleExt()">
+            <div class="c2-ebl">
+              <span style="font-size:22px">🗂️</span>
+              <div>
+                <div class="c2-ebt">Profil detaliat pacient &amp; Încărcare analize</div>
+                <div class="c2-ebs">Valori de laborator cu alertă automată · Medicație · Upload buletin PDF sau imagini</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span class="c2-badge">Recomandat</span>
+              <span class="c2-arrow" id="arrow">▼</span>
+            </div>
+          </button>
+
+          <div class="c2-panel" id="extPanel">
+            <div class="c2-ph">
+              <div class="c2-pt">📋 Profil complet pacient</div>
+              <button class="c2-x" onclick="toggleExt()">✕</button>
+            </div>
+
+            <div class="c2-sec">
+              <div class="c2-sect">🎂 Date demografice</div>
+              <div class="c2-g4">
+                <div class="c2-f"><label>Vârstă</label><input type="number" id="pAge" placeholder="65" oninput="checkVitals()"></div>
+                <div class="c2-f"><label>Sex</label><select id="pSex" onchange="checkVitals()"><option value="">—</option><option value="M">Masculin</option><option value="F">Feminin</option></select></div>
+                <div class="c2-f"><label>Greutate (kg)</label><input type="number" id="pWt" placeholder="75" oninput="calcBMI()"></div>
+                <div class="c2-f"><label>Înălțime (cm)</label><input type="number" id="pHt" placeholder="170" oninput="calcBMI()"><div id="bmiRes"></div></div>
+              </div>
+            </div>
+
+            <div class="c2-sec">
+              <div class="c2-sect">🔬 Vitale &amp; analize cheie</div>
+              <div class="c2-g4" style="margin-bottom:12px">
+                <div class="c2-f"><label>TA</label><input type="text" id="pBP" placeholder="130/80" oninput="checkVitals()"><div id="bpA"></div></div>
+                <div class="c2-f"><label>eGFR</label><input type="number" id="pEGFR" placeholder="75" oninput="checkVitals()"><div id="egfrA"></div></div>
+                <div class="c2-f"><label>HbA1c</label><input type="number" id="pHBA" placeholder="7.2" step="0.1" oninput="checkVitals()"><div id="hbaA"></div></div>
+                <div class="c2-f"><label>LDL</label><input type="number" id="pLDL" placeholder="95" oninput="checkVitals()"><div id="ldlA"></div></div>
+              </div>
+              <div class="c2-g3">
+                <div class="c2-f"><label>Creatinină</label><input type="number" id="pCr" placeholder="1.0" step="0.1" oninput="checkVitals()"><div id="crA"></div></div>
+                <div class="c2-f"><label>Glicemie</label><input type="number" id="pGlu" placeholder="110" oninput="checkVitals()"><div id="gluA"></div></div>
+                <div class="c2-f"><label>Alte analize</label><input type="text" id="pLab" placeholder="Na 138, K 4.2, Hb 12…"></div>
+              </div>
+              <div class="c2-alerts" id="vitBox" style="margin-top:14px"></div>
+            </div>
+
+            <div class="c2-sec">
+              <div class="c2-sect">🏥 Afecțiuni &amp; medicație</div>
+              <div class="c2-g2" style="margin-bottom:12px">
+                <div class="c2-f"><label>Afecțiuni active / diagnostice</label><textarea id="pConds" rows="3" placeholder="Diabet zaharat tip 2, HTA, CKD stadiu 3…"></textarea></div>
+                <div class="c2-f"><label>Alergii &amp; contraindicații</label><textarea id="pAllergy" rows="3" placeholder="Penicilină, AINS…"></textarea></div>
+              </div>
+              <div class="c2-f" style="margin-bottom:9px"><label>Medicație curentă</label></div>
+              <div class="c2-med-row">
+                <input type="text" id="medIn" placeholder="ex: Metformin 1000mg bid" onkeydown="if(event.key==='Enter')addMed()">
+                <button class="c2-add" onclick="addMed()">+ Adaugă</button>
+              </div>
+              <div class="c2-med-tags" id="medTags"></div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px">
+                <button class="c2-pm" onclick="addPreset('Metformin 1000mg bid')">+ Metformin</button>
+                <button class="c2-pm" onclick="addPreset('Ramipril 5mg qd')">+ Ramipril</button>
+                <button class="c2-pm" onclick="addPreset('Atorvastatin 40mg')">+ Atorvastatin</button>
+                <button class="c2-pm" onclick="addPreset('Bisoprolol 5mg qd')">+ Bisoprolol</button>
+                <button class="c2-pm" onclick="addPreset('Aspirin 75mg qd')">+ Aspirină</button>
+                <button class="c2-pm" onclick="addPreset('Empagliflozin 10mg qd')">+ Empagliflozin</button>
+              </div>
+            </div>
+
+            <div class="c2-sec">
+              <div class="c2-sect">📄 Încărcare analize &amp; imagini</div>
+              <div class="c2-up" id="dropZone">
+                <input type="file" class="c2-upin" id="fileIn" multiple accept=".pdf,.jpg,.jpeg,.png,.bmp" onchange="handleFiles(this.files)">
+                <div style="font-size:28px;margin-bottom:8px;opacity:.75">📎</div>
+                <div style="font-size:15px;font-weight:600;color:var(--ink);margin-bottom:4px">Trage fișierele sau click pentru a selecta</div>
+                <div style="font-size:13px;color:var(--ink2)">PDF buletine · JPG/PNG imagini · ECG · Radiografii · Max 20MB</div>
+              </div>
+              <div class="c2-file-list" id="fileList"></div>
+            </div>
+
+            <div class="c2-sec" style="display:flex;gap:10px;flex-wrap:wrap">
+              <button class="c2-btn" style="flex:1;justify-content:center" onclick="sendFromPanel()">Analizează profilul complet</button>
+              <button class="c2-btn2" id="analyzeFilesBtn" style="display:none" onclick="doAnalyzeFiles()">🔬 Interpretează analizele</button>
+            </div>
+          </div>
+
+          <div class="c2-anres" id="analyzeResult">
+            <div class="c2-arh">
+              <div>
+                <div class="c2-art">Interpretare analize</div>
+                <div class="c2-arm" id="arMeta"></div>
+              </div>
+              <button class="c2-btn2" onclick="printAnalyze()">Print</button>
+            </div>
+            <div class="c2-arb" id="arBody"></div>
+          </div>
+
+          <div class="c2-div">sau alegeți un scenariu clinic frecvent</div>
+          <div class="c2-presets">
+            <button class="c2-pcard" onclick="preset('diff')"><div class="i">🔍</div><div class="t">Diagnostic diferențial</div><div class="s">Diagnostice ordonate după probabilitate cu semne de alarmă</div></button>
+            <button class="c2-pcard" onclick="preset('drug')"><div class="i">⚗️</div><div class="t">Interacțiuni medicamentoase</div><div class="s">Verificare completă cu ajustări renale și contraindicații</div></button>
+            <button class="c2-pcard" onclick="preset('guide')"><div class="i">📋</div><div class="t">Ghiduri ESC · EASD · KDIGO</div><div class="s">Recomandări actuale specifice profilului pacientului</div></button>
+            <button class="c2-pcard" onclick="preset('risk')"><div class="i">❤️</div><div class="t">Risc cardiovascular SCORE2</div><div class="s">Calcul risc și intervențiile indicate conform ghidurilor</div></button>
+          </div>
+        </div>
+
+        <div class="c2-chat-card">
+          <div class="c2-ch">
+            <div class="c2-chav">ME</div>
             <div>
-              <h3 data-t>Patient profile</h3>
-              <p id="pcSummary" style="font-size:13px;color:var(--ink2);margin-top:2px" data-t>Fill in only what's relevant to your query</p>
+              <div class="c2-cht">MedicinEvidence · Consultație clinică</div>
+              <div class="c2-chs">Răspuns academic · streaming · citat din surse verificate</div>
+            </div>
+            <div class="c2-online">Online</div>
+            <button class="c2-btn2" onclick="printConsult()">Print</button>
+          </div>
+          <div class="c2-cb" id="chatBody">
+            <div class="c2-empty" id="emptyState">
+              <div class="i">🩺</div>
+              <div class="t">Gata să consultați.</div>
+              <div class="s">Descrieți cazul în câmpul din stânga sau alegeți un scenariu frecvent.</div>
             </div>
           </div>
-          <button class="pc-clear-btn" onclick="clearPatient()" data-t>Clear patient</button>
-        </div>
-
-        <!-- Row 1: Demographics — 4 equal columns -->
-        <div class="pc-section-label" data-t>Demographics</div>
-        <div class="pc-row4">
-          <div class="pc-field">
-            <label data-t>Age</label>
-            <div class="pc-input-wrap"><span class="pc-ico">🎂</span><input type="number" id="pAge" placeholder="65" min="0" max="120" onchange="updatePcSummary()"></div>
-          </div>
-          <div class="pc-field">
-            <label data-t>Sex</label>
-            <div class="pc-input-wrap"><span class="pc-ico">⚥</span>
-              <select id="pSex" onchange="updatePcSummary()">
-                <option value="">—</option>
-                <option value="Male" data-t>Male</option>
-                <option value="Female" data-t>Female</option>
-              </select>
+          <div class="c2-cf">
+            <div class="c2-cirow">
+              <input type="text" class="c2-ci" id="chatIn" placeholder="Continuați conversația…" onkeydown="if(event.key==='Enter')sendChat()">
+              <button class="c2-cis" onclick="sendChat()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </button>
             </div>
-          </div>
-          <div class="pc-field">
-            <label data-t>Weight (kg)</label>
-            <div class="pc-input-wrap"><span class="pc-ico">⚖️</span><input type="number" id="pWeight" placeholder="78" onchange="updatePcSummary()"></div>
-          </div>
-          <div class="pc-field">
-            <label>BMI <span style="font-size:10px;opacity:.6" data-t>(auto)</span></label>
-            <div class="pc-input-wrap pc-computed"><span class="pc-ico">📊</span><span id="pBMI" style="font-size:13.5px;font-weight:600">—</span></div>
-          </div>
-        </div>
-
-        <!-- Row 2: Labs — 4 equal columns -->
-        <div class="pc-section-label" style="margin-top:16px" data-t>Key labs & vitals</div>
-        <div class="pc-row4">
-          <div class="pc-field">
-            <label>eGFR <span style="font-size:10px;opacity:.6">ml/min</span></label>
-            <div class="pc-input-wrap"><span class="pc-ico">🫘</span><input type="number" id="pEgfr" placeholder="75" onchange="updatePcSummary()"></div>
-          </div>
-          <div class="pc-field">
-            <label>HbA1c <span style="font-size:10px;opacity:.6">%</span></label>
-            <div class="pc-input-wrap"><span class="pc-ico">🩸</span><input type="number" id="pHba1c" placeholder="7.2" step="0.1" onchange="updatePcSummary()"></div>
-          </div>
-          <div class="pc-field">
-            <label>BP <span style="font-size:10px;opacity:.6">mmHg</span></label>
-            <div class="pc-input-wrap"><span class="pc-ico">💓</span><input type="text" id="pBP" placeholder="135/85" onchange="updatePcSummary()"></div>
-          </div>
-          <div class="pc-field">
-            <label>Creatinine <span style="font-size:10px;opacity:.6">mg/dL</span></label>
-            <div class="pc-input-wrap"><span class="pc-ico">🧪</span><input type="number" id="pCreat" placeholder="1.1" step="0.1" onchange="updatePcSummary()"></div>
-          </div>
-        </div>
-
-        <!-- Row 3: Extra labs + lifestyle — 4 equal columns -->
-        <div class="pc-row4" style="margin-top:12px">
-          <div class="pc-field">
-            <label data-t>Other labs</label>
-            <div class="pc-input-wrap"><span class="pc-ico">🔬</span><input type="text" id="pLab" placeholder="Na 138, K 4.2…" onchange="updatePcSummary()"></div>
-          </div>
-          <div class="pc-field">
-            <label data-t>Allergies</label>
-            <div class="pc-input-wrap"><span class="pc-ico">⚠️</span><input type="text" id="pAllergy" placeholder="Penicillin…"></div>
-          </div>
-          <div class="pc-field">
-            <label data-t>Smoking</label>
-            <div class="pc-input-wrap"><span class="pc-ico">🚬</span>
-              <select id="pSmoke"><option value="">—</option><option data-t>Never</option><option data-t>Former</option><option data-t>Current</option></select>
-            </div>
-          </div>
-          <div class="pc-field">
-            <label data-t>Pregnancy</label>
-            <div class="pc-input-wrap"><span class="pc-ico">🤰</span>
-              <select id="pPreg"><option value="">—</option><option data-t>Not pregnant</option><option data-t>Pregnant</option><option data-t>Breastfeeding</option></select>
-            </div>
-          </div>
-        </div>
-
-        <!-- Row 4: Clinical text areas — 2 equal columns -->
-        <div class="pc-section-label" style="margin-top:16px" data-t>Clinical</div>
-        <div class="pc-row2">
-          <div class="pc-field">
-            <label data-t>Active conditions / diagnoses</label>
-            <div class="pc-textarea-wrap"><span class="pc-ico-top">🏥</span>
-              <textarea id="pConds" placeholder="Type 2 diabetes mellitus, arterial hypertension, CKD stage 3…" rows="2" onchange="updatePcSummary()" data-tph></textarea>
-            </div>
-          </div>
-          <div class="pc-field">
-            <label data-t>Current medications</label>
-            <div class="pc-textarea-wrap"><span class="pc-ico-top">💊</span>
-              <textarea id="pMeds" placeholder="Metformin 1000mg bid, Ramipril 5mg qd, Atorvastatin 40mg…" rows="2" onchange="updatePcSummary()" data-tph></textarea>
-            </div>
-          </div>
-        </div>
-
-        <!-- Row 5: Investigations + Notes — 2 equal columns -->
-        <div class="pc-row2" style="margin-top:12px">
-          <div class="pc-field">
-            <label data-t>Recent investigations / imaging</label>
-            <div class="pc-textarea-wrap"><span class="pc-ico-top">🩻</span>
-              <textarea id="pInvest" placeholder="Echo: EF 45%, mild MR. ECG: sinus rhythm. CXR: cardiomegaly." rows="2"></textarea>
-            </div>
-          </div>
-          <div class="pc-field">
-            <label data-t>Additional notes</label>
-            <div class="pc-textarea-wrap"><span class="pc-ico-top">📝</span>
-              <textarea id="pNotes" placeholder="Recent hospitalization, family history, social context…" rows="2"></textarea>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- QUICK SUGGESTIONS -->
-      <div class="consult-quick-wrap">
-        <span class="cq-label" data-t>Quick ask:</span>
-        <button class="cq-btn" onclick="consultQuick('differential')" data-t>🔍 Differential diagnosis</button>
-        <button class="cq-btn" onclick="consultQuick('interactions')" data-t>⚗️ Drug interactions</button>
-        <button class="cq-btn" onclick="consultQuick('guidelines')" data-t>📋 Current guidelines</button>
-        <button class="cq-btn" onclick="consultQuick('dosing')" data-t>💊 Dosing & renal adjustment</button>
-        <button class="cq-btn" onclick="consultQuick('risk')" data-t>❤️ Cardiovascular risk</button>
-      </div>
-
-      <!-- CHAT AREA -->
-      <div class="consult-chat-card">
-        <div class="consult-chat-header">
-          <div style="display:flex;align-items:center;gap:12px">
-            <div class="cch-icon">💬</div>
-            <div>
-              <h3 data-t>Clinical query</h3>
-              <p data-t>Contextual · evidence-based · always cited · streaming</p>
-            </div>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end">
-            <button class="btn-out" onclick="downloadConsultationPdf()" title="Download PDF">⬇️ <span>PDF</span></button>
-            <div class="cch-sources">
-              <span>PubMed</span><span>EMA</span><span>ESC</span><span>EASD</span><span>ESMO</span>
-            </div>
-          </div>
-        </div>
-        <div class="consult-chat-body" id="chatBody">
-          <div class="consult-empty">
-            <div class="ce-icon">🩺</div>
-            <h4 data-t>Ready when you are.</h4>
-            <p data-t>Fill in the patient profile above — only what's relevant — then ask your clinical question. Every response is personalised to your patient and cited.</p>
-            <div class="ce-features">
-              <span>✓ <span data-t>Patient-tailored</span></span>
-              <span>✓ <span data-t>Real-time streaming</span></span>
-              <span>✓ <span data-t>Guideline citations</span></span>
-              <span>✓ <span data-t>Renal & hepatic adjustments</span></span>
-            </div>
-          </div>
-        </div>
-        <div class="consult-chat-footer">
-          <div class="consult-input-row" id="consultInputRow">
-            <div class="cir-avatar">ME</div>
-            <input type="text" id="chatInput" placeholder="Ask a clinical question about this patient…" onkeydown="if(event.key==='Enter')sendChat()" data-tph>
-            <button class="consult-send-btn" id="chatSendBtn" onclick="sendChat()">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-            </button>
+            <div class="c2-hint">PubMed · EMA · ESC · EASD · ESMO · Cochrane · CNAS · Fleischner</div>
           </div>
         </div>
       </div>
@@ -2219,49 +2219,131 @@
         <a onclick="goPage('tools')"><span class="ico">🔧</span><span data-t>AI Tools</span></a>
       </div>
     </aside>
-    <main class="main">
-      <div class="section-head">
-        <h1><em data-t>Radiology AI</em></h1>
-        <p data-t>Upload imaging for an evidence-based second-opinion · JPG, PNG · AI Vision</p>
-      </div>
-
-      <label for="radFile" class="rad-upload" id="radDrop">
-        <div class="ico">🩻</div>
-        <h3 data-t>Drop imaging here or click to upload</h3>
-        <p data-t>Supports JPG, PNG · HIPAA/GDPR compliant · Anonymized at upload · Max 5MB</p>
-        <input type="file" id="radFile" style="display:none" accept="image/jpeg,image/png,image/webp" onchange="radUpload(this.files[0])">
-      </label>
-
-      <div class="rad-preview" id="radPreview">
-        <img id="radImg" alt="Uploaded image">
-        <div class="ctrls">
-          <button class="analyze" id="radAnalyzeBtn" onclick="radAnalyze()">🤖 <span data-t>Analyze with AI</span></button>
-          <button class="clear" onclick="radClear()"><span data-t>Clear</span></button>
+    <main class="main" style="min-width:0">
+      <div class="rx-hero">
+        <div class="rx-kicker">Interpretare imagistică medicală</div>
+        <h1 class="rx-h1">Radiologie <em>AI — al doilea aviz academic.</em></h1>
+        <p class="rx-sub">Încarcă orice investigație medicală. AI-ul interpretează academic cu structură de radiolog specialist, diagnostic diferențial ierarhizat și citări din ghiduri.</p>
+        <div class="rx-srcs">
+          <span class="rx-src">ACR · Lung-RADS</span>
+          <span class="rx-src">Fleischner</span>
+          <span class="rx-src">BI-RADS</span>
+          <span class="rx-src">PI-RADS v2.1</span>
+          <span class="rx-src">WHO CNS</span>
         </div>
       </div>
 
-      <div class="rad-result" id="radResult"></div>
+      <div class="rx-layout">
+        <div class="rx-left">
+          <!-- STEP 1 -->
+          <div class="rx-card">
+            <div class="rx-card-head">
+              <div class="rx-ico">🩻</div>
+              <div>
+                <div class="rx-ttl">Pasul 1 — Selectează tipul investigației</div>
+                <div class="rx-subttl">Determină structura raportului și ghidurile aplicate automat</div>
+              </div>
+            </div>
+            <div class="rx-type-grid" id="rxTypeGrid">
+              <button class="rx-type act" data-rtype="mri" onclick="rxPickType(this)"><div class="i">🧠</div><div class="n">RMN / MRI</div><div class="s">Cerebral · Spinal · Articular</div></button>
+              <button class="rx-type" data-rtype="ct" onclick="rxPickType(this)"><div class="i">🫁</div><div class="n">CT Scan</div><div class="s">Torace · Cranio · Abd.</div></button>
+              <button class="rx-type" data-rtype="xray" onclick="rxPickType(this)"><div class="i">🦴</div><div class="n">Radiografie</div><div class="s">Rx · Pulmonar · Os</div></button>
+              <button class="rx-type" data-rtype="echo" onclick="rxPickType(this)"><div class="i">❤️</div><div class="n">Ecografie</div><div class="s">Cardiac · Abdominal</div></button>
+              <button class="rx-type" data-rtype="ecg" onclick="rxPickType(this)"><div class="i">📈</div><div class="n">ECG</div><div class="s">12 derivații · Ritm</div></button>
+              <button class="rx-type" data-rtype="mammo" onclick="rxPickType(this)"><div class="i">🎗️</div><div class="n">Mamografie</div><div class="s">Screening · BI-RADS</div></button>
+              <button class="rx-type" data-rtype="fundus" onclick="rxPickType(this)"><div class="i">👁️</div><div class="n">Fund de ochi</div><div class="s">Retinografie · OCT</div></button>
+              <button class="rx-type" data-rtype="derm" onclick="rxPickType(this)"><div class="i">🔬</div><div class="n">Dermatoscopie</div><div class="s">Leziuni cutanate</div></button>
+              <button class="rx-type" data-rtype="lab" onclick="rxPickType(this)"><div class="i">📊</div><div class="n">Analize PDF</div><div class="s">Buletin · Laborator</div></button>
+              <button class="rx-type" data-rtype="other" onclick="rxPickType(this)"><div class="i">📎</div><div class="n">Altele</div><div class="s">Orice investigație</div></button>
+            </div>
+            <div class="rx-note">
+              <div class="b">💡</div>
+              <div>Ai fișiere DICOM? Deschide-le cu RadiAnt/OsiriX → salvează slice-uri relevante ca JPG → uploadează aici. Suport DICOM nativ în curând.</div>
+            </div>
+          </div>
 
-      <div class="rad-info">
-        <div class="card">
-          <div class="ico">⚡</div>
-          <h5 data-t>Fast turnaround</h5>
-          <p data-t>Results typically under 30 seconds</p>
-        </div>
-        <div class="card">
-          <div class="ico">🎯</div>
-          <h5 data-t>Structured read</h5>
-          <p data-t>Findings + differential with confidence</p>
-        </div>
-        <div class="card">
-          <div class="ico">📖</div>
-          <h5 data-t>Guidelines-backed</h5>
-          <p data-t>Recommendations link to evidence</p>
-        </div>
-      </div>
+          <!-- STEP 2 -->
+          <div class="rx-card">
+            <div class="rx-card-head">
+              <div class="rx-ico">📎</div>
+              <div>
+                <div class="rx-ttl">Pasul 2 — Încarcă imaginile</div>
+                <div class="rx-subttl">JPG · PNG · PDF · Multiple fișiere · Max 20MB/fișier</div>
+              </div>
+            </div>
+            <label class="rx-upload" id="rxDropZone">
+              <input type="file" class="rx-in" id="rxFileIn" multiple accept="image/jpeg,image/png,image/webp,image/bmp,application/pdf" onchange="rxHandleFiles(this.files)">
+              <div class="rx-up-ico">📎</div>
+              <div class="rx-up-t">Trage fișierele aici sau click pentru a selecta</div>
+              <div class="rx-up-s">JPG · PNG · PDF · BMP · Multiple fișiere</div>
+              <div class="rx-tags">
+                <span>RMN JPG</span><span>CT Screenshot</span><span>Rx PNG</span><span>ECG foto</span><span>PDF buletin</span>
+              </div>
+            </label>
+            <div class="rx-files" id="rxFileList"></div>
+          </div>
 
-      <div class="rad-disclaimer">
-        <strong>⚠ <span data-t>Clinical disclaimer:</span></strong> <span data-t>Radiology AI provides decision-support only. It is not a substitute for formal radiological interpretation by a licensed radiologist. All findings must be clinically correlated and verified.</span>
+          <!-- STEP 3 -->
+          <div class="rx-card">
+            <div class="rx-card-head">
+              <div class="rx-ico">🏥</div>
+              <div>
+                <div class="rx-ttl">Pasul 3 — Context clinic</div>
+                <div class="rx-subttl">Opțional, dar îmbunătățește semnificativ interpretarea</div>
+              </div>
+            </div>
+            <div class="rx-pad">
+              <div class="rx-ctx">
+                <div class="rx-ctx-t">Date pacient & indicație clinică</div>
+                <div class="rx-g2">
+                  <div class="rx-f"><label>Vârstă & sex</label><input id="rxCtxAge" type="text" placeholder="ex: 58 ani, masculin"></div>
+                  <div class="rx-f"><label>Motiv investigație</label><input id="rxCtxReason" type="text" placeholder="ex: durere toracică, tuse cronică"></div>
+                </div>
+                <div class="rx-g2">
+                  <div class="rx-f"><label>Afecțiuni cunoscute</label><input id="rxCtxConds" type="text" placeholder="ex: HTA, DZ tip 2, fumător"></div>
+                  <div class="rx-f"><label>Investigații anterioare</label><input id="rxCtxPrev" type="text" placeholder="ex: CT normal acum 6 luni"></div>
+                </div>
+                <div class="rx-f rx-full" style="margin-top:10px">
+                  <label>Întrebare specifică pentru AI</label>
+                  <input id="rxCtxQ" type="text" placeholder="ex: Există semne de neoplasm? Aspect compatibil cu AVC ischemic acut?">
+                </div>
+              </div>
+              <div class="rx-actions">
+                <button class="rx-btn" id="rxAnalyzeBtn" onclick="rxAnalyze()">🔎 <span>Interpretează cu AI</span></button>
+                <button class="rx-btn2" onclick="rxClearAll()">↺ <span>Șterge tot</span></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="rx-disclaimer">
+            <strong>⚠ Disclaimer clinic:</strong>
+            Radiologie AI oferă suport decizional. Nu înlocuiește interpretarea unui medic radiolog licențiat. Verifică și corelează clinic.
+          </div>
+        </div>
+
+        <!-- RESULT -->
+        <div class="rx-right">
+          <div class="rx-result" id="rxResultCard">
+            <div class="rx-rhead">
+              <div>
+                <div class="rx-rtitle" id="rxRTitle">🩻 Radiologie — Interpretare AI</div>
+                <div class="rx-rmeta" id="rxRMeta"></div>
+              </div>
+              <div class="rx-rbtns">
+                <button class="rx-rbtn" onclick="rxCopyResult()">Copy</button>
+                <button class="rx-rbtn primary" onclick="rxPrintResult()">Print</button>
+              </div>
+            </div>
+            <div class="rx-strip" id="rxImgStrip" style="display:none"></div>
+            <div class="rx-rbody" id="rxResultBody">
+              <div class="rx-empty">
+                <div class="eico">🩻</div>
+                <div class="et">Gata pentru interpretare.</div>
+                <div class="es">Selectează tipul, încarcă fișierele și apasă Interpretează.</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>
@@ -2340,9 +2422,10 @@
       </div>
       <div class="foot-col">
         <h4 data-t>Legal</h4>
-        <a data-t>Privacy Policy</a>
-        <a data-t>Terms of Use</a>
-        <a data-t>GDPR</a>
+        <a onclick="openLegal('privacy')" data-t>Privacy Policy</a>
+        <a onclick="openLegal('terms')" data-t>Terms of Use</a>
+        <a onclick="openLegal('privacy')" data-t>GDPR</a>
+        <a onclick="openLegal('cookies')">Cookies</a>
       </div>
     </div>
   </div>
@@ -2358,7 +2441,13 @@
     <p class="md-sub" data-t>Sign in to your verified account</p>
     <label data-t>Email</label><input id="signinEmail" type="email" placeholder="you@hospital.eu" autocomplete="email">
     <label data-t>Password</label><input id="signinPassword" type="password" placeholder="••••••••" autocomplete="current-password">
-    <button class="md-btn" onclick="login()" data-t>Sign in</button>
+    <div class="md-check">
+      <label class="md-cb">
+        <input type="checkbox" id="signinAgree" onchange="authAgreeChanged()">
+        <span>Am citit și accept <a onclick="openLegal('terms')">Termenii</a>, <a onclick="openLegal('privacy')">GDPR</a> și <a onclick="openLegal('cookies')">Cookies</a>.</span>
+      </label>
+    </div>
+    <button class="md-btn" id="signinBtn" onclick="login()" data-t>Sign in</button>
     <div class="md-foot">
       <a onclick="openModal('forgot')" style="display:inline-block;margin-bottom:8px" data-t>Forgot password?</a><br>
       <span data-t>No account yet?</span> <a onclick="openModal('signup')" data-t>Register free</a>
@@ -2383,7 +2472,13 @@
     <label data-t>Institutional email</label><input id="signupEmail" type="email" placeholder="jane.doe@hospital.eu" autocomplete="email">
     <label>Parafa (cod medic)</label><input id="signupParafa" type="text" placeholder="Ex: RO-123456" autocomplete="off">
     <label data-t>Password</label><input id="signupPassword" type="password" placeholder="At least 8 characters" autocomplete="new-password">
-    <button class="md-btn" onclick="register()" data-t>Create free account</button>
+    <div class="md-check">
+      <label class="md-cb">
+        <input type="checkbox" id="signupAgree" onchange="authAgreeChanged()">
+        <span>Am citit și accept <a onclick="openLegal('terms')">Termenii</a>, <a onclick="openLegal('privacy')">GDPR</a> și <a onclick="openLegal('cookies')">Cookies</a>.</span>
+      </label>
+    </div>
+    <button class="md-btn" id="signupBtn" onclick="register()" data-t>Create free account</button>
     <div class="md-foot"><span data-t>Already registered?</span> <a onclick="openModal('signin')" data-t>Sign in</a></div>
   </div>
 </div>
@@ -2422,6 +2517,28 @@
     <label>Email</label><input id="pfEmail" type="text" readonly>
     <label>Role</label><input id="pfRole" type="text" readonly>
     <label>Parafa</label><input id="pfParafa" type="text" readonly>
+  </div>
+</div>
+
+<!-- LEGAL (GDPR / Cookies / Terms) -->
+<div class="ov" id="ovLegal">
+  <div class="md md-legal">
+    <button class="md-close" onclick="closeModal()">×</button>
+    <div class="md-logo"><div class="logo-sq">ME</div><span>MedicinEvidence</span></div>
+    <h3>Legal</h3>
+    <p class="md-sub">GDPR · Cookies · Terms</p>
+
+    <div class="legal-tabs">
+      <button class="legal-tab act" data-legal="privacy" onclick="legalPick('privacy')">GDPR / Privacy</button>
+      <button class="legal-tab" data-legal="cookies" onclick="legalPick('cookies')">Cookies</button>
+      <button class="legal-tab" data-legal="terms" onclick="legalPick('terms')">Terms</button>
+    </div>
+
+    <div class="legal-body">
+      <div class="legal-pane on" id="legal-privacy"></div>
+      <div class="legal-pane" id="legal-cookies"></div>
+      <div class="legal-pane" id="legal-terms"></div>
+    </div>
   </div>
 </div>
 

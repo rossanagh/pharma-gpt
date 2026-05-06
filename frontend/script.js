@@ -394,7 +394,7 @@ function goPage(p){
 /* ============ MODAL ============ */
 function openModal(which){
   closeModal();
-  const map = { signin:'ovSignin', signup:'ovSignup', forgot:'ovForgot', profile:'ovProfile' };
+  const map = { signin:'ovSignin', signup:'ovSignup', forgot:'ovForgot', profile:'ovProfile', legal:'ovLegal' };
   const id = map[which] || (which==='signin' ? 'ovSignin' : 'ovSignup');
   const el=document.getElementById(id);
   if(el){el.classList.add('on');document.body.style.overflow='hidden';}
@@ -404,10 +404,94 @@ function openModal(which){
     if(s2) s2.style.display='none';
     const em=document.getElementById('fpEmail'); if(em) em.focus();
   }
+  if(which==='signin' || which==='signup'){
+    const cb = document.getElementById(which==='signin' ? 'signinAgree' : 'signupAgree');
+    if(cb) cb.checked = false;
+    authAgreeChanged();
+  }
 }
 function closeModal(){document.querySelectorAll('.ov').forEach(o=>o.classList.remove('on'));document.body.style.overflow='';}
 document.querySelectorAll('.ov').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)closeModal();});});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+/* ============ LEGAL (GDPR / Cookies / Terms) ============ */
+function legalPick(which){
+  document.querySelectorAll('.legal-tab').forEach(b=>b.classList.remove('act'));
+  const btn = document.querySelector(`.legal-tab[data-legal="${which}"]`);
+  if(btn) btn.classList.add('act');
+  document.querySelectorAll('.legal-pane').forEach(p=>p.classList.remove('on'));
+  const pane = document.getElementById('legal-'+which);
+  if(pane) pane.classList.add('on');
+}
+
+function openLegal(which){
+  openModal('legal');
+  // Fill content lazily
+  const p = document.getElementById('legal-privacy');
+  const c = document.getElementById('legal-cookies');
+  const t = document.getElementById('legal-terms');
+  if(p && !p.dataset.filled){
+    p.dataset.filled = "1";
+    p.innerHTML = `
+      <h4>Politica de Confidențialitate (GDPR)</h4>
+      <p><strong>Operator de date:</strong> SC Four Seasons Pharm SRL (MedicinEvidence.com), Timișoara, România.</p>
+      <p><strong>Contact GDPR:</strong> <code>privacy@medicinevidence.com</code>. <strong>În vigoare:</strong> 1 Mai 2025 (v1.0).</p>
+      <h5>Ce colectăm</h5>
+      <ul>
+        <li><strong>Date de cont</strong>: email, nume, rol/profesie, parafă (unde e cazul), parolă (doar hash bcrypt).</li>
+        <li><strong>Date tehnice</strong>: IP + log-uri de securitate (max 30 zile), browser/OS (statistic).</li>
+        <li><strong>Date clinice introduse</strong>: sunt procesate pentru răspunsul AI și <strong>nu sunt stocate permanent</strong>; nu introduce nume/CNP.</li>
+      </ul>
+      <h5>Ce NU facem</h5>
+      <ul>
+        <li>Nu vindem date, nu facem publicitate, nu folosim datele pentru tracking comercial.</li>
+      </ul>
+      <h5>Drepturile tale</h5>
+      <p>Acces, rectificare, ștergere, restricționare, portabilitate, opoziție, retragere consimțământ. Scrie la <code>privacy@medicinevidence.com</code> (răspuns max 30 zile).</p>
+      <h5>Furnizori / procesatori</h5>
+      <p>Folosim furnizori tehnici pentru funcționarea platformei (ex. procesare AI/hosting/bază de date). Toți au DPA conform Art. 28 GDPR.</p>
+    `;
+  }
+  if(c && !c.dataset.filled){
+    c.dataset.filled = "1";
+    c.innerHTML = `
+      <h4>Politica privind Cookie-urile</h4>
+      <p>Cookie-urile ajută la sesiunea de autentificare, preferințe (limbă/tema) și analiză anonimă. <strong>Nu</strong> folosim cookie-uri pentru publicitate.</p>
+      <h5>Categorii</h5>
+      <ul>
+        <li><strong>Strict necesare</strong>: autentificare (ex. token-uri), securitate.</li>
+        <li><strong>Funcționale</strong>: progres quiz/rezidențiat (unde e cazul), preferințe.</li>
+        <li><strong>Analitice</strong>: statistici anonime (fără identificare individuală).</li>
+      </ul>
+      <h5>Gestionare</h5>
+      <p>Poți șterge cookie-urile din browser; asta te poate deloga și reseta preferințele.</p>
+      <p><strong>Contact:</strong> <code>privacy@medicinevidence.com</code> (subiect: <code>[COOKIE]</code> ...).</p>
+    `;
+  }
+  if(t && !t.dataset.filled){
+    t.dataset.filled = "1";
+    t.innerHTML = `
+      <h4>Termeni & Condiții (rezumat)</h4>
+      <p>Platforma este destinată <strong>exclusiv profesioniștilor medicali</strong> (18+). Informațiile oferite sunt <strong>suport decizional</strong> și nu înlocuiesc judecata clinică.</p>
+      <ul>
+        <li>Nu introduce date de identificare pacient (nume/CNP/adresă).</li>
+        <li>Ești responsabil pentru utilizare clinică, anonimizare și respectarea legislației.</li>
+        <li>Putem suspenda conturi pentru abuz/fraudă sau încălcări.</li>
+      </ul>
+      <p>Pentru întrebări: <code>contact@medicinevidence.com</code>.</p>
+    `;
+  }
+  legalPick(which || 'privacy');
+}
+
+function authAgreeChanged(){
+  const s = document.getElementById('signinAgree');
+  const sb = document.getElementById('signinBtn');
+  if(sb) sb.disabled = !(s && s.checked);
+  const u = document.getElementById('signupAgree');
+  const ub = document.getElementById('signupBtn');
+  if(ub) ub.disabled = !(u && u.checked);
+}
 
 /* ============ AUTH (REAL) ============ */
 const API_BASE = (window.__API_BASE__ || "http://127.0.0.1:8080").replace(/\/+$/,"");
@@ -794,6 +878,11 @@ async function authInit(){
 }
 
 async function login(){
+  const agree = document.getElementById("signinAgree");
+  if(agree && !agree.checked){
+    alert(curLang==='ro' ? 'Te rugăm să accepți Termenii, GDPR și Cookies ca să continui.' : 'Please accept Terms, GDPR and Cookies to continue.');
+    return;
+  }
   const email = (document.getElementById("signinEmail")?.value || "").trim();
   const password = (document.getElementById("signinPassword")?.value || "");
   if(!email || !password){ alert("Email and password required"); return; }
@@ -845,6 +934,11 @@ function mapRoleToProvider(role){
 }
 
 async function register(){
+  const agree = document.getElementById("signupAgree");
+  if(agree && !agree.checked){
+    alert(curLang==='ro' ? 'Te rugăm să accepți Termenii, GDPR și Cookies ca să continui.' : 'Please accept Terms, GDPR and Cookies to continue.');
+    return;
+  }
   const name = (document.getElementById("signupName")?.value || "").trim();
   const email = (document.getElementById("signupEmail")?.value || "").trim();
   const password = (document.getElementById("signupPassword")?.value || "");
@@ -1349,23 +1443,25 @@ async function streamClaudeAPI(payload, onToken, onDone, onError){
 let chatHistory = [];
 
 function gatherPatientContext(){
+  // Support both the old consultation form and the demo-2 consultation UI.
+  const v = (id)=> (document.getElementById(id)?.value || '');
   return {
-    age: document.getElementById('pAge')?.value || '',
-    sex: document.getElementById('pSex')?.value || '',
-    weight: document.getElementById('pWeight')?.value || '',
-    height: document.getElementById('pHeight')?.value || '',
-    egfr: document.getElementById('pEgfr')?.value || '',
-    hba1c: document.getElementById('pHba1c')?.value || '',
-    bp: document.getElementById('pBP')?.value || '',
-    creatinine: document.getElementById('pCreat')?.value || '',
-    otherLab: document.getElementById('pLab')?.value || '',
-    conds: document.getElementById('pConds')?.value || '',
-    meds: document.getElementById('pMeds')?.value || '',
-    allergies: document.getElementById('pAllergy')?.value || '',
-    smoking: document.getElementById('pSmoke')?.value || '',
-    pregnancy: document.getElementById('pPreg')?.value || '',
-    investigations: document.getElementById('pInvest')?.value || '',
-    notes: document.getElementById('pNotes')?.value || ''
+    age: v('pAge'),
+    sex: v('pSex'),
+    weight: v('pWeight') || v('pWt'),
+    height: v('pHeight') || v('pHt'),
+    egfr: v('pEgfr') || v('pEGFR'),
+    hba1c: v('pHba1c') || v('pHBA'),
+    bp: v('pBP'),
+    creatinine: v('pCreat') || v('pCr'),
+    otherLab: v('pLab'),
+    conds: v('pConds'),
+    meds: v('pMeds'), // demo-2 uses meds tags; built elsewhere
+    allergies: v('pAllergy'),
+    smoking: v('pSmoke'),
+    pregnancy: v('pPreg'),
+    investigations: v('pInvest'),
+    notes: v('pNotes')
   };
 }
 
@@ -1690,15 +1786,29 @@ function filterGuides(cat){
   if(badge) badge.textContent = visible || document.querySelectorAll('.gcard').length;
 }
 function sendChat(){
-  const input=document.getElementById('chatInput');
+  // Support both old (#chatInput) and demo-2 (#chatIn) inputs
+  const input=document.getElementById('chatInput') || document.getElementById('chatIn');
   const q=input?.value.trim();if(!q)return;
   const btn=document.getElementById('chatSendBtn');if(btn)btn.disabled=true;
   const body=document.getElementById('chatBody');if(!body)return;
-  if(body.querySelector('.consult-empty')||body.querySelector('.chat-empty'))body.innerHTML='';
-  body.insertAdjacentHTML('beforeend',`<div class="consult-msg me"><div class="avatar">DR</div><div class="consult-bubble">${escapeHtml(q)}</div></div>`);
+  // Clear whichever empty state exists
+  const empty = body.querySelector('.consult-empty') || body.querySelector('.chat-empty') || body.querySelector('#emptyState');
+  if(empty) empty.remove();
+
+  // Render message (demo-2 style if present, else legacy consult style)
+  const isDemo2 = !!document.querySelector('#pg-consult .c2-chat-card');
+  if(isDemo2){
+    body.insertAdjacentHTML('beforeend',`<div class="c2-msg me"><div class="c2-av me">DR</div><div class="c2-bub me">${escapeHtml(q)}</div></div>`);
+  } else {
+    body.insertAdjacentHTML('beforeend',`<div class="consult-msg me"><div class="avatar">DR</div><div class="consult-bubble">${escapeHtml(q)}</div></div>`);
+  }
   if(input)input.value='';body.scrollTop=body.scrollHeight;
   const msgId='ai_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
-  body.insertAdjacentHTML('beforeend',`<div class="consult-msg ai" id="msg_${msgId}"><div class="avatar">ME</div><div class="consult-bubble" id="bubble_${msgId}"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>`);
+  if(isDemo2){
+    body.insertAdjacentHTML('beforeend',`<div class="c2-msg" id="msg_${msgId}"><div class="c2-av ai">ME</div><div class="c2-bub ai" id="bubble_${msgId}"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>`);
+  } else {
+    body.insertAdjacentHTML('beforeend',`<div class="consult-msg ai" id="msg_${msgId}"><div class="avatar">ME</div><div class="consult-bubble" id="bubble_${msgId}"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>`);
+  }
   body.scrollTop=body.scrollHeight;
   chatHistory.push({role:'user',content:q});
   const pc=gatherPatientContext();
@@ -1708,7 +1818,10 @@ function sendChat(){
   if(pc.egfr)ctxParts.push('eGFR: '+pc.egfr+' ml/min');if(pc.hba1c)ctxParts.push('HbA1c: '+pc.hba1c+'%');
   if(pc.bp)ctxParts.push('BP: '+pc.bp+' mmHg');if(pc.creatinine)ctxParts.push('Creat: '+pc.creatinine);
   if(pc.otherLab)ctxParts.push('Labs: '+pc.otherLab);if(pc.conds)ctxParts.push('Conditions: '+pc.conds);
-  if(pc.meds)ctxParts.push('Medications: '+pc.meds);if(pc.allergies)ctxParts.push('Allergies: '+pc.allergies);
+  // In demo-2, meds are tags; prefer those if present.
+  const medsTagText = (typeof meds !== 'undefined' && Array.isArray(meds) && meds.length) ? meds.join(', ') : '';
+  const medsText = medsTagText || pc.meds;
+  if(medsText)ctxParts.push('Medications: '+medsText);if(pc.allergies)ctxParts.push('Allergies: '+pc.allergies);
   if(pc.smoking)ctxParts.push('Smoking: '+pc.smoking);if(pc.pregnancy)ctxParts.push('Pregnancy: '+pc.pregnancy);
   if(pc.investigations)ctxParts.push('Investigations: '+pc.investigations);if(pc.notes)ctxParts.push('Notes: '+pc.notes);
 
@@ -1733,6 +1846,225 @@ function sendChat(){
     (err)=>{if(bubble)bubble.innerHTML=`<div style="color:#B91C1C"><strong>Error:</strong> ${escapeHtml(err)}</div>`;if(btn)btn.disabled=false;}
   );
 }
+
+// Demo-2 helpers (kept minimal; uses existing AI streaming pipeline)
+function c2UpdateChar(){
+  const ta=document.getElementById('mainQ');
+  const ct=document.getElementById('charCt');
+  if(!ta||!ct) return;
+  ct.textContent = `${ta.value.length}`;
+}
+function c2AddCtx(t){
+  const ta=document.getElementById('mainQ'); if(!ta) return;
+  const v=ta.value;
+  ta.value = v + (v && !v.endsWith(' ') && !v.endsWith('\n') ? ', ' : '') + t;
+  ta.focus();
+  c2UpdateChar();
+}
+function askAI(){
+  const ta=document.getElementById('mainQ'); if(!ta) return;
+  const q=ta.value.trim(); if(!q) return;
+  ta.value=''; c2UpdateChar();
+  // Put question into chat input and reuse sendChat()
+  const inp=document.getElementById('chatIn') || document.getElementById('chatInput');
+  if(inp) inp.value = q;
+  sendChat();
+}
+
+// Expand panel
+let extOpen = false;
+function toggleExt(){
+  const panel=document.getElementById('extPanel');
+  const arrow=document.getElementById('arrow');
+  if(!panel || !arrow) return;
+  extOpen = !extOpen;
+  panel.classList.toggle('show', extOpen);
+  arrow.classList.toggle('open', extOpen);
+  if(extOpen) setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'start'}), 80);
+}
+
+// Med tags + files + vitals: keep lightweight behaviour as in demo
+var meds = [];
+var uploadedFiles = [];
+function addMed(){
+  const inp=document.getElementById('medIn'); if(!inp) return;
+  const v=inp.value.trim(); if(!v) return;
+  if(!meds.includes(v)) meds.push(v);
+  inp.value='';
+  renderMeds();
+}
+function addPreset(m){ if(!meds.includes(m)) meds.push(m); renderMeds(); }
+function removeMed(i){ meds.splice(i,1); renderMeds(); }
+function renderMeds(){
+  const box=document.getElementById('medTags'); if(!box) return;
+  box.innerHTML = meds.map((m,i)=>`<span class="mtag">${escapeHtml(m)}<button onclick="removeMed(${i})">×</button></span>`).join('');
+}
+function handleFiles(fl){
+  if(!fl) return;
+  for(const f of Array.from(fl)){
+    if(f.size > 20*1024*1024){ alert(f.name+': max 20MB'); continue; }
+    if(!uploadedFiles.some(x=>x.name===f.name && x.size===f.size)) uploadedFiles.push(f);
+  }
+  renderFiles();
+}
+function removeFile(i){ uploadedFiles.splice(i,1); renderFiles(); }
+function renderFiles(){
+  const list=document.getElementById('fileList');
+  const btn=document.getElementById('analyzeFilesBtn');
+  if(list){
+    list.innerHTML = uploadedFiles.map((f,i)=>{
+      const ico=f.type==='application/pdf'?'📄':'🖼️';
+      const sz=f.size>1024*1024?(f.size/1024/1024).toFixed(1)+'MB':(f.size/1024).toFixed(0)+'KB';
+      return `<div class="fi"><span>${ico}</span><span class="fi-n" style="flex:1">${escapeHtml(f.name)}</span><span class="fi-s">${sz}</span><button class="fi-d" onclick="removeFile(${i})">✕</button></div>`;
+    }).join('');
+  }
+  if(btn) btn.style.display = uploadedFiles.length ? 'inline-flex' : 'none';
+  const dz=document.getElementById('dropZone');
+  if(dz && !dz.__wired){
+    dz.__wired = true;
+    dz.ondragover=(e)=>{e.preventDefault();dz.classList.add('drag');};
+    dz.ondragleave=()=>dz.classList.remove('drag');
+    dz.ondrop=(e)=>{e.preventDefault();dz.classList.remove('drag');handleFiles(e.dataTransfer.files);};
+  }
+}
+
+function calcBMI(){
+  const w=parseFloat(document.getElementById('pWt')?.value)||0;
+  const h=parseFloat(document.getElementById('pHt')?.value)||0;
+  const el=document.getElementById('bmiRes'); if(!el) return;
+  if(!w||!h){ el.innerHTML=''; return; }
+  const bmi=(w/((h/100)*(h/100))).toFixed(1);
+  const t=bmi<18.5?'Subponderal':bmi<25?'Normal':bmi<30?'Supraponderal':bmi<35?'Obezitate I':'Obezitate II+';
+  const cls=bmi<25?'val-ok':bmi<30?'val-warn':'val-danger';
+  el.innerHTML=`<span class="val ${cls}">BMI ${bmi} — ${t}</span>`;
+}
+function al(type,text){ return `<span class="val val-${type}">${text}</span>`; }
+function checkVitals(){
+  // Minimal alert rendering (critical vs warning), mirroring demo behaviour.
+  const bp=document.getElementById('pBP')?.value||'';
+  const egfr=parseFloat(document.getElementById('pEGFR')?.value)||0;
+  const hba1c=parseFloat(document.getElementById('pHBA')?.value)||0;
+  const ldl=parseFloat(document.getElementById('pLDL')?.value)||0;
+  const alerts=[];
+
+  const bpA=document.getElementById('bpA'); const egA=document.getElementById('egfrA');
+  const hbA=document.getElementById('hbaA'); const ldA=document.getElementById('ldlA');
+  if(bpA) bpA.innerHTML=''; if(egA) egA.innerHTML=''; if(hbA) hbA.innerHTML=''; if(ldA) ldA.innerHTML='';
+
+  if(bp.includes('/')){
+    const [s0,d0]=bp.split('/'); const s=parseInt(s0,10), d=parseInt(d0,10);
+    if(Number.isFinite(s)&&Number.isFinite(d)){
+      if(s>=180||d>=120){ if(bpA) bpA.innerHTML=al('danger','🚨 Criză hipertensivă'); alerts.push({t:'danger',m:`TA ${s}/${d} — urgență`}); }
+      else if(s>=140||d>=90){ if(bpA) bpA.innerHTML=al('warn',`HTA ${s}/${d}`); alerts.push({t:'warn',m:`TA ${s}/${d} — HTA`}); }
+      else if(bpA) bpA.innerHTML=al('ok',`TA ${s}/${d}`);
+    }
+  }
+  if(egfr>0){
+    if(egfr<30){ if(egA) egA.innerHTML=al('danger',`eGFR ${egfr}`); alerts.push({t:'danger',m:`eGFR ${egfr} — CKD avansat`}); }
+    else if(egfr<60){ if(egA) egA.innerHTML=al('warn',`eGFR ${egfr}`); alerts.push({t:'warn',m:`eGFR ${egfr} — CKD`}); }
+    else if(egA) egA.innerHTML=al('ok',`eGFR ${egfr}`);
+  }
+  if(hba1c>0){
+    if(hba1c>=10){ if(hbA) hbA.innerHTML=al('danger',`HbA1c ${hba1c}%`); alerts.push({t:'danger',m:`HbA1c ${hba1c}%`}); }
+    else if(hba1c>=8.5){ if(hbA) hbA.innerHTML=al('warn',`HbA1c ${hba1c}%`); alerts.push({t:'warn',m:`HbA1c ${hba1c}%`}); }
+    else if(hbA) hbA.innerHTML=al('ok',`HbA1c ${hba1c}%`);
+  }
+  if(ldl>0){
+    if(ldl>=190){ if(ldA) ldA.innerHTML=al('danger',`LDL ${ldl}`); alerts.push({t:'danger',m:`LDL ${ldl}`}); }
+    else if(ldl>=100){ if(ldA) ldA.innerHTML=al('warn',`LDL ${ldl}`); alerts.push({t:'warn',m:`LDL ${ldl}`}); }
+    else if(ldA) ldA.innerHTML=al('ok',`LDL ${ldl}`);
+  }
+  const box=document.getElementById('vitBox');
+  if(!box) return;
+  if(!alerts.length){ box.className='c2-alerts'; box.innerHTML=''; return; }
+  const hasDanger = alerts.some(a=>a.t==='danger');
+  box.className='c2-alerts show';
+  box.innerHTML = alerts.map(a=>`<div class="ab-it"><strong>${escapeHtml(a.m)}</strong></div>`).join('');
+}
+
+function quickAction(type){
+  const q = (document.getElementById('mainQ')?.value||'').trim();
+  const pc = gatherPatientContext();
+  const ctx = [];
+  if(pc.age) ctx.push(`Age: ${pc.age}`);
+  if(pc.sex) ctx.push(`Sex: ${pc.sex}`);
+  if(pc.egfr) ctx.push(`eGFR: ${pc.egfr}`);
+  if(pc.hba1c) ctx.push(`HbA1c: ${pc.hba1c}`);
+  if(pc.bp) ctx.push(`BP: ${pc.bp}`);
+  if(pc.conds) ctx.push(`Conditions: ${pc.conds}`);
+  if(meds.length) ctx.push(`Medications: ${meds.join(', ')}`);
+  if(pc.allergies) ctx.push(`Allergies: ${pc.allergies}`);
+  const base = (ctx.length ? `=== PATIENT CONTEXT ===\n${ctx.join('\n')}\n\n` : '') + (q ? `CASE (free text): ${q}\n\n` : '');
+  if(!base.trim()){ alert('Completează profilul sau descrie cazul.'); return; }
+  const prompts = {
+    interactions: 'Check for clinically significant drug interactions, contraindications, and monitoring needs.',
+    dosing: 'Review dosing with renal/hepatic considerations and monitoring; flag narrow therapeutic index drugs.',
+    guidelines: 'Summarize relevant guidelines and evidence for this case with citations.',
+    risk: 'Assess cardiovascular risk and outline guideline-based interventions.'
+  };
+  const full = `${prompts[type]||prompts.guidelines}\n\n${base}`;
+  const inp=document.getElementById('chatIn') || document.getElementById('chatInput');
+  if(inp) inp.value = full;
+  sendChat();
+}
+
+function preset(type){
+  const ta=document.getElementById('mainQ'); if(!ta) return;
+  const texts={
+    diff:'Pacient de 65 ani, tuse productivă cronică 3 luni, scădere ponderală 8 kg, subfebrilități. Fumător 30 pack-years. Diagnostice diferențiale principale și semne de alarmă?',
+    drug:'Metformin 1000mg bid, Ramipril 5mg, Atorvastatin 40mg, Bisoprolol 5mg. eGFR 52 ml/min. Interacțiuni semnificative și ajustări necesare?',
+    guide:'Pacient 72 ani, DZ tip 2, HTA gr.I, CKD st.3a eGFR 52 ml/min. Ghiduri ESC/EASD/KDIGO/CNAS actuale și recomandările cheie?',
+    risk:'Pacient 68 ani, masculin, fumător, TA 155/95, DZ tip 2 HbA1c 7.8%, LDL 130 mg/dL. Risc cardiovascular SCORE2 și intervenții indicate?'
+  };
+  ta.value = texts[type] || '';
+  c2UpdateChar();
+  ta.focus();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function sendFromPanel(){
+  const ctx = gatherPatientContext();
+  const parts=[];
+  if(ctx.age) parts.push('Age: '+ctx.age);
+  if(ctx.sex) parts.push('Sex: '+ctx.sex);
+  if(ctx.egfr) parts.push('eGFR: '+ctx.egfr);
+  if(ctx.hba1c) parts.push('HbA1c: '+ctx.hba1c);
+  if(ctx.bp) parts.push('BP: '+ctx.bp);
+  if(ctx.conds) parts.push('Conditions: '+ctx.conds);
+  if(meds.length) parts.push('Medications: '+meds.join(', '));
+  if(ctx.allergies) parts.push('Allergies: '+ctx.allergies);
+  const prompt = `Analyze the complete patient profile. Identify top clinical priorities, missing guideline-based therapies, contraindications, monitoring, and next steps.\n\n=== PATIENT CONTEXT ===\n${parts.join('\n')}`;
+  const inp=document.getElementById('chatIn') || document.getElementById('chatInput');
+  if(inp) inp.value = prompt;
+  sendChat();
+  if(extOpen) toggleExt();
+}
+
+function doAnalyzeFiles(){
+  const names = uploadedFiles.map(f=>f.name).join(', ');
+  if(!names) return;
+  const card=document.getElementById('analyzeResult');
+  const body=document.getElementById('arBody');
+  const meta=document.getElementById('arMeta');
+  if(card) card.classList.add('show');
+  if(meta) meta.textContent = names;
+  if(body) body.innerHTML = `<div class="typing-dots"><span></span><span></span><span></span></div>`;
+  const pc=gatherPatientContext();
+  const ctx = [];
+  if(pc.age) ctx.push(`Age: ${pc.age}`);
+  if(pc.sex) ctx.push(`Sex: ${pc.sex}`);
+  if(meds.length) ctx.push(`Medications: ${meds.join(', ')}`);
+  const q = `Interpret these medical documents/results: ${names}. Provide findings → clinical significance → recommendations → monitoring → citations.\n\n${ctx.length?('Context: '+ctx.join(' | ')) : ''}`;
+  let full='';
+  streamClaudeAPI({mode:'chat',lang:curLang,prompt:q},
+    (tok)=>{ if(!body) return; if(full==='') body.innerHTML=''; full+=tok; body.innerHTML=md2html(full); },
+    ()=>{},
+    (err)=>{ if(body) body.innerHTML = `<div style="color:#B91C1C">${escapeHtml(err)}</div>`; }
+  );
+}
+
+function printConsult(){ window.print(); }
+function printAnalyze(){ window.print(); }
 
 /* ============ CONSULTATION PDF SUMMARY ============ */
 function formatPatientContextForPdf(pc){
@@ -3360,55 +3692,273 @@ function renderRezHistory(){
 }
 
 /* ============ RADIOLOGY VISION ============ */
-let radImageData = null, radImageMime = null;
-function radUpload(file){
-  if(!file) return;
-  if(file.size > 5*1024*1024){
-    alert((curLang==='ro'?'Imagine prea mare (max 5MB)':'Image too large (max 5MB)'));
-    return;
+let RX = {
+  type: 'mri',
+  files: [],
+  resultText: '',
+  analyzing: false
+};
+
+const RX_TYPE_CFG = {
+  mri:{icon:'🧠',label:'RMN / MRI'},
+  ct:{icon:'🫁',label:'CT Scan'},
+  xray:{icon:'🦴',label:'Radiografie'},
+  echo:{icon:'❤️',label:'Ecografie'},
+  ecg:{icon:'📈',label:'ECG'},
+  mammo:{icon:'🎗️',label:'Mamografie'},
+  fundus:{icon:'👁️',label:'Fund de ochi'},
+  derm:{icon:'🔬',label:'Dermatoscopie'},
+  lab:{icon:'📊',label:'Analize PDF'},
+  other:{icon:'📎',label:'Altele'}
+};
+
+function rxPickType(btn){
+  document.querySelectorAll('.rx-type').forEach(b=>b.classList.remove('act'));
+  btn.classList.add('act');
+  RX.type = btn.dataset.rtype || 'mri';
+  rxUpdateResultHeader();
+}
+
+function rxHandleFiles(fileList){
+  if(!fileList) return;
+  for(const f of Array.from(fileList)){
+    if(!f) continue;
+    if(f.size > 20*1024*1024){
+      alert(`${f.name}: max 20MB`);
+      continue;
+    }
+    const dup = RX.files.some(x=>x.name===f.name && x.size===f.size && x.lastModified===f.lastModified);
+    if(!dup) RX.files.push(f);
   }
-  if(!/^image\//.test(file.type)){
-    alert((curLang==='ro'?'Format nesuportat':'Unsupported format'));
-    return;
-  }
-  radImageMime = file.type;
-  const reader = new FileReader();
-  reader.onload = (e)=>{
-    radImageData = e.target.result; // full data URL
-    document.getElementById('radImg').src = radImageData;
-    document.getElementById('radPreview').classList.add('on');
-    document.getElementById('radResult').classList.remove('on');
+  rxRenderFiles();
+}
+
+function rxRemoveFile(idx){
+  RX.files.splice(idx,1);
+  rxRenderFiles();
+}
+
+function rxFmtSize(bytes){
+  if(bytes > 1024*1024) return (bytes/1024/1024).toFixed(1)+'MB';
+  return (bytes/1024).toFixed(0)+'KB';
+}
+
+function rxRenderFiles(){
+  const list = document.getElementById('rxFileList');
+  if(!list) return;
+  if(!RX.files.length){ list.innerHTML=''; return; }
+  list.innerHTML = RX.files.map((f,i)=>{
+    const pdf = f.type === 'application/pdf';
+    const thumb = pdf ? `<div class="rx-pdf">📄</div>` : `<img class="rx-thumb" id="rxTh_${i}" alt="">`;
+    return `<div class="rx-fi">
+      ${thumb}
+      <div class="rx-finfo">
+        <div class="rx-fname">${escapeHtml(f.name)}</div>
+        <div class="rx-fmeta">${rxFmtSize(f.size)} · ${pdf?'PDF':'Image'}</div>
+      </div>
+      <button class="rx-del" onclick="rxRemoveFile(${i})">✕</button>
+    </div>`;
+  }).join('');
+
+  // Thumbnails
+  RX.files.forEach((f,i)=>{
+    if(f.type === 'application/pdf') return;
+    if(!/^image\//.test(f.type)) return;
+    const img = document.getElementById('rxTh_'+i);
+    if(!img) return;
+    const r = new FileReader();
+    r.onload = (e)=>{ img.src = e.target.result; };
+    r.readAsDataURL(f);
+  });
+}
+
+function rxGetCtx(){
+  const g = (id)=>document.getElementById(id);
+  return {
+    age: (g('rxCtxAge')?.value||'').trim(),
+    reason: (g('rxCtxReason')?.value||'').trim(),
+    conds: (g('rxCtxConds')?.value||'').trim(),
+    prev: (g('rxCtxPrev')?.value||'').trim(),
+    q: (g('rxCtxQ')?.value||'').trim()
   };
-  reader.readAsDataURL(file);
 }
-function radClear(){
-  radImageData = null; radImageMime = null;
-  document.getElementById('radFile').value = '';
-  document.getElementById('radPreview').classList.remove('on');
-  document.getElementById('radResult').classList.remove('on');
-  document.getElementById('radResult').innerHTML = '';
+
+function rxUpdateResultHeader(){
+  const cfg = RX_TYPE_CFG[RX.type] || RX_TYPE_CFG.other;
+  const title = document.getElementById('rxRTitle');
+  if(title) title.textContent = `${cfg.icon} ${cfg.label} — Interpretare AI`;
 }
-function radAnalyze(){
-  if(!radImageData) return;
-  const btn = document.getElementById('radAnalyzeBtn');
+
+function rxSetMetaNow(){
+  const meta = document.getElementById('rxRMeta');
+  if(!meta) return;
+  const now = new Date();
+  try{
+    meta.textContent = now.toLocaleDateString('ro-RO',{day:'2-digit',month:'long',year:'numeric'})+' · '+now.toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'});
+  }catch{
+    meta.textContent = now.toLocaleString();
+  }
+}
+
+function rxToDataURL(file){
+  return new Promise((res,rej)=>{
+    const r = new FileReader();
+    r.onload = (e)=>res(e.target.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+function rxToBase64(file){
+  return new Promise((res,rej)=>{
+    const r = new FileReader();
+    r.onload = (e)=>res(String(e.target.result||'').split(',')[1]||'');
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+function rxBuildSystemPrompt(langName){
+  const ctx = rxGetCtx();
+  const cfg = RX_TYPE_CFG[RX.type] || RX_TYPE_CFG.other;
+  const ctxBits = [];
+  if(ctx.age) ctxBits.push('Patient: '+ctx.age);
+  if(ctx.reason) ctxBits.push('Clinical indication: '+ctx.reason);
+  if(ctx.conds) ctxBits.push('Known conditions: '+ctx.conds);
+  if(ctx.prev) ctxBits.push('Previous investigations: '+ctx.prev);
+  if(ctx.q) ctxBits.push('Specific question: '+ctx.q);
+
+  return `You are MedicinEvidence Radiology AI — a world-class academic radiologist providing structured second-opinion interpretations.
+
+CRITICAL RULES:
+1. Respond ENTIRELY in ${langName}
+2. Use an academic, structured radiology report
+3. Be anatomically specific; sizes in mm when possible
+4. Provide ranked differential diagnosis with confidence (%)
+5. Include evidence-backed recommendations and cite real guidelines where appropriate (ACR, Fleischner, BI-RADS, PI-RADS, WHO CNS, ESC/ERS).
+6. Flag urgent findings with "🚨 URGENT"
+
+INVESTIGATION TYPE: ${cfg.label}
+${ctxBits.length?('\nPATIENT CONTEXT:\n- '+ctxBits.join('\n- ')+'\n'):''}`;
+}
+
+async function rxAnalyze(){
+  const btn = document.getElementById('rxAnalyzeBtn');
+  const body = document.getElementById('rxResultBody');
+  const strip = document.getElementById('rxImgStrip');
+  const card = document.getElementById('rxResultCard');
+  if(!btn || !body || !strip || !card) return;
+  if(RX.analyzing) return;
+  if(!RX.files.length){
+    alert(curLang==='ro'?'Încarcă cel puțin un fișier.':'Please upload at least one file.');
+    return;
+  }
+
+  RX.analyzing = true;
   btn.disabled = true;
-  const out = document.getElementById('radResult');
-  out.classList.add('on');
-  out.innerHTML = `<h3>🤖 ${curLang==='ro'?'Analiză în curs':'Analyzing'}…</h3><div class="typing-dots"><span></span><span></span><span></span></div>`;
-  let fullText='';
-  streamClaudeAPI({mode:'vision', lang:curLang, image_base64:radImageData, image_mime:radImageMime},
-    (token)=>{if(fullText==='')out.innerHTML=''; fullText+=token; out.innerHTML = md2html(fullText);},
-    ()=>{btn.disabled=false;},
-    (err)=>{out.innerHTML = `<div style="color:#B91C1C"><strong>Error:</strong> ${escapeHtml(err)}</div>`; btn.disabled=false;}
+  rxUpdateResultHeader();
+  rxSetMetaNow();
+
+  // Build strip from images
+  strip.innerHTML = '';
+  strip.style.display = 'none';
+  const imgFiles = RX.files.filter(f=>/^image\//.test(f.type));
+  if(imgFiles.length){
+    strip.style.display = 'flex';
+    for(const f of imgFiles.slice(0,10)){
+      const src = await rxToDataURL(f);
+      const im = document.createElement('img');
+      im.src = src;
+      im.alt = f.name;
+      strip.appendChild(im);
+    }
+  }
+
+  // Loading
+  body.innerHTML = `<div class="typing-dots"><span></span><span></span><span></span></div><div style="font-size:12.5px;color:var(--ink2);margin-top:8px">${curLang==='ro'?'Interpretează investigația…':'Interpreting investigation…'}</div>`;
+  card.scrollIntoView({behavior:'smooth',block:'start'});
+
+  // Build payload for vision
+  const lm = {en:'English',ro:'Romanian',de:'German',fr:'French',it:'Italian',es:'Spanish'};
+  const langName = lm[curLang] || 'Romanian';
+  const ctx = rxGetCtx();
+  const question = ctx.q || (curLang==='ro'?'Te rog oferă o interpretare radiologică academică structurată.':'Please provide a structured academic radiology interpretation.');
+
+  // Prefer images; if only PDFs exist, still send question and mention limitation
+  let imageDataUrl = null;
+  let imageMime = null;
+  if(imgFiles[0]){
+    imageMime = imgFiles[0].type;
+    const b64 = await rxToBase64(imgFiles[0]);
+    imageDataUrl = `data:${imageMime};base64,${b64}`;
+  }
+
+  const system = rxBuildSystemPrompt(langName) + (imgFiles.length?'':
+    `\nNOTE: No image files were provided (only PDFs/other). You must state that imaging cannot be interpreted from non-image files in this interface and provide only general guidance based on the provided context.`
+  );
+
+  let fullText = '';
+  streamClaudeAPI(
+    {mode:'vision', lang:curLang, system, prompt: question, image_base64: imageDataUrl, image_mime: imageMime},
+    (token)=>{
+      if(fullText==='') body.innerHTML='';
+      fullText += token;
+      body.innerHTML = md2html(fullText);
+    },
+    ()=>{
+      RX.resultText = fullText || '';
+      RX.analyzing = false;
+      btn.disabled = false;
+    },
+    (err)=>{
+      body.innerHTML = `<div style="color:#B91C1C"><strong>Error:</strong> ${escapeHtml(err)}</div>`;
+      RX.analyzing = false;
+      btn.disabled = false;
+    }
   );
 }
-// Drag and drop for radiology
+
+function rxClearAll(){
+  RX.files = [];
+  RX.resultText = '';
+  RX.analyzing = false;
+  const fi = document.getElementById('rxFileIn');
+  if(fi) fi.value = '';
+  rxRenderFiles();
+  const strip = document.getElementById('rxImgStrip');
+  if(strip){ strip.innerHTML=''; strip.style.display='none'; }
+  const body = document.getElementById('rxResultBody');
+  if(body){
+    body.innerHTML = `<div class="rx-empty"><div class="eico">🩻</div><div class="et">Gata pentru interpretare.</div><div class="es">Selectează tipul, încarcă fișierele și apasă Interpretează.</div></div>`;
+  }
+  ['rxCtxAge','rxCtxReason','rxCtxConds','rxCtxPrev','rxCtxQ'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.value='';
+  });
+  rxSetMetaNow();
+  rxUpdateResultHeader();
+}
+
+function rxCopyResult(){
+  const body = document.getElementById('rxResultBody');
+  if(!body) return;
+  const text = body.innerText || body.textContent || '';
+  if(!text.trim()) return;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).catch(()=>{});
+  }
+}
+
+function rxPrintResult(){
+  window.print();
+}
+
+// Drag-drop for Rx upload
 (function(){
-  const drop = document.getElementById('radDrop');
-  if(!drop) return;
-  ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('drag');}));
-  ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('drag');}));
-  drop.addEventListener('drop',e=>{const f=e.dataTransfer.files[0]; if(f)radUpload(f);});
+  const dz = document.getElementById('rxDropZone');
+  if(!dz) return;
+  ['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag');}));
+  ['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag');}));
+  dz.addEventListener('drop',e=>{ rxHandleFiles(e.dataTransfer.files); });
 })();
 
 /* ============ INIT ============ */
