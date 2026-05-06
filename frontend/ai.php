@@ -18,13 +18,26 @@
 
 // ============ CONFIG ============
 $API_KEY = getenv('ANTHROPIC_API_KEY') ?: '';
+
+// Shared hosting fallback: allow loading key from a local, non-web-accessible file.
+// 1) Preferred: set ANTHROPIC_API_KEY in server environment.
+// 2) Fallback: create ai_config.php next to this file with: <?php return ['ANTHROPIC_API_KEY' => '...']; ?>
+if (empty($API_KEY)) {
+  $cfgPath = __DIR__ . '/ai_config.php';
+  if (is_file($cfgPath)) {
+    $cfg = @include $cfgPath;
+    if (is_array($cfg) && !empty($cfg['ANTHROPIC_API_KEY'])) {
+      $API_KEY = (string)$cfg['ANTHROPIC_API_KEY'];
+    }
+  }
+}
 $MODEL = 'claude-sonnet-4-20250514';
 $MAX_REQUESTS_PER_HOUR = 60;
 
 if (empty($API_KEY)) {
   header('Content-Type: application/json; charset=utf-8');
   http_response_code(500);
-  echo json_encode(['error' => 'Server missing ANTHROPIC_API_KEY']);
+  echo json_encode(['error' => 'Server missing ANTHROPIC_API_KEY (set env or create ai_config.php)']);
   exit;
 }
 

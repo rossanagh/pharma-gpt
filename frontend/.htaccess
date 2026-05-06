@@ -13,3 +13,8 @@
     Header set Expires "0"
   </FilesMatch>
 </IfModule>
+
+# Block secret config file if placed in public_html
+<Files "ai_config.php">
+  Require all denied
+</Files>
