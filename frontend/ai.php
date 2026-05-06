@@ -61,6 +61,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
     exit;
 }
+// Health check (GET) so you can debug cPanel easily:
+// - /ai.php?health=1
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['health'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    $kbPath = __DIR__ . '/rag/knowledge.txt';
+    $kbOk = is_file($kbPath) && filesize($kbPath) > 0;
+    echo json_encode([
+        'ok' => true,
+        'has_api_key' => !empty($API_KEY),
+        'model' => $MODEL,
+        'rag_file' => $kbPath,
+        'rag_exists' => is_file($kbPath),
+        'rag_bytes' => is_file($kbPath) ? filesize($kbPath) : 0,
+        'rag_marker_present' => ($kbOk && strpos(@file_get_contents($kbPath), 'RAG_RAD_TEST_12345') !== false),
+    ]);
+    exit;
+}
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Content-Type: application/json; charset=utf-8');
     http_response_code(405);
