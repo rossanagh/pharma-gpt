@@ -17,7 +17,7 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="alternate icon" href="favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="styles.css?v=20260506a">
+<link rel="stylesheet" href="styles.css?v=20260506f">
 
 </head>
 <body>
@@ -207,176 +207,130 @@
         </div>
       </div>
 
-      <!-- DEMO-LIKE CONSULTATION BODY (header kept above) -->
-      <div class="c2-layout">
-        <div class="c2-left">
-          <div class="c2-card">
-            <div class="c2-card-head">
-              <div class="c2-ico">💬</div>
-              <div>
-                <div class="c2-t">Consultație rapidă</div>
-                <div class="c2-s">Descrieți pacientul natural — vârstă, afecțiuni, medicație, întrebare</div>
+      <!-- Visit editor + AI panel (me-visit-v6 layout; site header unchanged) -->
+      <div class="mv6-root" id="mv6Root">
+        <div class="mv6-shell">
+          <div class="mv6-layout">
+            <div class="mv6-editor-col">
+              <div class="mv6-editor-topbar">
+                <button type="button" class="mv6-pill" id="mv6RecBtn" onclick="mv6ToggleRec()">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                  <span id="mv6RecLbl" data-t>Transcribe visit</span>
+                  <span class="mv6-rdot" id="mv6Rdot" style="display:none"></span>
+                  <span class="mv6-rtimer" id="mv6Rtimer" style="display:none">0:00</span>
+                </button>
+                <button type="button" class="mv6-pill" onclick="mv6GenerateNote()">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                  <span data-t>Generate note</span>
+                </button>
+                <button type="button" class="mv6-pill mv6-pill-gold" onclick="mv6NewVisit()">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  <span data-t>New visit</span>
+                </button>
+                <button type="button" class="mv6-pill" onclick="mv6OpenPatientModal()">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  <span data-t>Patient context</span>
+                </button>
+                <div class="mv6-spacer"></div>
+                <label class="mv6-tb-sm" style="cursor:pointer">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                  <span data-t>Labs</span>
+                  <input type="file" accept=".pdf,.jpg,.png,.jpeg" multiple style="display:none" onchange="mv6HandleFiles(this.files)">
+                </label>
+                <button type="button" class="mv6-tb-sm" onclick="mv6PrintDoc()"><span data-t>Print</span></button>
+                <button type="button" class="mv6-tb-sm" onclick="mv6CopyNote()"><span data-t>Copy</span></button>
+                <button type="button" class="mv6-tb-sm mv6-fin" onclick="mv6Finalize()"><span data-t>Finalize</span></button>
+              </div>
+              <div class="mv6-patient-strip" id="mv6PtStrip">
+                <span class="mv6-ps-name" id="mv6PsNm"></span>
+                <span class="mv6-ps-detail" id="mv6PsDet"></span>
+                <span class="mv6-ps-warn" id="mv6PsWarn" style="display:none"></span>
+                <span class="mv6-ps-edit" onclick="mv6OpenPatientModal()" data-t>Edit</span>
+              </div>
+              <div class="mv6-files-strip" id="mv6FStrip">
+                <span class="mv6-files-lbl" data-t>Attached:</span>
+              </div>
+              <div class="mv6-editor-body">
+                <div class="mv6-editor-inner">
+                  <div class="mv6-print-header" id="mv6PrintH">
+                    <div class="mv6-ph-bar">
+                      <div class="mv6-ph-row">
+                        <div class="mv6-ph-brand">
+                          <div class="mv6-ph-box">ME</div>
+                          <div>
+                            <div class="mv6-ph-bname">Medicin<em>Evidence</em></div>
+                            <div class="mv6-ph-bsub">medicinevidence.com</div>
+                          </div>
+                        </div>
+                        <div class="mv6-ph-meta">
+                          <div><span data-t>Dr.</span> <strong id="mv6PhDr">—</strong></div>
+                          <div><span data-t>Specialty:</span> <strong id="mv6PhSp">—</strong></div>
+                          <div><span data-t>Date:</span> <strong id="mv6PhDt">—</strong> · <span data-t>Time:</span> <strong id="mv6PhOr">—</strong></div>
+                          <div><span data-t>Visit #</span> <strong id="mv6PhNr">—</strong></div>
+                        </div>
+                      </div>
+                      <div class="mv6-ph-cells">
+                        <div class="mv6-ph-cell"><div class="mv6-ph-cl" data-t>Patient</div><div class="mv6-ph-cv" id="mv6PhNm">—</div></div>
+                        <div class="mv6-ph-cell"><div class="mv6-ph-cl" data-t>Age / Sex</div><div class="mv6-ph-cv" id="mv6PhAg">—</div></div>
+                        <div class="mv6-ph-cell"><div class="mv6-ph-cl" data-t>Diagnosis</div><div class="mv6-ph-cv" id="mv6PhDx">—</div></div>
+                      </div>
+                      <div class="mv6-ph-disc" data-t>AI-assisted document — clinical responsibility remains with the treating physician.</div>
+                    </div>
+                  </div>
+                  <div class="mv6-note-eye"><strong id="mv6NoteLbl" data-t>Consultation</strong> · <span id="mv6NoteDate">—</span></div>
+                  <div id="mv6Editor" class="mv6-editor" contenteditable="true" spellcheck="false"
+                    data-placeholder="Dictate or write about the patient — symptoms, history, plan. Citations from guidelines can appear in the assistant panel when you ask."
+                  ></div>
+                </div>
               </div>
             </div>
-            <textarea class="c2-ta" id="mainQ" oninput="c2UpdateChar()" placeholder="ex: Pacient de 72 ani, bărbat, DZ tip 2, HTA grad I, CKD stadiu 3a cu eGFR 48 ml/min. Pe Metformin 1000mg bid și Ramipril 5mg qd. Ar trebui să inițiez un SGLT2i?"></textarea>
-            <div class="c2-chips">
-              <span class="c2-chlbl">Completează rapid:</span>
-              <button class="c2-chip" onclick="c2AddCtx('vârstă: ')">+ Vârstă</button>
-              <button class="c2-chip" onclick="c2AddCtx('eGFR: ')">+ eGFR</button>
-              <button class="c2-chip" onclick="c2AddCtx('HbA1c: ')">+ HbA1c</button>
-              <button class="c2-chip" onclick="c2AddCtx('TA: ')">+ Tensiune</button>
-              <button class="c2-chip" onclick="c2AddCtx('medicație: ')">+ Medicație</button>
-              <button class="c2-chip" onclick="c2AddCtx('alergie la ')">+ Alergie</button>
-            </div>
-            <div class="c2-card-foot">
-              <div style="display:flex;align-items:center;gap:14px">
-                <span class="c2-char" id="charCt">0</span>
-                <div class="c2-src-tags"><span>PubMed</span><span>ESC</span><span>EASD</span><span>CNAS</span></div>
+            <div class="mv6-right-panel">
+              <div class="mv6-ask-area">
+                <div class="mv6-ask-box">
+                  <textarea class="mv6-ask-in" id="mv6AskIn" rows="1" data-tph="Ask about this case…" placeholder="Ask about this case…" onkeydown="mv6AskKey(event)" oninput="mv6AutoResize(this)"></textarea>
+                  <button type="button" class="mv6-ask-btn" onclick="sendChat()" aria-label="Send">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                  </button>
+                </div>
               </div>
-              <button class="c2-btn" id="sendBtn" onclick="askAI()">Consultă</button>
-            </div>
-            <div class="c2-qa">
-              <div class="c2-qa-lbl">Acțiuni rapide pe profilul introdus:</div>
-              <button class="c2-btn2" onclick="quickAction('interactions')">⚗️ Interacțiuni</button>
-              <button class="c2-btn2" onclick="quickAction('dosing')">💊 Ajustări renale</button>
-              <button class="c2-btn2" onclick="quickAction('guidelines')">📋 Ghiduri</button>
-              <button class="c2-btn2" onclick="quickAction('risk')">❤️ Risc CV</button>
-            </div>
-          </div>
-
-          <button class="c2-expand" onclick="toggleExt()">
-            <div class="c2-ebl">
-              <span style="font-size:22px">🗂️</span>
-              <div>
-                <div class="c2-ebt">Profil detaliat pacient &amp; Încărcare analize</div>
-                <div class="c2-ebs">Valori de laborator cu alertă automată · Medicație · Upload buletin PDF sau imagini</div>
+              <div class="mv6-quick-actions">
+                <button type="button" class="mv6-qa" onclick="mv6RunInteractiuni()"><div class="mv6-qa-ico mv6-danger">⚠</div><span data-t>Drug interactions</span></button>
+                <button type="button" class="mv6-qa" onclick="mv6RunDozaje()"><div class="mv6-qa-ico mv6-info">⚕</div><span data-t>Dosing suggestions</span></button>
+                <div class="mv6-qa-divider"></div>
+                <button type="button" class="mv6-qa" onclick="mv6Qa('forward')"><div class="mv6-qa-ico">↗</div><span data-t>Copy note to next visit</span></button>
+                <button type="button" class="mv6-qa" onclick="mv6Qa('questions')"><div class="mv6-qa-ico">?</div><span data-t>What questions are still open?</span></button>
+                <button type="button" class="mv6-qa" onclick="mv6Qa('contra')"><div class="mv6-qa-ico">✓</div><span data-t>Check contraindications</span></button>
+                <button type="button" class="mv6-qa" onclick="mv6Qa('evidence')"><div class="mv6-qa-ico">+</div><span data-t>Enrich plan with evidence</span></button>
+              </div>
+              <div class="mv6-chat-scroll" id="mv6ChatScroll">
+                <div class="mv6-empty-hint" id="mv6EmptyHint">
+                  <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#B5583C" stroke-width="1"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                  <p><span data-t>Write in the note on the left —</span><br><span data-t>then ask the assistant here for</span> <em data-t>evidence-based answers</em> <span data-t>for this case.</span></p>
+                </div>
               </div>
             </div>
-            <div style="display:flex;align-items:center;gap:10px">
-              <span class="c2-badge">Recomandat</span>
-              <span class="c2-arrow" id="arrow">▼</span>
-            </div>
-          </button>
-
-          <div class="c2-panel" id="extPanel">
-            <div class="c2-ph">
-              <div class="c2-pt">📋 Profil complet pacient</div>
-              <button class="c2-x" onclick="toggleExt()">✕</button>
-            </div>
-
-            <div class="c2-sec">
-              <div class="c2-sect">🎂 Date demografice</div>
-              <div class="c2-g4">
-                <div class="c2-f"><label>Vârstă</label><input type="number" id="pAge" placeholder="65" oninput="checkVitals()"></div>
-                <div class="c2-f"><label>Sex</label><select id="pSex" onchange="checkVitals()"><option value="">—</option><option value="M">Masculin</option><option value="F">Feminin</option></select></div>
-                <div class="c2-f"><label>Greutate (kg)</label><input type="number" id="pWt" placeholder="75" oninput="calcBMI()"></div>
-                <div class="c2-f"><label>Înălțime (cm)</label><input type="number" id="pHt" placeholder="170" oninput="calcBMI()"><div id="bmiRes"></div></div>
-              </div>
-            </div>
-
-            <div class="c2-sec">
-              <div class="c2-sect">🔬 Vitale &amp; analize cheie</div>
-              <div class="c2-g4" style="margin-bottom:12px">
-                <div class="c2-f"><label>TA</label><input type="text" id="pBP" placeholder="130/80" oninput="checkVitals()"><div id="bpA"></div></div>
-                <div class="c2-f"><label>eGFR</label><input type="number" id="pEGFR" placeholder="75" oninput="checkVitals()"><div id="egfrA"></div></div>
-                <div class="c2-f"><label>HbA1c</label><input type="number" id="pHBA" placeholder="7.2" step="0.1" oninput="checkVitals()"><div id="hbaA"></div></div>
-                <div class="c2-f"><label>LDL</label><input type="number" id="pLDL" placeholder="95" oninput="checkVitals()"><div id="ldlA"></div></div>
-              </div>
-              <div class="c2-g3">
-                <div class="c2-f"><label>Creatinină</label><input type="number" id="pCr" placeholder="1.0" step="0.1" oninput="checkVitals()"><div id="crA"></div></div>
-                <div class="c2-f"><label>Glicemie</label><input type="number" id="pGlu" placeholder="110" oninput="checkVitals()"><div id="gluA"></div></div>
-                <div class="c2-f"><label>Alte analize</label><input type="text" id="pLab" placeholder="Na 138, K 4.2, Hb 12…"></div>
-              </div>
-              <div class="c2-alerts" id="vitBox" style="margin-top:14px"></div>
-            </div>
-
-            <div class="c2-sec">
-              <div class="c2-sect">🏥 Afecțiuni &amp; medicație</div>
-              <div class="c2-g2" style="margin-bottom:12px">
-                <div class="c2-f"><label>Afecțiuni active / diagnostice</label><textarea id="pConds" rows="3" placeholder="Diabet zaharat tip 2, HTA, CKD stadiu 3…"></textarea></div>
-                <div class="c2-f"><label>Alergii &amp; contraindicații</label><textarea id="pAllergy" rows="3" placeholder="Penicilină, AINS…"></textarea></div>
-              </div>
-              <div class="c2-f" style="margin-bottom:9px"><label>Medicație curentă</label></div>
-              <div class="c2-med-row">
-                <input type="text" id="medIn" placeholder="ex: Metformin 1000mg bid" onkeydown="if(event.key==='Enter')addMed()">
-                <button class="c2-add" onclick="addMed()">+ Adaugă</button>
-              </div>
-              <div class="c2-med-tags" id="medTags"></div>
-              <div style="display:flex;flex-wrap:wrap;gap:6px">
-                <button class="c2-pm" onclick="addPreset('Metformin 1000mg bid')">+ Metformin</button>
-                <button class="c2-pm" onclick="addPreset('Ramipril 5mg qd')">+ Ramipril</button>
-                <button class="c2-pm" onclick="addPreset('Atorvastatin 40mg')">+ Atorvastatin</button>
-                <button class="c2-pm" onclick="addPreset('Bisoprolol 5mg qd')">+ Bisoprolol</button>
-                <button class="c2-pm" onclick="addPreset('Aspirin 75mg qd')">+ Aspirină</button>
-                <button class="c2-pm" onclick="addPreset('Empagliflozin 10mg qd')">+ Empagliflozin</button>
-              </div>
-            </div>
-
-            <div class="c2-sec">
-              <div class="c2-sect">📄 Încărcare analize &amp; imagini</div>
-              <div class="c2-up" id="dropZone">
-                <input type="file" class="c2-upin" id="fileIn" multiple accept=".pdf,.jpg,.jpeg,.png,.bmp" onchange="handleFiles(this.files)">
-                <div style="font-size:28px;margin-bottom:8px;opacity:.75">📎</div>
-                <div style="font-size:15px;font-weight:600;color:var(--ink);margin-bottom:4px">Trage fișierele sau click pentru a selecta</div>
-                <div style="font-size:13px;color:var(--ink2)">PDF buletine · JPG/PNG imagini · ECG · Radiografii · Max 20MB</div>
-              </div>
-              <div class="c2-file-list" id="fileList"></div>
-            </div>
-
-            <div class="c2-sec" style="display:flex;gap:10px;flex-wrap:wrap">
-              <button class="c2-btn" style="flex:1;justify-content:center" onclick="sendFromPanel()">Analizează profilul complet</button>
-              <button class="c2-btn2" id="analyzeFilesBtn" style="display:none" onclick="doAnalyzeFiles()">🔬 Interpretează analizele</button>
-            </div>
-          </div>
-
-          <div class="c2-anres" id="analyzeResult">
-            <div class="c2-arh">
-              <div>
-                <div class="c2-art">Interpretare analize</div>
-                <div class="c2-arm" id="arMeta"></div>
-              </div>
-              <button class="c2-btn2" onclick="printAnalyze()">Print</button>
-            </div>
-            <div class="c2-arb" id="arBody"></div>
-          </div>
-
-          <div class="c2-div">sau alegeți un scenariu clinic frecvent</div>
-          <div class="c2-presets">
-            <button class="c2-pcard" onclick="preset('diff')"><div class="i">🔍</div><div class="t">Diagnostic diferențial</div><div class="s">Diagnostice ordonate după probabilitate cu semne de alarmă</div></button>
-            <button class="c2-pcard" onclick="preset('drug')"><div class="i">⚗️</div><div class="t">Interacțiuni medicamentoase</div><div class="s">Verificare completă cu ajustări renale și contraindicații</div></button>
-            <button class="c2-pcard" onclick="preset('guide')"><div class="i">📋</div><div class="t">Ghiduri ESC · EASD · KDIGO</div><div class="s">Recomandări actuale specifice profilului pacientului</div></button>
-            <button class="c2-pcard" onclick="preset('risk')"><div class="i">❤️</div><div class="t">Risc cardiovascular SCORE2</div><div class="s">Calcul risc și intervențiile indicate conform ghidurilor</div></button>
-          </div>
-        </div>
-
-        <div class="c2-chat-card">
-          <div class="c2-ch">
-            <div class="c2-chav">ME</div>
-            <div>
-              <div class="c2-cht">MedicinEvidence · Consultație clinică</div>
-              <div class="c2-chs">Răspuns academic · streaming · citat din surse verificate</div>
-            </div>
-            <div class="c2-online">Online</div>
-            <button class="c2-btn2" onclick="printConsult()">Print</button>
-          </div>
-          <div class="c2-cb" id="chatBody">
-            <div class="c2-empty" id="emptyState">
-              <div class="i">🩺</div>
-              <div class="t">Gata să consultați.</div>
-              <div class="s">Descrieți cazul în câmpul din stânga sau alegeți un scenariu frecvent.</div>
-            </div>
-          </div>
-          <div class="c2-cf">
-            <div class="c2-cirow">
-              <input type="text" class="c2-ci" id="chatIn" placeholder="Continuați conversația…" onkeydown="if(event.key==='Enter')sendChat()">
-              <button class="c2-cis" onclick="sendChat()">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-              </button>
-            </div>
-            <div class="c2-hint">PubMed · EMA · ESC · EASD · ESMO · Cochrane · CNAS · Fleischner</div>
           </div>
         </div>
       </div>
+
+      <div class="mv6-modal-ov" id="mv6ModalOv" onclick="if(event.target===this)mv6ClosePatientModal()">
+        <div class="mv6-modal" role="dialog" aria-modal="true">
+          <h2 data-t>Patient context</h2>
+          <div class="mv6-mf"><label data-t>Patient name</label><input id="mv6PtNm" type="text" placeholder="e.g. John Doe"></div>
+          <div class="mv6-mf-row">
+            <div class="mv6-mf"><label data-t>Age / sex</label><input id="mv6PtAg" type="text" placeholder="e.g. 58, M"></div>
+            <div class="mv6-mf"><label data-t>Specialty</label><input id="mv6PtSp" type="text" placeholder="e.g. Cardiology"></div>
+          </div>
+          <div class="mv6-mf"><label data-t>Diagnosis / reason</label><input id="mv6PtDx" type="text" placeholder="e.g. HTA + T2DM"></div>
+          <div class="mv6-mf"><label data-t>Allergies / warnings</label><input id="mv6PtAl" type="text" placeholder="e.g. Penicillin"></div>
+          <div class="mv6-mf"><label data-t>Current medication</label><input id="mv6PtMd" type="text" placeholder="e.g. Ramipril 5mg, Metformin 1g bid"></div>
+          <div class="mv6-mfooter">
+            <button type="button" class="mv6-m-cancel" onclick="mv6ClosePatientModal()" data-t>Cancel</button>
+            <button type="button" class="mv6-m-save" onclick="mv6SavePatient()" data-t>Save</button>
+          </div>
+        </div>
+      </div>
+      <div class="mv6-toast" id="mv6Toast"></div>
 
     </main>
   </div>
@@ -2547,7 +2501,7 @@
   💬 <span class="txt">Chat</span>
 </button>
 
-<script src="script.js?v=20260506b"></script>
+<script src="script.js?v=20260506d"></script>
 
 </body>
 </html>

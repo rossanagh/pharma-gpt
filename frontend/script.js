@@ -82,7 +82,16 @@ const T = {
     "Doctor":"Medic","Pharmacist":"Farmacist","Student":"Student",
     "Physician":"Medic","Main":"Principal","Drug Database":"Bază Medicamente","Learning":"Învățare",
     "Clinical":"Consultație","consultation.":"clinică.","Patient context → personalised evidence-based guidance (streaming AI)":"Context pacient → ghidaj personalizat bazat pe evidențe (AI streaming)",
-    "Patient context":"Context pacient","Age":"Vârstă","Sex":"Sex","Select…":"Selectează…","Male":"Bărbat","Female":"Femeie","Weight (kg)":"Greutate (kg)","Conditions":"Afecțiuni","Type 2 diabetes, hypertension…":"Diabet zaharat tip 2, hipertensiune…","Current medications":"Medicație curentă","Metformin 1000mg bid, Ramipril 5mg…":"Metformin 1000mg x2/zi, Ramipril 5mg…",
+    "Patient context":"Context pacient",
+    "Transcribe visit":"Transcrie vizita","Generate note":"Generează notă","Labs":"Analize","Print":"Printează","Copy":"Copiază","Finalize":"Finalizează","New visit":"Consultație nouă","Edit":"Editează","Attached:":"Atașate:","Consultation":"Consultație","Dr.":"Dr.","Specialty:":"Specialitate:","Date:":"Data:","Time:":"Ora:","Visit #":"Nr. consultație:","Patient":"Pacient","Age / Sex":"Vârstă / Sex","Diagnosis":"Diagnostic",
+    "AI-assisted document — clinical responsibility remains with the treating physician.":"Document cu asistență AI — responsabilitatea clinică revine medicului curant.",
+    "Drug interactions":"Interacțiuni medicamentoase","Dosing suggestions":"Dozaje recomandate","Copy note to next visit":"Copiază nota la consultația următoare","What questions are still open?":"Ce întrebări mai trebuie adresate?","Check contraindications":"Verifică contraindicații în plan","Enrich plan with evidence":"Îmbogățește planul cu dovezi",
+    "Write in the note on the left —":"Scrie în nota din stânga —","then ask the assistant here for":"apoi întreabă asistentul aici pentru","evidence-based answers":"răspunsuri bazate pe dovezi","for this case.":"pentru acest caz.",
+    "Patient name":"Nume pacient","Cancel":"Anulează","Save":"Salvează","Current medication":"Medicație actuală","Diagnosis / reason":"Diagnostic / Motiv","Allergies / warnings":"Alergii / Atenționări",
+    "Recording stopped":"Înregistrare oprită","Recording — speak naturally":"Înregistrare activă — vorbiți natural","Note empty — write or record first":"Nota este goală — scrieți sau înregistrați mai întâi","Consultation finalized":"Consultație finalizată","Note copied":"Notă copiată","Patient context saved":"Context pacient salvat",
+    "Stop transcription":"Oprește transcrierea","You":"Tu","Ask about this case…":"Întreabă despre acest caz…","Insert into note":"Inserează în notă","Inserted into note":"Inserat în notă",
+    "See assistant panel — pasted summary recommended after review.":"Vezi panoul asistentului — revizuiește rezumatul înainte de semnare.",
+    "Note enriched with guideline references — review and edit before signing.":"Notă îmbogățită cu referințe din ghiduri — revizuiește și editează înainte de semnare.","Age":"Vârstă","Sex":"Sex","Select…":"Selectează…","Male":"Bărbat","Female":"Femeie","Weight (kg)":"Greutate (kg)","Conditions":"Afecțiuni","Type 2 diabetes, hypertension…":"Diabet zaharat tip 2, hipertensiune…","Current medications":"Medicație curentă","Metformin 1000mg bid, Ramipril 5mg…":"Metformin 1000mg x2/zi, Ramipril 5mg…",
     "Clinical query":"Întrebare clinică","Contextual · evidence-based · always cited · streaming":"Contextual · bazat pe evidențe · întotdeauna citat · streaming",
     "Ready when you are.":"Gata când ești tu.","Enter patient context on the left, then ask your clinical question. Every response is tailored and cited.":"Introdu contextul pacientului în stânga, apoi pune întrebarea clinică. Fiecare răspuns este personalizat și citat.",
     "Ask a clinical question…":"Pune o întrebare clinică…","Always cited":"Întotdeauna citat",
@@ -389,6 +398,7 @@ function goPage(p){
   const tab=document.querySelector('.ntab[data-p="'+p+'"]');
   if(tab)tab.classList.add('act');
   window.scrollTo({top:0,behavior:'smooth'});
+  if(p==='consult'){ if(typeof mv6PrimeDates==='function') mv6PrimeDates(); if(typeof mv6SyncPrintHeader==='function') mv6SyncPrintHeader(); }
 }
 
 /* ============ MODAL ============ */
@@ -602,6 +612,7 @@ function setAuthUI(user){
     if(sideGreetName) sideGreetName.textContent = "Doctor.";
     const cl = document.getElementById("chatLauncher");
     if(cl) cl.classList.remove("on");
+    if(typeof mv6SyncPrintHeader==='function') mv6SyncPrintHeader();
     return;
   }
 
@@ -644,6 +655,7 @@ function setAuthUI(user){
       openModal("profile");
     });
   }
+  if(typeof mv6SyncPrintHeader==='function') mv6SyncPrintHeader();
 }
 
 /* ============ DIRECT MESSAGES (DM) ============ */
@@ -1446,10 +1458,15 @@ async function streamClaudeAPI(payload, onToken, onDone, onError){
           const obj = JSON.parse(data);
           if(obj.type === 'content_block_delta' && obj.delta && obj.delta.type === 'text_delta'){
             onToken && onToken(obj.delta.text);
+          } else if(Array.isArray(obj.choices) && obj.choices[0] && obj.choices[0].delta){
+            const piece = obj.choices[0].delta.content;
+            if(typeof piece === 'string' && piece.length) onToken && onToken(piece);
           } else if(obj.type === 'message_stop'){
             onDone && onDone();
           } else if(obj.error){
-            onError && onError(obj.error.message || JSON.stringify(obj.error));
+            const er = obj.error;
+            const msg = typeof er === 'string' ? er : (er.message || JSON.stringify(er));
+            onError && onError(msg);
           }
         } catch(e){/*skip malformed*/}
       }
@@ -1563,12 +1580,13 @@ function consultQuick(type){
     }
   };
   const q=(queries[type]||queries.differential)[curLang]||(queries[type]||queries.differential)['en'];
-  const input=document.getElementById('chatInput');
-  if(input){input.value=q;input.focus();}
+  const input=document.getElementById('mv6AskIn')||document.getElementById('chatInput')||document.getElementById('chatIn');
+  if(input){input.value=q;input.focus();if(input.id==='mv6AskIn')mv6AutoResize(input);}
 }
 
 function clearConsult(){
   chatHistory=[];
+  if(document.getElementById('mv6Editor') && typeof mv6NewVisit==='function'){ mv6NewVisit(true); return; }
   const body=document.getElementById('chatBody');
   if(body)body.innerHTML=`<div class="consult-empty"><div class="ce-icon">🩺</div><h4>${tr('Ready when you are.')}</h4><p>${tr('Fill in the patient profile above — only what relevant — then ask your clinical question.')}</p></div>`;
 }
@@ -1806,29 +1824,352 @@ function filterGuides(cat){
   const badge = document.getElementById('guidesCountBadge');
   if(badge) badge.textContent = visible || document.querySelectorAll('.gcard').length;
 }
-function sendChat(){
-  // Support both old (#chatInput) and demo-2 (#chatIn) inputs
-  const input=document.getElementById('chatInput') || document.getElementById('chatIn');
-  const q=input?.value.trim();if(!q)return;
-  const btn=document.getElementById('chatSendBtn');if(btn)btn.disabled=true;
-  const body=document.getElementById('chatBody');if(!body)return;
-  // Clear whichever empty state exists
-  const empty = body.querySelector('.consult-empty') || body.querySelector('.chat-empty') || body.querySelector('#emptyState');
-  if(empty) empty.remove();
+/* --- Consultation UI (me-visit-v6) --- */
+var MV6_pt = { nm:'', ag:'', sp:'Internal Medicine', dx:'', al:'', md:'' };
+var MV6_visitNr = '';
+var MV6_recInt = null, MV6_recSec = 0, MV6_isRec = false;
 
-  // Render message (demo-2 style if present, else legacy consult style)
-  const isDemo2 = !!document.querySelector('#pg-consult .c2-chat-card');
-  if(isDemo2){
-    body.insertAdjacentHTML('beforeend',`<div class="c2-msg me"><div class="c2-av me">DR</div><div class="c2-bub me">${escapeHtml(q)}</div></div>`);
-  } else {
-    body.insertAdjacentHTML('beforeend',`<div class="consult-msg me"><div class="avatar">DR</div><div class="consult-bubble">${escapeHtml(q)}</div></div>`);
+function MV6_patientCtxLines(){
+  const p = MV6_pt;
+  const o = [];
+  if(p.nm) o.push('Patient: '+p.nm);
+  if(p.ag) o.push('Age/Sex: '+p.ag);
+  if(p.dx) o.push('Diagnosis/reason: '+p.dx);
+  if(p.md) o.push('Medications: '+p.md);
+  if(p.al) o.push('Allergies: '+p.al);
+  if(p.sp) o.push('Specialty: '+p.sp);
+  return o;
+}
+
+function mv6Toast(m){
+  const t = document.getElementById('mv6Toast');
+  if(!t){ alert(m); return; }
+  t.textContent = m;
+  t.classList.add('mv6-show');
+  setTimeout(()=>t.classList.remove('mv6-show'), 2600);
+}
+
+function mv6PrimeDates(){
+  const nd = document.getElementById('mv6NoteDate');
+  const phd = document.getElementById('mv6PhDt');
+  const pho = document.getElementById('mv6PhOr');
+  const loc = curLang==='ro' ? 'ro-RO' : curLang==='de' ? 'de-DE' : 'en-GB';
+  const now = new Date();
+  if(nd) nd.textContent = now.toLocaleString(loc, { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  if(phd) phd.textContent = now.toLocaleDateString(loc, { day:'2-digit', month:'2-digit', year:'numeric' });
+  if(pho) pho.textContent = now.toLocaleTimeString(loc, { hour:'2-digit', minute:'2-digit' });
+  if(!MV6_visitNr) MV6_visitNr = 'ME-'+now.getFullYear()+'-'+(Math.floor(Math.random()*9000)+1000);
+  const phn = document.getElementById('mv6PhNr');
+  if(phn) phn.textContent = MV6_visitNr;
+}
+
+function mv6SyncPrintHeader(){
+  const dr = document.getElementById('mv6PhDr');
+  const sp = document.getElementById('mv6PhSp');
+  if(!dr) return;
+  const u = typeof __ME_USER__ !== 'undefined' ? __ME_USER__ : null;
+  if(!u){ dr.textContent = '—'; if(sp) sp.textContent = '—'; return; }
+  dr.textContent = (typeof formatFullName === 'function' ? formatFullName(u) : '') || '—';
+  if(sp) sp.textContent = u.specialty || u.providerType || '—';
+}
+
+function mv6OpenPatientModal(){
+  const ov = document.getElementById('mv6ModalOv');
+  if(!ov) return;
+  document.getElementById('mv6PtNm').value = MV6_pt.nm||'';
+  document.getElementById('mv6PtAg').value = MV6_pt.ag||'';
+  document.getElementById('mv6PtSp').value = MV6_pt.sp||'';
+  document.getElementById('mv6PtDx').value = MV6_pt.dx||'';
+  document.getElementById('mv6PtAl').value = MV6_pt.al||'';
+  document.getElementById('mv6PtMd').value = MV6_pt.md||'';
+  ov.classList.add('mv6-on');
+}
+
+function mv6ClosePatientModal(){
+  const ov = document.getElementById('mv6ModalOv');
+  if(ov) ov.classList.remove('mv6-on');
+}
+
+function mv6SavePatient(){
+  MV6_pt = {
+    nm: document.getElementById('mv6PtNm').value.trim(),
+    ag: document.getElementById('mv6PtAg').value.trim(),
+    sp: document.getElementById('mv6PtSp').value.trim() || 'Internal Medicine',
+    dx: document.getElementById('mv6PtDx').value.trim(),
+    al: document.getElementById('mv6PtAl').value.trim(),
+    md: document.getElementById('mv6PtMd').value.trim()
+  };
+  const strip = document.getElementById('mv6PtStrip');
+  if(MV6_pt.nm && strip){
+    document.getElementById('mv6PsNm').textContent = MV6_pt.nm;
+    document.getElementById('mv6PsDet').textContent = [MV6_pt.ag, MV6_pt.dx].filter(Boolean).join(' · ');
+    const w = document.getElementById('mv6PsWarn');
+    if(MV6_pt.al){ w.textContent = '⚠ '+MV6_pt.al; w.style.display = ''; }
+    else { w.style.display = 'none'; }
+    strip.classList.add('mv6-show');
+    document.getElementById('mv6PhNm').textContent = MV6_pt.nm;
+    document.getElementById('mv6PhAg').textContent = MV6_pt.ag;
+    document.getElementById('mv6PhDx').textContent = MV6_pt.dx;
+    document.getElementById('mv6PhSp').textContent = MV6_pt.sp;
+  } else if(strip){
+    strip.classList.remove('mv6-show');
   }
-  if(input)input.value='';body.scrollTop=body.scrollHeight;
-  const msgId='ai_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
-  if(isDemo2){
-    body.insertAdjacentHTML('beforeend',`<div class="c2-msg" id="msg_${msgId}"><div class="c2-av ai">ME</div><div class="c2-bub ai" id="bubble_${msgId}"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>`);
+  mv6ClosePatientModal();
+  mv6Toast(tr('Patient context saved'));
+}
+
+function mv6RemoveHint(){
+  document.getElementById('mv6EmptyHint')?.remove();
+}
+
+function mv6AddBubble(role, html, loading){
+  mv6RemoveHint();
+  const sc = document.getElementById('mv6ChatScroll');
+  if(!sc) return;
+  const roleLbl = role==='user' ? tr('You') : 'MedicinEvidence AI';
+  const bubCls = role==='user' ? ' mv6-user' : '';
+  const inner = loading ? '<div class="mv6-ldots"><span></span><span></span><span></span></div>' : (html||'');
+  const ld = loading ? ' data-mv6-loading="1"' : '';
+  sc.insertAdjacentHTML('beforeend', `<div class="mv6-chat-msg" data-mv6-role="${role}"${ld}><div class="mv6-chat-role">${escapeHtml(roleLbl)}</div><div class="mv6-chat-bubble${bubCls}">${inner}</div></div>`);
+  sc.scrollTop = sc.scrollHeight;
+}
+
+function mv6UpdateLastAi(html){
+  const sc = document.getElementById('mv6ChatScroll');
+  if(!sc) return;
+  const pend = [...sc.querySelectorAll('.mv6-chat-msg[data-mv6-loading]')];
+  const last = pend[pend.length-1];
+  if(last){
+    const b = last.querySelector('.mv6-chat-bubble');
+    if(b) b.innerHTML = html;
+    delete last.dataset.mv6Loading;
+  }
+  sc.scrollTop = sc.scrollHeight;
+}
+
+function mv6AskKey(e){
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendChat(); }
+}
+
+function mv6AutoResize(el){
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 110)+'px';
+}
+
+function mv6ToggleRec(){
+  MV6_isRec = !MV6_isRec;
+  const btn = document.getElementById('mv6RecBtn');
+  const lbl = document.getElementById('mv6RecLbl');
+  const dot = document.getElementById('mv6Rdot');
+  const tmr = document.getElementById('mv6Rtimer');
+  if(!btn) return;
+  if(MV6_isRec){
+    btn.classList.add('recording');
+    if(lbl) lbl.textContent = tr('Stop transcription');
+    if(dot) dot.style.display = 'block';
+    if(tmr){ tmr.style.display = 'block'; MV6_recSec = 0; tmr.textContent = '0:00'; }
+    MV6_recInt = setInterval(()=>{
+      MV6_recSec++;
+      const m = Math.floor(MV6_recSec/60), s = (MV6_recSec%60).toString().padStart(2,'0');
+      if(tmr) tmr.textContent = m+':'+s;
+    }, 1000);
+    mv6Toast(tr('Recording — speak naturally'));
+    setTimeout(mv6DemoTranscript, 3500);
   } else {
-    body.insertAdjacentHTML('beforeend',`<div class="consult-msg ai" id="msg_${msgId}"><div class="avatar">ME</div><div class="consult-bubble" id="bubble_${msgId}"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>`);
+    btn.classList.remove('recording');
+    if(lbl) lbl.textContent = tr('Transcribe visit');
+    if(dot) dot.style.display = 'none';
+    if(tmr) tmr.style.display = 'none';
+    clearInterval(MV6_recInt);
+    mv6Toast(tr('Recording stopped')+' · '+MV6_recSec+'s');
+  }
+}
+
+function mv6DemoTranscript(){
+  if(!MV6_isRec) return;
+  const ed = document.getElementById('mv6Editor');
+  if(!ed || ed.textContent.trim()) return;
+  ed.innerHTML = '<h2>Assessment &amp; Plan</h2><p>67-year-old with HFrEF (NYHA III), hypertension, paroxysmal AF. Progressive exertional dyspnea and bilateral ankle edema over 2 weeks. BP 158/96 mmHg, SpO₂ 93%.</p><h2>Issue #1: Heart failure decompensation</h2><p>Elevated natriuretic peptide, LVEF 35% on prior echo. Plan: optimize diuretic, uptitrate beta-blocker, consider SGLT2 inhibitor.</p>';
+}
+
+function mv6MkEv(src, cls, txt){
+  const d = document.createElement('div');
+  d.className = 'mv6-ev-cite';
+  d.innerHTML = '<div class="mv6-ev-source">'+escapeHtml(src)+' · '+escapeHtml(cls)+'</div>'+escapeHtml(txt)+'<button type="button" class="mv6-ev-x" onclick="this.parentElement.remove()">✕</button>';
+  return d;
+}
+
+function mv6InjectEvidence(){
+  const ed = document.getElementById('mv6Editor');
+  if(!ed) return;
+  ed.appendChild(mv6MkEv('ESC 2021 HFrEF', 'Class I', 'Quadruple therapy (RAASi, beta-blocker, MRA, SGLT2i) reduces CV mortality when tolerated.'));
+}
+
+function mv6GenerateNote(){
+  const ed = document.getElementById('mv6Editor');
+  if(!ed || !ed.textContent.trim()){ mv6Toast(tr('Note empty — write or record first')); return; }
+  mv6AddBubble('ai', '', true);
+  setTimeout(()=>{
+    mv6UpdateLastAi(escapeHtml(tr('Note enriched with guideline references — review and edit before signing.')));
+    mv6InjectEvidence();
+  }, 900);
+}
+
+function mv6RunInteractiuni(){
+  const meds = MV6_pt.md || 'Perindopril, Bisoprolol, Apixaban, Furosemide, Spironolactone';
+  mv6AddBubble('ai', '', true);
+  setTimeout(()=>{
+    mv6UpdateLastAi(
+      '<div class="mv6-tool-block"><div class="mv6-tb-head"><strong>'+tr('Drug interactions')+'</strong></div><div class="mv6-tb-body">'+
+      '<div class="mv6-tb-row"><span>'+escapeHtml(meds.slice(0,48))+'</span></div>'+
+      '<div class="mv6-tb-row"><span>Apixaban + NSAIDs</span><strong>avoid</strong></div>'+
+      '<div class="mv6-tb-row"><span>Furosemide + ACE-I</span><strong>caution BP</strong></div>'+
+      '</div><div class="mv6-chat-actions"><button type="button" class="mv6-ca mv6-pri" onclick="mv6InsertSummary(\'interactions\')">'+tr('Insert into note')+'</button></div>'
+    );
+  }, 700);
+}
+
+function mv6RunDozaje(){
+  mv6AddBubble('ai', '', true);
+  setTimeout(()=>{
+    mv6UpdateLastAi(
+      '<div class="mv6-tool-block"><div class="mv6-tb-head"><strong>'+tr('Dosing suggestions')+'</strong></div><div class="mv6-tb-body">'+
+      '<div class="mv6-tb-row"><span>ACE-I / ARB</span><span>titrate to target BP</span></div>'+
+      '<div class="mv6-tb-row"><span>Beta-blocker</span><span>slow uptitration in HF</span></div>'+
+      '</div><div class="mv6-chat-actions"><button type="button" class="mv6-ca mv6-pri" onclick="mv6InsertSummary(\'dosing\')">'+tr('Insert into note')+'</button></div>'
+    );
+  }, 700);
+}
+
+function mv6InsertSummary(kind){
+  const ed = document.getElementById('mv6Editor');
+  if(!ed) return;
+  const p = document.createElement('p');
+  p.innerHTML = '<br><strong>'+(kind==='interactions'?tr('Drug interactions'):tr('Dosing suggestions'))+':</strong> '+tr('See assistant panel — pasted summary recommended after review.');
+  ed.appendChild(p);
+  mv6Toast(tr('Inserted into note'));
+}
+
+function mv6Qa(type){
+  const qaR = {
+    forward: tr('Copy note to next visit')+' — '+tr('Patient context saved'),
+    questions: tr('What questions are still open?')+' — '+tr('Consider adherence, red flags, and follow-up interval.'),
+    contra: tr('Check contraindications')+' — '+tr('Review renal function, K+, pregnancy, and drug–drug interactions.'),
+    evidence: tr('Enrich plan with evidence')+' — ESC / EASD / KDIGO-aligned bullets should be verified against local protocols.'
+  };
+  mv6AddBubble('ai', '', true);
+  setTimeout(()=>mv6UpdateLastAi(escapeHtml(qaR[type]||'')), 600);
+}
+
+function mv6HandleFiles(files){
+  if(!files || !files.length) return;
+  const strip = document.getElementById('mv6FStrip');
+  if(strip) strip.classList.add('mv6-show');
+  Array.from(files).forEach(f=>{
+    const t = document.createElement('div');
+    t.className = 'mv6-ftag mv6-loading';
+    t.textContent = '⏳ '+f.name.substring(0,22);
+    strip.appendChild(t);
+    setTimeout(()=>{
+      t.classList.remove('mv6-loading');
+      t.classList.add('mv6-done');
+      t.textContent = '✓ '+f.name.substring(0,22);
+      mv6ShowFileAnalysis(f);
+    }, 1200+Math.random()*800);
+  });
+}
+
+function mv6ShowFileAnalysis(f){
+  mv6AddBubble('ai', '', true);
+  setTimeout(()=>{
+    mv6UpdateLastAi(
+      '<div class="mv6-analysis-block"><div class="mv6-ab-head">'+escapeHtml(f.name.substring(0,36))+'</div>'+
+      '<div class="mv6-ab-body"><div class="mv6-ab-row"><span>Status</span><span>Demo parse</span></div></div>'+
+      '<div class="mv6-chat-actions"><button type="button" class="mv6-ca mv6-pri" onclick="mv6AppendLabLine()">'+tr('Copy')+' → note</button></div>'
+    );
+  }, 900);
+}
+
+function mv6AppendLabLine(){
+  const ed = document.getElementById('mv6Editor');
+  if(!ed) return;
+  const p = document.createElement('p');
+  p.innerHTML = '<br><strong>Labs (demo):</strong> attach PDFs for full AI interpretation via '+tr('Consultation')+'.';
+  ed.appendChild(p);
+}
+
+function mv6PrintDoc(){
+  const h = document.getElementById('mv6PrintH');
+  if(h) h.style.display = 'block';
+  window.print();
+  setTimeout(()=>{ if(h) h.style.display='none'; }, 400);
+}
+
+function mv6CopyNote(){
+  const ed = document.getElementById('mv6Editor');
+  if(!ed) return;
+  navigator.clipboard.writeText(ed.innerText||'').then(()=>mv6Toast(tr('Note copied'))).catch(()=>mv6Toast(tr('Note copied')));
+}
+
+function mv6Finalize(){
+  const ed = document.getElementById('mv6Editor');
+  if(!ed || !ed.textContent.trim()){ mv6Toast(tr('Note empty — write or record first')); return; }
+  mv6Toast(tr('Consultation finalized'));
+}
+
+function mv6NewVisit(silent){
+  const ed = document.getElementById('mv6Editor');
+  if(ed) ed.innerHTML = '';
+  const sc = document.getElementById('mv6ChatScroll');
+  if(sc){
+    sc.innerHTML = '<div class="mv6-empty-hint" id="mv6EmptyHint"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#B5583C" stroke-width="1"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg><p><span data-t>Write in the note on the left —</span><br><span data-t>then ask the assistant here for</span> <em data-t>evidence-based answers</em> <span data-t>for this case.</span></p></div>';
+    if(typeof applyTranslations==='function') applyTranslations();
+  }
+  document.getElementById('mv6PtStrip')?.classList.remove('mv6-show');
+  const fs = document.getElementById('mv6FStrip');
+  if(fs){
+    fs.classList.remove('mv6-show');
+    fs.querySelectorAll('.mv6-ftag').forEach(x=>x.remove());
+  }
+  MV6_visitNr = 'ME-'+(new Date().getFullYear())+'-'+(Math.floor(Math.random()*9000)+1000);
+  const phn = document.getElementById('mv6PhNr');
+  if(phn) phn.textContent = MV6_visitNr;
+  chatHistory = [];
+  mv6PrimeDates();
+  if(!silent) mv6Toast(tr('New visit'));
+}
+
+function sendChat(){
+  const input=document.getElementById('mv6AskIn')||document.getElementById('chatInput')||document.getElementById('chatIn');
+  const q=input&&input.value.trim();if(!q)return;
+  const btn=document.getElementById('chatSendBtn');if(btn)btn.disabled=true;
+  const body=document.getElementById('mv6ChatScroll')||document.getElementById('chatBody');if(!body)return;
+  const isMv6=!!document.getElementById('mv6ChatScroll');
+  const empty=body.querySelector('.consult-empty')||body.querySelector('.chat-empty')||body.querySelector('#emptyState')||body.querySelector('#mv6EmptyHint');
+  if(empty)empty.remove();
+  if(isMv6){
+    body.insertAdjacentHTML('beforeend','<div class="mv6-chat-msg" data-mv6-role="user"><div class="mv6-chat-role">'+escapeHtml(tr('You'))+'</div><div class="mv6-chat-bubble mv6-user">'+escapeHtml(q)+'</div></div>');
+  }else{
+    const isDemo2=!!document.querySelector('#pg-consult .c2-chat-card');
+    if(isDemo2){
+      body.insertAdjacentHTML('beforeend','<div class="c2-msg me"><div class="c2-av me">DR</div><div class="c2-bub me">'+escapeHtml(q)+'</div></div>');
+    }else{
+      body.insertAdjacentHTML('beforeend','<div class="consult-msg me"><div class="avatar">DR</div><div class="consult-bubble">'+escapeHtml(q)+'</div></div>');
+    }
+  }
+  if(input)input.value='';
+  if(isMv6){ const ta=document.getElementById('mv6AskIn'); if(ta){ ta.style.height='auto'; ta.style.height='40px'; } }
+  body.scrollTop=body.scrollHeight;
+  const msgId='ai_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+  if(isMv6){
+    body.insertAdjacentHTML('beforeend','<div class="mv6-chat-msg" id="msg_'+msgId+'" data-mv6-role="ai"><div class="mv6-chat-role">MedicinEvidence AI</div><div class="mv6-chat-bubble" id="bubble_'+msgId+'"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>');
+  }else{
+    const isDemo2=!!document.querySelector('#pg-consult .c2-chat-card');
+    if(isDemo2){
+      body.insertAdjacentHTML('beforeend','<div class="c2-msg" id="msg_'+msgId+'"><div class="c2-av ai">ME</div><div class="c2-bub ai" id="bubble_'+msgId+'"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>');
+    }else{
+      body.insertAdjacentHTML('beforeend','<div class="consult-msg ai" id="msg_'+msgId+'"><div class="avatar">ME</div><div class="consult-bubble" id="bubble_'+msgId+'"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>');
+    }
   }
   body.scrollTop=body.scrollHeight;
   chatHistory.push({role:'user',content:q});
@@ -1839,32 +2180,29 @@ function sendChat(){
   if(pc.egfr)ctxParts.push('eGFR: '+pc.egfr+' ml/min');if(pc.hba1c)ctxParts.push('HbA1c: '+pc.hba1c+'%');
   if(pc.bp)ctxParts.push('BP: '+pc.bp+' mmHg');if(pc.creatinine)ctxParts.push('Creat: '+pc.creatinine);
   if(pc.otherLab)ctxParts.push('Labs: '+pc.otherLab);if(pc.conds)ctxParts.push('Conditions: '+pc.conds);
-  // In demo-2, meds are tags; prefer those if present.
-  const medsTagText = (typeof meds !== 'undefined' && Array.isArray(meds) && meds.length) ? meds.join(', ') : '';
-  const medsText = medsTagText || pc.meds;
+  const medsTagText=(typeof meds!=='undefined'&&Array.isArray(meds)&&meds.length)?meds.join(', '):'';
+  const medsText=medsTagText||pc.meds;
   if(medsText)ctxParts.push('Medications: '+medsText);if(pc.allergies)ctxParts.push('Allergies: '+pc.allergies);
   if(pc.smoking)ctxParts.push('Smoking: '+pc.smoking);if(pc.pregnancy)ctxParts.push('Pregnancy: '+pc.pregnancy);
   if(pc.investigations)ctxParts.push('Investigations: '+pc.investigations);if(pc.notes)ctxParts.push('Notes: '+pc.notes);
-
-  // Inject patient context directly into the question — 100% reliable
-  let msgToSend = q;
-  if(ctxParts.length > 0){
-    if(chatHistory.length === 0){
-      // First message: full context
-      msgToSend = '=== PATIENT CONTEXT ===\n' + ctxParts.join('\n') + '\n=== CLINICAL QUESTION ===\n' + q;
-    } else {
-      // Follow-up: always include full context so AI never loses it
-      msgToSend = '=== PATIENT CONTEXT (reminder) ===\n' + ctxParts.join('\n') + '\n=== QUESTION ===\n' + q;
+  MV6_patientCtxLines().forEach(t=>ctxParts.push(t));
+  const edNote=document.getElementById('mv6Editor');
+  if(edNote&&edNote.innerText.trim())ctxParts.push('Clinical note (excerpt): '+edNote.innerText.trim().slice(0,2500));
+  let msgToSend=q;
+  if(ctxParts.length>0){
+    if(chatHistory.length===0){
+      msgToSend='=== PATIENT CONTEXT ===\n'+ctxParts.join('\n')+'\n=== CLINICAL QUESTION ===\n'+q;
+    }else{
+      msgToSend='=== PATIENT CONTEXT (reminder) ===\n'+ctxParts.join('\n')+'\n=== QUESTION ===\n'+q;
     }
   }
-  chatHistory.push({role:'user', content: msgToSend});
-
+  chatHistory.push({role:'user',content:msgToSend});
   let fullText='';
   const bubble=document.getElementById('bubble_'+msgId);
   streamClaudeAPI({mode:'chat',lang:curLang,messages:chatHistory,patient_context:ctxParts.length?{raw:ctxParts.join(' | ')}:{}},
     (token)=>{if(!bubble)return;if(fullText==='')bubble.innerHTML='';fullText+=token;bubble.innerHTML=md2html(fullText);body.scrollTop=body.scrollHeight;},
     ()=>{if(!bubble)return;if(fullText==='')bubble.innerHTML='<em style="opacity:.6">(empty)</em>';else chatHistory.push({role:'assistant',content:fullText});if(btn)btn.disabled=false;},
-    (err)=>{if(bubble)bubble.innerHTML=`<div style="color:#B91C1C"><strong>Error:</strong> ${escapeHtml(err)}</div>`;if(btn)btn.disabled=false;}
+    (err)=>{if(bubble)bubble.innerHTML='<div style="color:#B91C1C"><strong>Error:</strong> '+escapeHtml(err)+'</div>';if(btn)btn.disabled=false;}
   );
 }
 
@@ -1883,10 +2221,13 @@ function c2AddCtx(t){
   c2UpdateChar();
 }
 function askAI(){
+  if(document.getElementById('mv6AskIn')){
+    document.getElementById('mv6AskIn')?.focus();
+    return;
+  }
   const ta=document.getElementById('mainQ'); if(!ta) return;
   const q=ta.value.trim(); if(!q) return;
   ta.value=''; c2UpdateChar();
-  // Put question into chat input and reuse sendChat()
   const inp=document.getElementById('chatIn') || document.getElementById('chatInput');
   if(inp) inp.value = q;
   sendChat();
@@ -2004,9 +2345,10 @@ function checkVitals(){
 }
 
 function quickAction(type){
-  const q = (document.getElementById('mainQ')?.value||'').trim();
+  const q = (document.getElementById('mv6Editor')?.innerText||document.getElementById('mainQ')?.value||'').trim();
   const pc = gatherPatientContext();
   const ctx = [];
+  MV6_patientCtxLines().forEach(l=>ctx.push(l));
   if(pc.age) ctx.push(`Age: ${pc.age}`);
   if(pc.sex) ctx.push(`Sex: ${pc.sex}`);
   if(pc.egfr) ctx.push(`eGFR: ${pc.egfr}`);
@@ -2024,19 +2366,26 @@ function quickAction(type){
     risk: 'Assess cardiovascular risk and outline guideline-based interventions.'
   };
   const full = `${prompts[type]||prompts.guidelines}\n\n${base}`;
-  const inp=document.getElementById('chatIn') || document.getElementById('chatInput');
-  if(inp) inp.value = full;
+  const inp=document.getElementById('mv6AskIn')||document.getElementById('chatIn') || document.getElementById('chatInput');
+  if(inp){ inp.value = full; if(inp.id==='mv6AskIn') mv6AutoResize(inp); }
   sendChat();
 }
 
 function preset(type){
-  const ta=document.getElementById('mainQ'); if(!ta) return;
   const texts={
     diff:'Pacient de 65 ani, tuse productivă cronică 3 luni, scădere ponderală 8 kg, subfebrilități. Fumător 30 pack-years. Diagnostice diferențiale principale și semne de alarmă?',
     drug:'Metformin 1000mg bid, Ramipril 5mg, Atorvastatin 40mg, Bisoprolol 5mg. eGFR 52 ml/min. Interacțiuni semnificative și ajustări necesare?',
     guide:'Pacient 72 ani, DZ tip 2, HTA gr.I, CKD st.3a eGFR 52 ml/min. Ghiduri ESC/EASD/KDIGO/CNAS actuale și recomandările cheie?',
     risk:'Pacient 68 ani, masculin, fumător, TA 155/95, DZ tip 2 HbA1c 7.8%, LDL 130 mg/dL. Risc cardiovascular SCORE2 și intervenții indicate?'
   };
+  const ed = document.getElementById('mv6Editor');
+  if(ed){
+    ed.innerHTML = '<p>'+escapeHtml(texts[type]||'')+'</p>';
+    ed.focus();
+    window.scrollTo({top:0,behavior:'smooth'});
+    return;
+  }
+  const ta=document.getElementById('mainQ'); if(!ta) return;
   ta.value = texts[type] || '';
   c2UpdateChar();
   ta.focus();
@@ -2044,6 +2393,17 @@ function preset(type){
 }
 
 function sendFromPanel(){
+  if(document.getElementById('mv6Editor')){
+    const parts = MV6_patientCtxLines();
+    const note = document.getElementById('mv6Editor').innerText.trim();
+    if(note) parts.push('Clinical note:\n'+note);
+    if(!parts.length){ alert(tr('Enter patient context on the left, then ask your clinical question. Every response is tailored and cited.')); return; }
+    const prompt = `Analyze the complete patient profile. Identify top clinical priorities, missing guideline-based therapies, contraindications, monitoring, and next steps.\n\n=== PATIENT CONTEXT ===\n${parts.join('\n')}`;
+    const inp = document.getElementById('mv6AskIn')||document.getElementById('chatIn')||document.getElementById('chatInput');
+    if(inp){ inp.value = prompt; if(inp.id==='mv6AskIn') mv6AutoResize(inp); }
+    sendChat();
+    return;
+  }
   const ctx = gatherPatientContext();
   const parts=[];
   if(ctx.age) parts.push('Age: '+ctx.age);
@@ -2055,8 +2415,8 @@ function sendFromPanel(){
   if(meds.length) parts.push('Medications: '+meds.join(', '));
   if(ctx.allergies) parts.push('Allergies: '+ctx.allergies);
   const prompt = `Analyze the complete patient profile. Identify top clinical priorities, missing guideline-based therapies, contraindications, monitoring, and next steps.\n\n=== PATIENT CONTEXT ===\n${parts.join('\n')}`;
-  const inp=document.getElementById('chatIn') || document.getElementById('chatInput');
-  if(inp) inp.value = prompt;
+  const inp=document.getElementById('mv6AskIn')||document.getElementById('chatIn') || document.getElementById('chatInput');
+  if(inp){ inp.value = prompt; if(inp.id==='mv6AskIn') mv6AutoResize(inp); }
   sendChat();
   if(extOpen) toggleExt();
 }
@@ -2150,18 +2510,34 @@ function downloadConsultationPdf(){
   // Patient context
   const pc = gatherPatientContext();
   const rows = formatPatientContextForPdf(pc);
+  const mv6Extra = (typeof MV6_patientCtxLines==='function') ? MV6_patientCtxLines().map(l=>['Patient record', l]) : [];
+  const allRows = rows.length ? rows.concat(mv6Extra) : (mv6Extra.length ? mv6Extra : rows);
   doc.setFont('helvetica','bold'); doc.setFontSize(12);
   doc.text('Patient summary', margin, y); y += 14;
   doc.setFont('helvetica','normal'); doc.setFontSize(10);
-  if(rows.length === 0){
+  if(allRows.length === 0){
     doc.text('—', margin, y); y += 12;
   } else {
-    for(const [k,v] of rows){
+    for(const [k,v] of allRows){
       const line = `${k}: ${v}`;
       const wrapped = doc.splitTextToSize(line, maxW);
       doc.text(wrapped, margin, y);
       y += wrapped.length * 12;
       if(y > 760){ doc.addPage(); y = margin; }
+    }
+  }
+
+  const mv6Ed = document.getElementById('mv6Editor');
+  if(mv6Ed && mv6Ed.innerText.trim()){
+    y += 8;
+    doc.setFont('helvetica','bold'); doc.setFontSize(12);
+    doc.text('Clinical note', margin, y); y += 14;
+    doc.setFont('helvetica','normal'); doc.setFontSize(10);
+    const noteWrap = doc.splitTextToSize(mv6Ed.innerText.trim().slice(0, 12000), maxW);
+    for(const wline of noteWrap){
+      doc.text(wline, margin, y);
+      y += 12;
+      if(y > 780){ doc.addPage(); y = margin; }
     }
   }
 

@@ -1,11 +1,11 @@
 <?php
 /**
  * ============================================================
- * MedicinEvidence — Claude API Proxy (v2 cu streaming + multi-mode)
+ * MedicinEvidence — OpenAI API Proxy (streaming + multi-mode)
  * ============================================================
  * IMPORTANT (security):
  * - Do NOT hardcode API keys in this file.
- * - Set environment variable: ANTHROPIC_API_KEY
+ * - Set environment variable: OPENAI_API_KEY
  *
  * Moduri suportate:
  *  - chat    : chat normal Consultation (streaming/non-streaming)
@@ -17,27 +17,33 @@
  */
 
 // ============ CONFIG ============
-$API_KEY = getenv('ANTHROPIC_API_KEY') ?: '';
+$API_KEY = getenv('OPENAI_API_KEY') ?: '';
+$MODEL = 'gpt-4o';
+$envModel = getenv('OPENAI_MODEL');
+if (is_string($envModel) && $envModel !== '') {
+  $MODEL = $envModel;
+}
 
-// Shared hosting fallback: allow loading key from a local, non-web-accessible file.
-// 1) Preferred: set ANTHROPIC_API_KEY in server environment.
-// 2) Fallback: create ai_config.php next to this file with: <?php return ['ANTHROPIC_API_KEY' => '...']; ?>
-if (empty($API_KEY)) {
-  $cfgPath = __DIR__ . '/ai_config.php';
-  if (is_file($cfgPath)) {
-    $cfg = @include $cfgPath;
-    if (is_array($cfg) && !empty($cfg['ANTHROPIC_API_KEY'])) {
-      $API_KEY = (string)$cfg['ANTHROPIC_API_KEY'];
+$cfgPath = __DIR__ . '/ai_config.php';
+if (is_file($cfgPath)) {
+  $cfg = @include $cfgPath;
+  if (is_array($cfg)) {
+    if ($API_KEY === '' && !empty($cfg['OPENAI_API_KEY'])) {
+      $API_KEY = (string)$cfg['OPENAI_API_KEY'];
+    }
+    $envModelSet = is_string(getenv('OPENAI_MODEL')) && getenv('OPENAI_MODEL') !== '';
+    if (!$envModelSet && !empty($cfg['OPENAI_MODEL'])) {
+      $MODEL = (string)$cfg['OPENAI_MODEL'];
     }
   }
 }
-$MODEL = 'claude-sonnet-4-20250514';
+
 $MAX_REQUESTS_PER_HOUR = 60;
 
 if (empty($API_KEY)) {
   header('Content-Type: application/json; charset=utf-8');
   http_response_code(500);
-  echo json_encode(['error' => 'Server missing ANTHROPIC_API_KEY (set env or create ai_config.php)']);
+  echo json_encode(['error' => 'Server missing OPENAI_API_KEY (set env or create ai_config.php)']);
   exit;
 }
 
@@ -69,6 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['health'])) {
     $kbOk = is_file($kbPath) && filesize($kbPath) > 0;
     echo json_encode([
         'ok' => true,
+        'provider' => 'openai',
         'has_api_key' => !empty($API_KEY),
         'model' => $MODEL,
         'rag_file' => $kbPath,
@@ -296,14 +303,11 @@ if ($mode === 'vision' && !empty($input['image_base64'])) {
         $mediaType = $input['image_mime'] ?? 'image/jpeg';
     }
     $userText = $input['prompt'] ?? 'Please analyze this medical image and provide a structured second-opinion read.';
+    $dataUrl = 'data:' . $mediaType . ';base64,' . $imgData;
     $messages[] = [
         'role' => 'user',
         'content' => [
-            ['type' => 'image', 'source' => [
-                'type' => 'base64',
-                'media_type' => $mediaType,
-                'data' => $imgData
-            ]],
+            ['type' => 'image_url', 'image_url' => ['url' => $dataUrl]],
             ['type' => 'text', 'text' => $userText]
         ]
     ];
@@ -350,7 +354,9 @@ if ($ragEnabled) {
             // vision content includes a text block inside array
             if (is_array($c)) {
                 foreach ($c as $blk) {
-                    if (is_array($blk) && ($blk['type'] ?? '') === 'text') $qText .= ($blk['text'] ?? '') . "\n";
+                    if (!is_array($blk)) continue;
+                    $bt = $blk['type'] ?? '';
+                    if ($bt === 'text') $qText .= ($blk['text'] ?? '') . "\n";
                 }
             }
         }
@@ -371,21 +377,51 @@ if ($ragEnabled) {
     }
 }
 
-// ============ CALL CLAUDE API ============
+// ============ CALL OPENAI API (Chat Completions) ============
+function oaiNormalizeMessages(array $msgs) {
+    $out = [];
+    foreach ($msgs as $m) {
+        if (!is_array($m)) continue;
+        $role = $m['role'] ?? 'user';
+        if (!in_array($role, ['system', 'user', 'assistant'], true)) continue;
+        $c = $m['content'] ?? '';
+        if (is_string($c)) {
+            $out[] = ['role' => $role, 'content' => $c];
+            continue;
+        }
+        if (!is_array($c)) continue;
+        $parts = [];
+        foreach ($c as $blk) {
+            if (!is_array($blk)) continue;
+            $t = $blk['type'] ?? '';
+            if ($t === 'text') {
+                $parts[] = ['type' => 'text', 'text' => (string)($blk['text'] ?? '')];
+            } elseif ($t === 'image_url' && !empty($blk['image_url']['url'])) {
+                $parts[] = ['type' => 'image_url', 'image_url' => ['url' => (string)$blk['image_url']['url']]];
+            }
+        }
+        if ($parts) $out[] = ['role' => $role, 'content' => $parts];
+    }
+    return $out;
+}
+
 $maxTokens = ($mode === 'quiz') ? 10000 : (($mode === 'vision') ? 1500 : 1400);
+$oaiMessages = array_merge(
+    [['role' => 'system', 'content' => $systemPrompt]],
+    oaiNormalizeMessages($messages)
+);
+
 $payload = [
     'model' => $MODEL,
     'max_tokens' => $maxTokens,
-    'system' => $systemPrompt,
-    'messages' => $messages,
+    'messages' => $oaiMessages,
     'stream' => (bool)$stream
 ];
 
-$apiUrl = 'https://api.anthropic.com/v1/messages';
+$apiUrl = 'https://api.openai.com/v1/chat/completions';
 $headers = [
     'Content-Type: application/json',
-    'x-api-key: ' . $API_KEY,
-    'anthropic-version: 2023-06-01'
+    'Authorization: Bearer ' . $API_KEY
 ];
 
 if ($stream) {
@@ -415,7 +451,7 @@ if ($stream) {
     $err = curl_error($ch);
     curl_close($ch);
     if ($err) {
-        echo "event: error\ndata: " . json_encode(['error' => $err]) . "\n\n";
+        echo "data: " . json_encode(['error' => ['message' => $err]]) . "\n\n";
         @flush();
     }
     exit;
@@ -446,10 +482,8 @@ if ($stream) {
     }
     $data = json_decode($response, true);
     $text = '';
-    if (!empty($data['content']) && is_array($data['content'])) {
-        foreach ($data['content'] as $block) {
-            if (($block['type'] ?? '') === 'text') $text .= $block['text'];
-        }
+    if (!empty($data['choices'][0]['message']['content'])) {
+        $text = (string)$data['choices'][0]['message']['content'];
     }
     echo json_encode([
         'ok' => true,

@@ -6,6 +6,7 @@
  * ensure it is blocked by .htaccess rules (provided in frontend/.htaccess).
  */
 return [
-  'ANTHROPIC_API_KEY' => 'PASTE_YOUR_KEY_HERE',
+  'OPENAI_API_KEY' => 'PASTE_YOUR_KEY_HERE',
+  // Optional: 'OPENAI_MODEL' => 'gpt-4o',
 ];
 

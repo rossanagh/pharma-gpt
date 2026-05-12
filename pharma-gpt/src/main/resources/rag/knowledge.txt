@@ -13,3 +13,15 @@ Adverse drug reactions (ADRs): Type A reactions are dose-dependent and predictab
 Pediatric dosing: Weight-based dosing is common; developmental changes in absorption, distribution, metabolism, and elimination mean adult mg/kg extrapolation is often unsafe. Use pediatric references and formulation suitability (liquids vs tablets).
 ---
 Hypertension & comorbidity: Choice of antihypertensive class depends on comorbidities (e.g., CKD, diabetes, heart failure with reduced ejection fraction). Combination therapy is common; monitor electrolytes with RAAS blockers and diuretics.
+---
+[MedicinEvidence Radiology RAG] Reporting systems and hubs:
+- ACR Reporting and Data Systems (RADS): apply Lung-RADS, BI-RADS, PI-RADS, TI-RADS, LI-RADS, NI-RADS when modality and clinical question fit; use standardized categories in the report where appropriate.
+- Fleischner Society publications address pulmonary nodule management (solid and subsolid) and updates; align follow-up intervals with guideline version and patient risk context.
+- ESR imaging referral guidance (ESR iGuide) supports appropriateness; ESC/ERS/ESMO guidelines include imaging recommendations for cardiothoracic, lung, and oncology pathways.
+---
+[Radiology RAG — link index]:
+- ACR Lung-RADS / BI-RADS / PI-RADS / TI-RADS / LI-RADS / NI-RADS: see hub https://www.acr.org/Clinical-Resources/Clinical-Tools-and-Reference/Reporting-and-Data-Systems
+- ESC guidelines hub: https://www.escardio.org/Guidelines · ERS: https://www.ersnet.org/guidelines/ · ESMO: https://www.esmo.org/guidelines · EURETINA: https://www.euretina.org/guidelines
+---
+[RAG TEST radiology]:
+- Marker RAG_RAD_TEST_12345 confirms radiology excerpts are loaded in this knowledge file for retrieval tests.

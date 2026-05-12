@@ -263,6 +263,20 @@ public class OpenAiService {
             - WHO: Radiation Protection and Safety in Medical Uses of Ionizing Radiation: https://www.who.int/publications/m/item/radiation-protection-and-safety-in-medical-uses-ionizing-radiation
             """;
 
+        // RAG (same retrieval as chat): broad radiology query — user message is image-only.
+        String ragQuery = """
+            radiology imaging second opinion CT MRI X-ray ultrasound mammography
+            ACR RADS Lung-RADS BI-RADS PI-RADS TI-RADS LI-RADS NI-RADS Fleischner
+            pulmonary nodules chest thorax abdomen MSK stroke oncology staging ESR ESC ERS Radiopaedia
+            incidental findings guideline
+            """.trim().replaceAll("\\s+", " ");
+        String ragSnippets = ragKnowledgeService.retrieveContext(ragQuery, ragMaxChunks);
+        if (ragSnippets != null && !ragSnippets.isBlank()) {
+            system = system.stripTrailing()
+                + "\n\nKnowledge base excerpts (RAG — use for terminology, RADS cues, follow-up anchors; cite bracket tags when used):\n"
+                + ragSnippets;
+        }
+
         Map<String, Object> textPart = Map.of("type", "text", "text", "Analyze the uploaded medical image and provide a structured second-opinion.");
         Map<String, Object> imgPart = Map.of("type", "image_url", "image_url", Map.of("url", dataUrl));
 
