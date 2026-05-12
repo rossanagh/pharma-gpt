@@ -545,6 +545,7 @@ h1.headline em{font-style:italic;font-weight:400;display:block;background:linear
 #pg-consult .mv6-editor{outline:none;min-height:220px;font-size:14.5px;line-height:1.85;color:var(--mv6-ink);caret-color:var(--mv6-terra);font-family:inherit;border:1px solid var(--mv6-bd);border-radius:12px;padding:14px 16px;background:var(--mv6-cream)}
 #pg-consult .mv6-editor:focus{border-color:var(--mv6-terra);background:#fff;box-shadow:0 0 0 3px rgba(182,91,52,.08)}
 #pg-consult .mv6-editor:empty:before{content:attr(data-placeholder);color:var(--mv6-ink-f);pointer-events:none}
+#pg-consult .mv6-voice-live{font-style:italic;color:var(--mv6-ink-m);border-bottom:1px dashed rgba(182,91,52,.35);padding:0 1px 1px}
 #pg-consult .mv6-editor h2{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--mv6-ink);margin:18px 0 6px}
 #pg-consult .mv6-editor p{margin:0 0 6px}
 #pg-consult .mv6-editor ul{margin:4px 0 4px 18px}

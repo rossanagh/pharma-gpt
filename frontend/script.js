@@ -89,6 +89,7 @@ const T = {
     "Write in the note on the left —":"Scrie în nota din stânga —","then ask the assistant here for":"apoi întreabă asistentul aici pentru","evidence-based answers":"răspunsuri bazate pe dovezi","for this case.":"pentru acest caz.",
     "Patient name":"Nume pacient","Cancel":"Anulează","Save":"Salvează","Current medication":"Medicație actuală","Diagnosis / reason":"Diagnostic / Motiv","Allergies / warnings":"Alergii / Atenționări",
     "Recording stopped":"Înregistrare oprită","Recording — speak naturally":"Înregistrare activă — vorbiți natural","Note empty — write or record first":"Nota este goală — scrieți sau înregistrați mai întâi","Consultation finalized":"Consultație finalizată","Note copied":"Notă copiată","Patient context saved":"Context pacient salvat",
+    "Voice transcription is not supported in this browser. Try Chrome or Edge.":"Transcrierea vocală nu este suportată în acest browser. Încearcă Chrome sau Edge.","Microphone access denied":"Acces microfon refuzat","No microphone found":"Nu s-a găsit microfon","Voice service network error":"Eroare rețea la serviciul de voce","Could not start voice recognition":"Nu s-a putut porni recunoașterea vocală","Listening — speak clearly; text appears in the note":"Ascultare — vorbiți clar; textul apare în notă","Transcription stopped":"Transcriere oprită","Voice transcription requires HTTPS (or localhost).":"Transcrierea vocală necesită HTTPS (sau localhost).",
     "Stop transcription":"Oprește transcrierea","You":"Tu","Ask about this case…":"Întreabă despre acest caz…","Insert into note":"Inserează în notă","Inserted into note":"Inserat în notă",
     "See assistant panel — pasted summary recommended after review.":"Vezi panoul asistentului — revizuiește rezumatul înainte de semnare.",
     "Note enriched with guideline references — review and edit before signing.":"Notă îmbogățită cu referințe din ghiduri — revizuiește și editează înainte de semnare.","Age":"Vârstă","Sex":"Sex","Select…":"Selectează…","Male":"Bărbat","Female":"Femeie","Weight (kg)":"Greutate (kg)","Conditions":"Afecțiuni","Type 2 diabetes, hypertension…":"Diabet zaharat tip 2, hipertensiune…","Current medications":"Medicație curentă","Metformin 1000mg bid, Ramipril 5mg…":"Metformin 1000mg x2/zi, Ramipril 5mg…",
@@ -1828,6 +1829,135 @@ function filterGuides(cat){
 var MV6_pt = { nm:'', ag:'', sp:'Internal Medicine', dx:'', al:'', md:'' };
 var MV6_visitNr = '';
 var MV6_recInt = null, MV6_recSec = 0, MV6_isRec = false;
+var MV6_speechRec = null;
+var MV6_voiceLiveEl = null;
+
+function mv6SpeechApi(){
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+}
+
+function mv6VoiceLang(){
+  if(typeof curLang !== 'undefined'){
+    if(curLang === 'ro') return 'ro-RO';
+    if(curLang === 'de') return 'de-DE';
+  }
+  return 'en-US';
+}
+
+function mv6VoiceResetLive(){
+  if(MV6_voiceLiveEl && MV6_voiceLiveEl.parentNode){
+    MV6_voiceLiveEl.remove();
+  }
+  MV6_voiceLiveEl = null;
+}
+
+function mv6VoiceEnsureLive(ed){
+  if(MV6_voiceLiveEl && MV6_voiceLiveEl.isConnected && MV6_voiceLiveEl.parentNode === ed) return MV6_voiceLiveEl;
+  MV6_voiceLiveEl = document.createElement('span');
+  MV6_voiceLiveEl.className = 'mv6-voice-live';
+  MV6_voiceLiveEl.setAttribute('data-mv6-voice','1');
+  ed.appendChild(MV6_voiceLiveEl);
+  return MV6_voiceLiveEl;
+}
+
+function mv6StopSpeechRec(){
+  mv6VoiceResetLive();
+  if(MV6_speechRec){
+    try{
+      MV6_speechRec.onend = null;
+      MV6_speechRec.stop();
+    }catch(_){}
+    MV6_speechRec = null;
+  }
+}
+
+function mv6StartSpeechRec(){
+  const SR = mv6SpeechApi();
+  if(!SR){
+    mv6Toast(tr('Voice transcription is not supported in this browser. Try Chrome or Edge.'));
+    return false;
+  }
+  if(typeof window.isSecureContext !== 'undefined' && !window.isSecureContext){
+    mv6Toast(tr('Voice transcription requires HTTPS (or localhost).'));
+    return false;
+  }
+  mv6StopSpeechRec();
+  const rec = new SR();
+  MV6_speechRec = rec;
+  rec.continuous = true;
+  rec.interimResults = true;
+  rec.lang = mv6VoiceLang();
+  rec.maxAlternatives = 1;
+  rec.onresult = function(ev){
+    if(!MV6_isRec) return;
+    const editor = document.getElementById('mv6Editor');
+    if(!editor) return;
+    let interim = '';
+    let finals = '';
+    for(let i = ev.resultIndex; i < ev.results.length; i++){
+      const tx = ev.results[i][0].transcript;
+      if(ev.results[i].isFinal) finals += tx;
+      else interim += tx;
+    }
+    if(finals){
+      mv6VoiceResetLive();
+      const chunk = finals.replace(/\s+/g,' ').trim();
+      if(chunk){
+        if(!editor.textContent.trim()) editor.innerHTML = '';
+        const p = document.createElement('p');
+        p.textContent = chunk;
+        editor.appendChild(p);
+      }
+    }
+    if(interim){
+      const live = mv6VoiceEnsureLive(editor);
+      live.textContent = interim;
+    }else if(MV6_voiceLiveEl && MV6_voiceLiveEl.parentNode === editor && !finals){
+      MV6_voiceLiveEl.textContent = '';
+    }
+  };
+  rec.onerror = function(ev){
+    if(ev.error === 'aborted' || ev.error === 'no-speech') return;
+    const map = {
+      'not-allowed': tr('Microphone access denied'),
+      'audio-capture': tr('No microphone found'),
+      'network': tr('Voice service network error'),
+      'service-not-allowed': tr('Microphone access denied')
+    };
+    const msg = map[ev.error];
+    if(msg) mv6Toast(msg);
+    if(ev.error === 'not-allowed' || ev.error === 'service-not-allowed'){
+      MV6_isRec = false;
+      mv6RecUiStopped();
+      mv6StopSpeechRec();
+    }
+  };
+  rec.onend = function(){
+    if(MV6_isRec && MV6_speechRec === rec){
+      try{ rec.start(); }catch(_){}
+    }
+  };
+  try{
+    rec.start();
+    return true;
+  }catch(_){
+    mv6Toast(tr('Could not start voice recognition'));
+    mv6StopSpeechRec();
+    return false;
+  }
+}
+
+function mv6RecUiStopped(){
+  const btn = document.getElementById('mv6RecBtn');
+  const lbl = document.getElementById('mv6RecLbl');
+  const dot = document.getElementById('mv6Rdot');
+  const tmr = document.getElementById('mv6Rtimer');
+  if(btn) btn.classList.remove('recording');
+  if(lbl) lbl.textContent = tr('Transcribe visit');
+  if(dot) dot.style.display = 'none';
+  if(tmr) tmr.style.display = 'none';
+  if(MV6_recInt){ clearInterval(MV6_recInt); MV6_recInt = null; }
+}
 
 function MV6_patientCtxLines(){
   const p = MV6_pt;
@@ -1973,23 +2103,18 @@ function mv6ToggleRec(){
       const m = Math.floor(MV6_recSec/60), s = (MV6_recSec%60).toString().padStart(2,'0');
       if(tmr) tmr.textContent = m+':'+s;
     }, 1000);
-    mv6Toast(tr('Recording — speak naturally'));
-    setTimeout(mv6DemoTranscript, 3500);
+    mv6Toast(tr('Listening — speak clearly; text appears in the note'));
+    const ok = mv6StartSpeechRec();
+    if(!ok){
+      MV6_isRec = false;
+      mv6RecUiStopped();
+    }
   } else {
-    btn.classList.remove('recording');
-    if(lbl) lbl.textContent = tr('Transcribe visit');
-    if(dot) dot.style.display = 'none';
-    if(tmr) tmr.style.display = 'none';
-    clearInterval(MV6_recInt);
-    mv6Toast(tr('Recording stopped')+' · '+MV6_recSec+'s');
+    mv6StopSpeechRec();
+    mv6VoiceResetLive();
+    mv6RecUiStopped();
+    mv6Toast(tr('Transcription stopped')+' · '+MV6_recSec+'s');
   }
-}
-
-function mv6DemoTranscript(){
-  if(!MV6_isRec) return;
-  const ed = document.getElementById('mv6Editor');
-  if(!ed || ed.textContent.trim()) return;
-  ed.innerHTML = '<h2>Assessment &amp; Plan</h2><p>67-year-old with HFrEF (NYHA III), hypertension, paroxysmal AF. Progressive exertional dyspnea and bilateral ankle edema over 2 weeks. BP 158/96 mmHg, SpO₂ 93%.</p><h2>Issue #1: Heart failure decompensation</h2><p>Elevated natriuretic peptide, LVEF 35% on prior echo. Plan: optimize diuretic, uptitrate beta-blocker, consider SGLT2 inhibitor.</p>';
 }
 
 function mv6MkEv(src, cls, txt){
