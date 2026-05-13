@@ -83,13 +83,14 @@ const T = {
     "Physician":"Medic","Main":"Principal","Drug Database":"Bază Medicamente","Learning":"Învățare",
     "Clinical":"Consultație","consultation.":"clinică.","Patient context → personalised evidence-based guidance (streaming AI)":"Context pacient → ghidaj personalizat bazat pe evidențe (AI streaming)",
     "Patient context":"Context pacient",
-    "Transcribe visit":"Transcrie vizita","Generate note":"Generează notă","Labs":"Analize","Print":"Printează","Copy":"Copiază","Finalize":"Finalizează","New visit":"Consultație nouă","Edit":"Editează","Attached:":"Atașate:","Consultation":"Consultație","Dr.":"Dr.","Specialty:":"Specialitate:","Date:":"Data:","Time:":"Ora:","Visit #":"Nr. consultație:","Patient":"Pacient","Age / Sex":"Vârstă / Sex","Diagnosis":"Diagnostic",
+    "Transcribe visit":"Transcrie vizita","Generate note":"Generează notă","Labs":"Analize","Print":"Printează","Copy":"Copiază","New visit":"Consultație nouă","Edit":"Editează","Attached:":"Atașate:","Consultation":"Consultație","Dr.":"Dr.","Specialty:":"Specialitate:","Date:":"Data:","Time:":"Ora:","Visit #":"Nr. consultație:","Patient":"Pacient","Age / Sex":"Vârstă / Sex","Diagnosis":"Diagnostic",
+    "Ambient recording":"Înregistrare ambientală","With inline evidence":"Cu evidențe inline","Name, age, medications":"Nume, vârstă, medicație","Recording…":"Înregistrare…","Transcribing…":"Se transcrie…","Transcription added to note":"Transcrierea a fost adăugată în notă","Transcription failed":"Transcrierea a eșuat","Paragraph":"Paragraf","Large heading":"Titlu mare","Small heading":"Titlu mic","words":"cuvinte","Dictate about the patient — evidence can appear inline in the editor, tailored to this case.":"Dictați despre pacient — evidențele pot apărea direct în editor, adaptate acestui caz.",
     "AI-assisted document — clinical responsibility remains with the treating physician.":"Document cu asistență AI — responsabilitatea clinică revine medicului curant.",
     "Drug interactions":"Interacțiuni medicamentoase","Dosing suggestions":"Dozaje recomandate","Copy note to next visit":"Copiază nota la consultația următoare","What questions are still open?":"Ce întrebări mai trebuie adresate?","Check contraindications":"Verifică contraindicații în plan","Enrich plan with evidence":"Îmbogățește planul cu dovezi",
     "Write in the note on the left —":"Scrie în nota din stânga —","then ask the assistant here for":"apoi întreabă asistentul aici pentru","evidence-based answers":"răspunsuri bazate pe dovezi","for this case.":"pentru acest caz.",
     "Patient name":"Nume pacient","Cancel":"Anulează","Save":"Salvează","Current medication":"Medicație actuală","Diagnosis / reason":"Diagnostic / Motiv","Allergies / warnings":"Alergii / Atenționări",
     "Recording stopped":"Înregistrare oprită","Recording — speak naturally":"Înregistrare activă — vorbiți natural","Note empty — write or record first":"Nota este goală — scrieți sau înregistrați mai întâi","Consultation finalized":"Consultație finalizată","Note copied":"Notă copiată","Patient context saved":"Context pacient salvat",
-    "Voice transcription is not supported in this browser. Try Chrome or Edge.":"Transcrierea vocală nu este suportată în acest browser. Încearcă Chrome sau Edge.","Microphone access denied":"Acces microfon refuzat","No microphone found":"Nu s-a găsit microfon","Voice service network error":"Eroare rețea la serviciul de voce","Could not start voice recognition":"Nu s-a putut porni recunoașterea vocală","Listening — speak clearly; text appears in the note":"Ascultare — vorbiți clar; textul apare în notă","Transcription stopped":"Transcriere oprită","Voice transcription requires HTTPS (or localhost).":"Transcrierea vocală necesită HTTPS (sau localhost).",
+    "Microphone access denied":"Acces microfon refuzat","Transcription stopped":"Transcriere oprită","Voice transcription requires HTTPS (or localhost).":"Transcrierea vocală necesită HTTPS (sau localhost).","Voice transcription is not supported in this browser. Try Chrome or Edge.":"Transcrierea vocală nu este suportată în acest browser. Încearcă Chrome sau Edge.",
     "Stop transcription":"Oprește transcrierea","You":"Tu","Ask about this case…":"Întreabă despre acest caz…","Insert into note":"Inserează în notă","Inserted into note":"Inserat în notă",
     "See assistant panel — pasted summary recommended after review.":"Vezi panoul asistentului — revizuiește rezumatul înainte de semnare.",
     "Note enriched with guideline references — review and edit before signing.":"Notă îmbogățită cu referințe din ghiduri — revizuiește și editează înainte de semnare.","Age":"Vârstă","Sex":"Sex","Select…":"Selectează…","Male":"Bărbat","Female":"Femeie","Weight (kg)":"Greutate (kg)","Conditions":"Afecțiuni","Type 2 diabetes, hypertension…":"Diabet zaharat tip 2, hipertensiune…","Current medications":"Medicație curentă","Metformin 1000mg bid, Ramipril 5mg…":"Metformin 1000mg x2/zi, Ramipril 5mg…",
@@ -399,7 +400,12 @@ function goPage(p){
   const tab=document.querySelector('.ntab[data-p="'+p+'"]');
   if(tab)tab.classList.add('act');
   window.scrollTo({top:0,behavior:'smooth'});
-  if(p==='consult'){ if(typeof mv6PrimeDates==='function') mv6PrimeDates(); if(typeof mv6SyncPrintHeader==='function') mv6SyncPrintHeader(); }
+  if(p==='consult'){
+    if(typeof mv6PrimeDates==='function') mv6PrimeDates();
+    if(typeof mv6SyncPrintHeader==='function') mv6SyncPrintHeader();
+    if(typeof mv6BindFmtSelection==='function') mv6BindFmtSelection();
+    if(typeof mv6EditorInput==='function') mv6EditorInput();
+  }
 }
 
 /* ============ MODAL ============ */
@@ -1825,124 +1831,133 @@ function filterGuides(cat){
   const badge = document.getElementById('guidesCountBadge');
   if(badge) badge.textContent = visible || document.querySelectorAll('.gcard').length;
 }
-/* --- Consultation UI (me-visit-v6) --- */
+/* --- Consultation UI (me-visit-v7 + Whisper) --- */
 var MV6_pt = { nm:'', ag:'', sp:'Internal Medicine', dx:'', al:'', md:'' };
 var MV6_visitNr = '';
 var MV6_recInt = null, MV6_recSec = 0, MV6_isRec = false;
-var MV6_speechRec = null;
-var MV6_voiceLiveEl = null;
+var MV6_micStream = null, MV6_mediaRecorder = null, MV6_audioChunks = [];
+var MV6_fmtBound = false;
 
-function mv6SpeechApi(){
-  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+function mv6PickMime(){
+  const types = ['audio/webm;codecs=opus','audio/webm','audio/mp4'];
+  for(let i = 0; i < types.length; i++){
+    if(window.MediaRecorder && MediaRecorder.isTypeSupported(types[i])) return types[i];
+  }
+  return '';
 }
 
-function mv6VoiceLang(){
+function mv6WhisperLangIso(){
   if(typeof curLang !== 'undefined'){
-    if(curLang === 'ro') return 'ro-RO';
-    if(curLang === 'de') return 'de-DE';
+    if(curLang === 'ro') return 'ro';
+    if(curLang === 'de') return 'de';
   }
-  return 'en-US';
+  return 'en';
 }
 
-function mv6VoiceResetLive(){
-  if(MV6_voiceLiveEl && MV6_voiceLiveEl.parentNode){
-    MV6_voiceLiveEl.remove();
-  }
-  MV6_voiceLiveEl = null;
+function mv6AppendTranscriptToEditor(text){
+  const editor = document.getElementById('mv6Editor');
+  if(!editor || !text) return;
+  const lines = String(text).split(/\n+/).map(s => s.trim()).filter(Boolean);
+  if(!lines.length) return;
+  if(!editor.textContent.trim()) editor.innerHTML = '';
+  lines.forEach(line=>{
+    const p = document.createElement('p');
+    p.textContent = line;
+    editor.appendChild(p);
+  });
+  if(typeof mv6EditorInput === 'function') mv6EditorInput();
 }
 
-function mv6VoiceEnsureLive(ed){
-  if(MV6_voiceLiveEl && MV6_voiceLiveEl.isConnected && MV6_voiceLiveEl.parentNode === ed) return MV6_voiceLiveEl;
-  MV6_voiceLiveEl = document.createElement('span');
-  MV6_voiceLiveEl.className = 'mv6-voice-live';
-  MV6_voiceLiveEl.setAttribute('data-mv6-voice','1');
-  ed.appendChild(MV6_voiceLiveEl);
-  return MV6_voiceLiveEl;
-}
-
-function mv6StopSpeechRec(){
-  mv6VoiceResetLive();
-  if(MV6_speechRec){
+function mv6DiscardMicRecording(){
+  const mr = MV6_mediaRecorder;
+  const stream = MV6_micStream;
+  MV6_audioChunks = [];
+  if(mr && mr.state === 'recording'){
     try{
-      MV6_speechRec.onend = null;
-      MV6_speechRec.stop();
-    }catch(_){}
-    MV6_speechRec = null;
+      mr.onstop = ()=>{
+        if(stream){ try{ stream.getTracks().forEach(t=>t.stop()); }catch(_){} }
+        MV6_micStream = null;
+        MV6_mediaRecorder = null;
+      };
+      mr.stop();
+    }catch(_){
+      if(stream){ try{ stream.getTracks().forEach(t=>t.stop()); }catch(__){} }
+      MV6_micStream = null;
+      MV6_mediaRecorder = null;
+    }
+  } else {
+    if(mr && mr.state !== 'inactive'){ try{ mr.stop(); }catch(_){} }
+    if(stream){ try{ stream.getTracks().forEach(t=>t.stop()); }catch(_){} }
+    MV6_micStream = null;
+    MV6_mediaRecorder = null;
   }
 }
 
-function mv6StartSpeechRec(){
-  const SR = mv6SpeechApi();
-  if(!SR){
-    mv6Toast(tr('Voice transcription is not supported in this browser. Try Chrome or Edge.'));
-    return false;
-  }
+function mv6StopMicAndTranscribe(){
+  return new Promise(resolve=>{
+    const mr = MV6_mediaRecorder;
+    const stream = MV6_micStream;
+    const done = async (blob)=>{
+      if(stream){ try{ stream.getTracks().forEach(t=>t.stop()); }catch(_){} }
+      MV6_micStream = null;
+      MV6_mediaRecorder = null;
+      MV6_audioChunks = [];
+      if(!blob || blob.size < 400){
+        mv6Toast(tr('Transcription stopped')+' · '+MV6_recSec+'s');
+        resolve();
+        return;
+      }
+      mv6Toast(tr('Transcribing…'));
+      try{
+        const fd = new FormData();
+        fd.append('mode','whisper');
+        fd.append('lang', mv6WhisperLangIso());
+        const ext = (blob.type || '').indexOf('mp4') >= 0 ? 'mp4' : 'webm';
+        fd.append('audio', blob, 'visit.'+ext);
+        const res = await fetch('ai.php', { method:'POST', body: fd });
+        const j = await res.json().catch(()=>({}));
+        if(!res.ok) throw new Error(j.error || 'whisper');
+        const tx = (j.text || '').trim();
+        if(tx) mv6AppendTranscriptToEditor(tx);
+        else throw new Error('empty');
+        mv6Toast(tr('Transcription added to note'));
+      }catch(_){
+        mv6Toast(tr('Transcription failed'));
+      }
+      resolve();
+    };
+    if(!mr || mr.state === 'inactive'){
+      done(null);
+      return;
+    }
+    mr.onstop = ()=>{
+      const blob = new Blob(MV6_audioChunks, { type: mr.mimeType || 'audio/webm' });
+      done(blob);
+    };
+    try{ mr.stop(); }catch(_){ done(null); }
+  });
+}
+
+async function mv6StartMicRecording(){
   if(typeof window.isSecureContext !== 'undefined' && !window.isSecureContext){
     mv6Toast(tr('Voice transcription requires HTTPS (or localhost).'));
     return false;
   }
-  mv6StopSpeechRec();
-  const rec = new SR();
-  MV6_speechRec = rec;
-  rec.continuous = true;
-  rec.interimResults = true;
-  rec.lang = mv6VoiceLang();
-  rec.maxAlternatives = 1;
-  rec.onresult = function(ev){
-    if(!MV6_isRec) return;
-    const editor = document.getElementById('mv6Editor');
-    if(!editor) return;
-    let interim = '';
-    let finals = '';
-    for(let i = ev.resultIndex; i < ev.results.length; i++){
-      const tx = ev.results[i][0].transcript;
-      if(ev.results[i].isFinal) finals += tx;
-      else interim += tx;
-    }
-    if(finals){
-      mv6VoiceResetLive();
-      const chunk = finals.replace(/\s+/g,' ').trim();
-      if(chunk){
-        if(!editor.textContent.trim()) editor.innerHTML = '';
-        const p = document.createElement('p');
-        p.textContent = chunk;
-        editor.appendChild(p);
-      }
-    }
-    if(interim){
-      const live = mv6VoiceEnsureLive(editor);
-      live.textContent = interim;
-    }else if(MV6_voiceLiveEl && MV6_voiceLiveEl.parentNode === editor && !finals){
-      MV6_voiceLiveEl.textContent = '';
-    }
-  };
-  rec.onerror = function(ev){
-    if(ev.error === 'aborted' || ev.error === 'no-speech') return;
-    const map = {
-      'not-allowed': tr('Microphone access denied'),
-      'audio-capture': tr('No microphone found'),
-      'network': tr('Voice service network error'),
-      'service-not-allowed': tr('Microphone access denied')
-    };
-    const msg = map[ev.error];
-    if(msg) mv6Toast(msg);
-    if(ev.error === 'not-allowed' || ev.error === 'service-not-allowed'){
-      MV6_isRec = false;
-      mv6RecUiStopped();
-      mv6StopSpeechRec();
-    }
-  };
-  rec.onend = function(){
-    if(MV6_isRec && MV6_speechRec === rec){
-      try{ rec.start(); }catch(_){}
-    }
-  };
+  if(!window.MediaRecorder){
+    mv6Toast(tr('Voice transcription is not supported in this browser. Try Chrome or Edge.'));
+    return false;
+  }
   try{
-    rec.start();
+    MV6_audioChunks = [];
+    MV6_micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mime = mv6PickMime();
+    const opts = mime ? { mimeType: mime } : undefined;
+    MV6_mediaRecorder = new MediaRecorder(MV6_micStream, opts);
+    MV6_mediaRecorder.ondataavailable = (e)=>{ if(e.data && e.data.size > 0) MV6_audioChunks.push(e.data); };
+    MV6_mediaRecorder.start(400);
     return true;
   }catch(_){
-    mv6Toast(tr('Could not start voice recognition'));
-    mv6StopSpeechRec();
+    mv6Toast(tr('Microphone access denied'));
     return false;
   }
 }
@@ -1950,13 +1965,85 @@ function mv6StartSpeechRec(){
 function mv6RecUiStopped(){
   const btn = document.getElementById('mv6RecBtn');
   const lbl = document.getElementById('mv6RecLbl');
-  const dot = document.getElementById('mv6Rdot');
-  const tmr = document.getElementById('mv6Rtimer');
+  const sub = document.getElementById('mv6RecSub');
   if(btn) btn.classList.remove('recording');
   if(lbl) lbl.textContent = tr('Transcribe visit');
-  if(dot) dot.style.display = 'none';
-  if(tmr) tmr.style.display = 'none';
+  if(sub){
+    sub.innerHTML = '';
+    const sp = document.createElement('span');
+    sp.setAttribute('data-t','Ambient recording');
+    sp.textContent = tr('Ambient recording');
+    sub.appendChild(sp);
+    if(typeof applyTranslations === 'function') applyTranslations();
+  }
   if(MV6_recInt){ clearInterval(MV6_recInt); MV6_recInt = null; }
+}
+
+function mv6BindFmtSelection(){
+  if(MV6_fmtBound) return;
+  MV6_fmtBound = true;
+  document.addEventListener('selectionchange', ()=>{
+    if(!document.getElementById('pg-consult')?.classList.contains('on')) return;
+    mv6FmtUpdateState();
+  });
+}
+
+function mv6FmtCmd(cmd){
+  const ed = document.getElementById('mv6Editor');
+  if(!ed) return;
+  ed.focus();
+  try{ document.execCommand(cmd, false, null); }catch(_){}
+  mv6FmtUpdateState();
+}
+
+function mv6FmtBlock(tag){
+  const ed = document.getElementById('mv6Editor');
+  if(!ed) return;
+  ed.focus();
+  try{
+    const t = (tag || 'p').toLowerCase();
+    const block = t === 'h2' ? 'H2' : t === 'h3' ? 'H3' : 'P';
+    document.execCommand('formatBlock', false, block);
+  }catch(_){}
+}
+
+function mv6FmtHighlight(){
+  const ed = document.getElementById('mv6Editor');
+  if(!ed) return;
+  ed.focus();
+  const sel = window.getSelection();
+  if(!sel || !sel.rangeCount || sel.isCollapsed) return;
+  const range = sel.getRangeAt(0);
+  if(!ed.contains(range.commonAncestorContainer)) return;
+  const span = document.createElement('mark');
+  span.style.background = 'var(--mv6-terra-pale, #FBF0EB)';
+  span.style.borderRadius = '3px';
+  span.style.padding = '0 2px';
+  try{ range.surroundContents(span); }catch(_){ try{ document.execCommand('hiliteColor', false, '#FBF0EB'); }catch(__){} }
+}
+
+function mv6FmtUpdateState(){
+  const ed = document.getElementById('mv6Editor');
+  if(!ed) return;
+  const sel = document.getSelection();
+  if(!sel || !sel.anchorNode || !ed.contains(sel.anchorNode)) return;
+  [['bold','mv6FtB'],['italic','mv6FtI'],['underline','mv6FtU'],['strikeThrough','mv6FtS']].forEach(([cmd, id])=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    try{
+      if(document.queryCommandState(cmd)) el.classList.add('on');
+      else el.classList.remove('on');
+    }catch(_){ el.classList.remove('on'); }
+  });
+}
+
+function mv6EditorInput(){
+  const ed = document.getElementById('mv6Editor');
+  const wc = document.getElementById('mv6Wcnt');
+  if(!ed || !wc) return;
+  const raw = (ed.innerText || '').trim();
+  const n = raw ? raw.split(/\s+/).filter(Boolean).length : 0;
+  wc.textContent = n + ' ' + tr('words');
 }
 
 function MV6_patientCtxLines(){
@@ -1991,6 +2078,7 @@ function mv6PrimeDates(){
   if(!MV6_visitNr) MV6_visitNr = 'ME-'+now.getFullYear()+'-'+(Math.floor(Math.random()*9000)+1000);
   const phn = document.getElementById('mv6PhNr');
   if(phn) phn.textContent = MV6_visitNr;
+  if(typeof mv6EditorInput === 'function') mv6EditorInput();
 }
 
 function mv6SyncPrintHeader(){
@@ -2086,34 +2174,34 @@ function mv6AutoResize(el){
   el.style.height = Math.min(el.scrollHeight, 110)+'px';
 }
 
-function mv6ToggleRec(){
+async function mv6ToggleRec(){
   MV6_isRec = !MV6_isRec;
   const btn = document.getElementById('mv6RecBtn');
   const lbl = document.getElementById('mv6RecLbl');
-  const dot = document.getElementById('mv6Rdot');
-  const tmr = document.getElementById('mv6Rtimer');
+  const sub = document.getElementById('mv6RecSub');
   if(!btn) return;
   if(MV6_isRec){
     btn.classList.add('recording');
     if(lbl) lbl.textContent = tr('Stop transcription');
-    if(dot) dot.style.display = 'block';
-    if(tmr){ tmr.style.display = 'block'; MV6_recSec = 0; tmr.textContent = '0:00'; }
+    if(sub) sub.innerHTML = '<span class="mv6-rdot-inline"></span><span id="mv6Rtimer">0:00</span>';
+    MV6_recSec = 0;
     MV6_recInt = setInterval(()=>{
       MV6_recSec++;
       const m = Math.floor(MV6_recSec/60), s = (MV6_recSec%60).toString().padStart(2,'0');
-      if(tmr) tmr.textContent = m+':'+s;
+      const t = document.getElementById('mv6Rtimer');
+      if(t) t.textContent = m+':'+s;
     }, 1000);
-    mv6Toast(tr('Listening — speak clearly; text appears in the note'));
-    const ok = mv6StartSpeechRec();
+    mv6Toast(tr('Recording…'));
+    const ok = await mv6StartMicRecording();
     if(!ok){
       MV6_isRec = false;
       mv6RecUiStopped();
+      mv6DiscardMicRecording();
     }
   } else {
-    mv6StopSpeechRec();
-    mv6VoiceResetLive();
+    if(MV6_recInt){ clearInterval(MV6_recInt); MV6_recInt = null; }
     mv6RecUiStopped();
-    mv6Toast(tr('Transcription stopped')+' · '+MV6_recSec+'s');
+    await mv6StopMicAndTranscribe();
   }
 }
 
@@ -2236,18 +2324,18 @@ function mv6CopyNote(){
   navigator.clipboard.writeText(ed.innerText||'').then(()=>mv6Toast(tr('Note copied'))).catch(()=>mv6Toast(tr('Note copied')));
 }
 
-function mv6Finalize(){
-  const ed = document.getElementById('mv6Editor');
-  if(!ed || !ed.textContent.trim()){ mv6Toast(tr('Note empty — write or record first')); return; }
-  mv6Toast(tr('Consultation finalized'));
-}
-
 function mv6NewVisit(silent){
+  if(MV6_isRec){
+    MV6_isRec = false;
+    if(MV6_recInt){ clearInterval(MV6_recInt); MV6_recInt = null; }
+    mv6RecUiStopped();
+    mv6DiscardMicRecording();
+  }
   const ed = document.getElementById('mv6Editor');
   if(ed) ed.innerHTML = '';
   const sc = document.getElementById('mv6ChatScroll');
   if(sc){
-    sc.innerHTML = '<div class="mv6-empty-hint" id="mv6EmptyHint"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#B5583C" stroke-width="1"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg><p><span data-t>Write in the note on the left —</span><br><span data-t>then ask the assistant here for</span> <em data-t>evidence-based answers</em> <span data-t>for this case.</span></p></div>';
+    sc.innerHTML = '<div class="mv6-empty-hint" id="mv6EmptyHint"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#B5583C" stroke-width="1"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg><p data-t>Dictate about the patient — evidence can appear inline in the editor, tailored to this case.</p></div>';
     if(typeof applyTranslations==='function') applyTranslations();
   }
   document.getElementById('mv6PtStrip')?.classList.remove('mv6-show');

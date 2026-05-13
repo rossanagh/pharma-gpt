@@ -13,6 +13,7 @@
  *  - quiz    : generator intrebari Rezidentiat
  *  - tutor   : tutor AI pe materie specifica
  *  - vision  : analiza imagini radiologice
+ *  - whisper : transcriere audio (multipart POST: mode=whisper, lang=ro|en, file field audio)
  * ============================================================
  */
 
@@ -118,6 +119,90 @@ if (!rateLimitOk($ip, $MAX_REQUESTS_PER_HOUR)) {
     header('Content-Type: application/json; charset=utf-8');
     http_response_code(429);
     echo json_encode(['error' => 'Too many requests. Try again later.']);
+    exit;
+}
+
+// ============ WHISPER (multipart; not JSON) ============
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST'
+    && isset($_POST['mode']) && $_POST['mode'] === 'whisper'
+    && isset($_FILES['audio'])
+) {
+    header('Content-Type: application/json; charset=utf-8');
+    if (empty($API_KEY)) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Server missing OPENAI_API_KEY']);
+        exit;
+    }
+    if (!function_exists('curl_init')) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Server missing curl extension']);
+        exit;
+    }
+    $f = $_FILES['audio'];
+    if (!is_uploaded_file($f['tmp_name'] ?? '')) {
+        http_response_code(400);
+        echo json_encode(['error' => 'No valid audio upload']);
+        exit;
+    }
+    if (($f['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Upload error']);
+        exit;
+    }
+    $maxBytes = 24 * 1024 * 1024;
+    if (($f['size'] ?? 0) > $maxBytes) {
+        http_response_code(413);
+        echo json_encode(['error' => 'Audio file too large']);
+        exit;
+    }
+    $langRaw = isset($_POST['lang']) ? (string)$_POST['lang'] : '';
+    $lang = strtolower(preg_replace('/[^a-z]/', '', $langRaw));
+    if (strlen($lang) > 2) {
+        $lang = substr($lang, 0, 2);
+    }
+
+    $mime = !empty($f['type']) ? (string)$f['type'] : 'application/octet-stream';
+    $name = !empty($f['name']) ? basename((string)$f['name']) : 'audio.webm';
+    if (!preg_match('/\\.(webm|mp4|m4a|mp3|wav|mpeg|mpga)$/i', $name)) {
+        $name .= '.webm';
+    }
+
+    $file = new CURLFile($f['tmp_name'], $mime, $name);
+    $post = [
+        'model' => 'whisper-1',
+        'file' => $file,
+    ];
+    if ($lang !== '') {
+        $post['language'] = $lang;
+    }
+
+    $ch = curl_init('https://api.openai.com/v1/audio/transcriptions');
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => $post,
+        CURLOPT_HTTPHEADER => [
+            'Authorization: Bearer ' . $API_KEY,
+        ],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 120,
+    ]);
+    $raw = curl_exec($ch);
+    $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($raw === false || $code < 200 || $code >= 300) {
+        http_response_code($code >= 400 ? $code : 502);
+        $err = $raw ? json_decode($raw, true) : null;
+        $msg = is_array($err) && !empty($err['error']['message'])
+            ? (string)$err['error']['message']
+            : 'Transcription request failed';
+        echo json_encode(['error' => $msg]);
+        exit;
+    }
+    $decoded = json_decode($raw, true);
+    $text = is_array($decoded) && isset($decoded['text']) ? trim((string)$decoded['text']) : '';
+    echo json_encode(['text' => $text]);
     exit;
 }
 

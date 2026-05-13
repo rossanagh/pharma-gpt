@@ -17,7 +17,7 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="alternate icon" href="favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="styles.css?v=20260506g">
+<link rel="stylesheet" href="styles.css?v=20260507a">
 
 </head>
 <body>
@@ -194,52 +194,92 @@
     </aside>
     <main class="main" style="min-width:0">
 
-      <!-- HEADER -->
-      <div class="consult-header">
-        <div>
-          <h1 class="consult-h1"><span data-t>Clinical</span> <em data-t>consultation.</em></h1>
-          <p class="consult-sub" data-t>Enter patient data below → ask any clinical question → streaming AI with citations</p>
-        </div>
-        <div class="consult-badges">
-          <span class="cbadge">🔴 Live AI</span>
-          <span class="cbadge">📚 ESC · EASD · EMA</span>
-          <span class="cbadge">✓ <span data-t>Always cited</span></span>
-        </div>
-      </div>
-
-      <!-- Visit editor + AI panel (me-visit-v6 layout; site header unchanged) -->
+      <!-- Consultation workspace (me-visit-v7 layout; no page hero header) -->
       <div class="mv6-root" id="mv6Root">
         <div class="mv6-shell">
           <div class="mv6-layout">
             <div class="mv6-editor-col">
-              <div class="mv6-editor-topbar">
-                <button type="button" class="mv6-pill" id="mv6RecBtn" onclick="mv6ToggleRec()">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-                  <span id="mv6RecLbl" data-t>Transcribe visit</span>
-                  <span class="mv6-rdot" id="mv6Rdot" style="display:none"></span>
-                  <span class="mv6-rtimer" id="mv6Rtimer" style="display:none">0:00</span>
+              <div class="mv6-action-cards">
+                <button type="button" class="mv6-ac-card" id="mv6RecBtn" onclick="mv6ToggleRec()">
+                  <div class="mv6-ac-ico">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                  </div>
+                  <div>
+                    <div class="mv6-ac-label"><span id="mv6RecLbl" data-t>Transcribe visit</span></div>
+                    <div class="mv6-ac-sub" id="mv6RecSub" data-t>Ambient recording</div>
+                  </div>
                 </button>
-                <button type="button" class="mv6-pill" onclick="mv6GenerateNote()">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-                  <span data-t>Generate note</span>
+                <button type="button" class="mv6-ac-card" onclick="mv6GenerateNote()">
+                  <div class="mv6-ac-ico">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                  </div>
+                  <div>
+                    <div class="mv6-ac-label" data-t>Generate note</div>
+                    <div class="mv6-ac-sub" data-t>With inline evidence</div>
+                  </div>
                 </button>
-                <button type="button" class="mv6-pill mv6-pill-gold" onclick="mv6NewVisit()">
+                <button type="button" class="mv6-ac-card" onclick="mv6OpenPatientModal()">
+                  <div class="mv6-ac-ico">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  </div>
+                  <div>
+                    <div class="mv6-ac-label" data-t>Patient context</div>
+                    <div class="mv6-ac-sub" data-t>Name, age, medications</div>
+                  </div>
+                </button>
+              </div>
+              <div class="mv6-sec-actions">
+                <button type="button" class="mv6-sa-btn mv6-sa-gold" onclick="mv6NewVisit()">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                   <span data-t>New visit</span>
                 </button>
-                <button type="button" class="mv6-pill" onclick="mv6OpenPatientModal()">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                  <span data-t>Patient context</span>
-                </button>
-                <div class="mv6-spacer"></div>
-                <label class="mv6-tb-sm" style="cursor:pointer">
+                <label class="mv6-sa-btn" style="cursor:pointer">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
                   <span data-t>Labs</span>
                   <input type="file" accept=".pdf,.jpg,.png,.jpeg" multiple style="display:none" onchange="mv6HandleFiles(this.files)">
                 </label>
-                <button type="button" class="mv6-tb-sm" onclick="mv6PrintDoc()"><span data-t>Print</span></button>
-                <button type="button" class="mv6-tb-sm" onclick="mv6CopyNote()"><span data-t>Copy</span></button>
-                <button type="button" class="mv6-tb-sm mv6-fin" onclick="mv6Finalize()"><span data-t>Finalize</span></button>
+                <button type="button" class="mv6-sa-btn" onclick="mv6PrintDoc()">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                  <span data-t>Print</span>
+                </button>
+                <button type="button" class="mv6-sa-btn" onclick="mv6CopyNote()">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  <span data-t>Copy</span>
+                </button>
+              </div>
+              <div class="mv6-fmt-toolbar">
+                <select class="mv6-ft-select" id="mv6FtBlock" onchange="mv6FmtBlock(this.value); this.value='p'">
+                  <option value="p" data-t>Paragraph</option>
+                  <option value="h2" data-t>Large heading</option>
+                  <option value="h3" data-t>Small heading</option>
+                </select>
+                <div class="mv6-ft-sep"></div>
+                <button type="button" class="mv6-ft" id="mv6FtB" onclick="mv6FmtCmd('bold')" title="Bold"><b>B</b></button>
+                <button type="button" class="mv6-ft" id="mv6FtI" onclick="mv6FmtCmd('italic')" title="Italic"><i style="font-family:Georgia,serif">I</i></button>
+                <button type="button" class="mv6-ft" id="mv6FtU" onclick="mv6FmtCmd('underline')" title="Underline"><u>U</u></button>
+                <button type="button" class="mv6-ft" id="mv6FtS" onclick="mv6FmtCmd('strikeThrough')" title="Strikethrough" style="font-size:12px;text-decoration:line-through;">S</button>
+                <div class="mv6-ft-sep"></div>
+                <button type="button" class="mv6-ft" onclick="mv6FmtCmd('insertUnorderedList')" title="Bullets">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1.5" fill="currentColor"/><circle cx="4" cy="12" r="1.5" fill="currentColor"/><circle cx="4" cy="18" r="1.5" fill="currentColor"/></svg>
+                </button>
+                <button type="button" class="mv6-ft" onclick="mv6FmtCmd('insertOrderedList')" title="Numbered list">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10H6"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+                </button>
+                <div class="mv6-ft-sep"></div>
+                <button type="button" class="mv6-ft" onclick="mv6FmtCmd('justifyLeft')" title="Align left">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg>
+                </button>
+                <button type="button" class="mv6-ft" onclick="mv6FmtCmd('indent')" title="Indent">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/><polyline points="7 10 11 12 7 14"/><line x1="3" y1="12" x2="7" y2="12"/></svg>
+                </button>
+                <button type="button" class="mv6-ft" onclick="mv6FmtCmd('outdent')" title="Outdent">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/><polyline points="11 10 7 12 11 14"/><line x1="7" y1="12" x2="21" y2="12"/></svg>
+                </button>
+                <div class="mv6-ft-sep"></div>
+                <button type="button" class="mv6-ft" onclick="mv6FmtHighlight()" title="Highlight">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                </button>
+                <span class="mv6-ft-wc" id="mv6Wcnt">0 words</span>
               </div>
               <div class="mv6-patient-strip" id="mv6PtStrip">
                 <span class="mv6-ps-name" id="mv6PsNm"></span>
@@ -279,7 +319,8 @@
                   </div>
                   <div class="mv6-note-eye"><strong id="mv6NoteLbl" data-t>Consultation</strong> · <span id="mv6NoteDate">—</span></div>
                   <div id="mv6Editor" class="mv6-editor" contenteditable="true" spellcheck="false"
-                    data-placeholder="Dictate or write about the patient — symptoms, history, plan. Citations from guidelines can appear in the assistant panel when you ask."
+                    data-placeholder="Dictate or write about the patient — symptoms, history, plan. Guideline-linked evidence can appear inline in this note when you use Generate note or the assistant."
+                    oninput="mv6EditorInput()"
                   ></div>
                 </div>
               </div>
@@ -305,7 +346,7 @@
               <div class="mv6-chat-scroll" id="mv6ChatScroll">
                 <div class="mv6-empty-hint" id="mv6EmptyHint">
                   <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#B5583C" stroke-width="1"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-                  <p><span data-t>Write in the note on the left —</span><br><span data-t>then ask the assistant here for</span> <em data-t>evidence-based answers</em> <span data-t>for this case.</span></p>
+                  <p data-t>Dictate about the patient — evidence can appear inline in the editor, tailored to this case.</p>
                 </div>
               </div>
             </div>
@@ -2501,7 +2542,7 @@
   💬 <span class="txt">Chat</span>
 </button>
 
-<script src="script.js?v=20260506g"></script>
+<script src="script.js?v=20260507a"></script>
 
 </body>
 </html>
