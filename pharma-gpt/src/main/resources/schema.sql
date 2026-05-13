@@ -80,6 +80,9 @@ ALTER TABLE public.users
   ADD COLUMN IF NOT EXISTS county TEXT,
   ADD COLUMN IF NOT EXISTS login_code VARCHAR(6);
 
+-- Legacy: expression index confuses Hibernate 7 (HHH000475); email already has UNIQUE btree
+DROP INDEX IF EXISTS idx_users_email_upper;
+
 CREATE UNIQUE INDEX IF NOT EXISTS uq_users_login_code
   ON public.users (login_code)
   WHERE login_code IS NOT NULL;
