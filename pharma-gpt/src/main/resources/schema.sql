@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS public.pending_registrations (
   CONSTRAINT uk_pending_registrations_email UNIQUE (email)
 );
 
-CREATE INDEX IF NOT EXISTS idx_users_email_upper ON public.users (upper(email));
+-- Note: avoid expression index on upper(email) — Hibernate 7 logs HHH000475 and spends time resolving it.
 CREATE INDEX IF NOT EXISTS idx_prc_target ON public.password_reset_codes (target_normalized);
 CREATE INDEX IF NOT EXISTS idx_prc_expires ON public.password_reset_codes (expires_at);
 
