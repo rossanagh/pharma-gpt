@@ -66,6 +66,16 @@ public class User {
     @Column(name = "academic_titles")
     private String academicTitles;
 
+    /** Județ (RO) sau echivalent */
+    @Size(max = 80)
+    @Column(name = "county")
+    private String county;
+
+    /** Cod numeric unic de autentificare (6 cifre), setat la finalizarea înregistrării */
+    @Size(max = 6)
+    @Column(name = "login_code", unique = true, length = 6)
+    private String loginCode;
+
     @Basic(fetch = FetchType.LAZY)
     @JdbcTypeCode(SqlTypes.BINARY)
     @Column(name = "avatar_bytes", columnDefinition = "bytea")
@@ -200,6 +210,22 @@ public class User {
 
     public void setAcademicTitles(String academicTitles) {
         this.academicTitles = academicTitles;
+    }
+
+    public String getCounty() {
+        return county;
+    }
+
+    public void setCounty(String county) {
+        this.county = county;
+    }
+
+    public String getLoginCode() {
+        return loginCode;
+    }
+
+    public void setLoginCode(String loginCode) {
+        this.loginCode = loginCode;
     }
 
     public byte[] getAvatarBytes() {

@@ -1,9 +1,14 @@
 package com.example.pharma_gpt.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+/**
+ * Either {@code loginCode} (6 digits) for passwordless sign-in, or {@code email} + {@code password} for legacy accounts.
+ */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record LoginRequest(
-    @NotBlank @Email String email,
-    @NotBlank String password
+    String email,
+    String password,
+    /** 6-digit access code — unique per account after registration */
+    String loginCode
 ) {}

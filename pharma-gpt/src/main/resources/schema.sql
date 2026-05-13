@@ -76,6 +76,33 @@ SET
   used = COALESCE(used, FALSE)
 WHERE created_at IS NULL OR attempts IS NULL OR used IS NULL;
 
+ALTER TABLE public.users
+  ADD COLUMN IF NOT EXISTS county TEXT,
+  ADD COLUMN IF NOT EXISTS login_code VARCHAR(6);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_users_login_code
+  ON public.users (login_code)
+  WHERE login_code IS NOT NULL;
+
+CREATE TABLE IF NOT EXISTS public.pending_registrations (
+  id BIGSERIAL PRIMARY KEY,
+  email TEXT NOT NULL,
+  first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  county TEXT NOT NULL,
+  phone_number TEXT,
+  parafa TEXT NOT NULL,
+  provider_type TEXT NOT NULL,
+  medic_grade TEXT,
+  specialty TEXT,
+  academic_titles TEXT,
+  code_hash TEXT NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  attempts INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT uk_pending_registrations_email UNIQUE (email)
+);
+
 CREATE INDEX IF NOT EXISTS idx_users_email_upper ON public.users (upper(email));
 CREATE INDEX IF NOT EXISTS idx_prc_target ON public.password_reset_codes (target_normalized);
 CREATE INDEX IF NOT EXISTS idx_prc_expires ON public.password_reset_codes (expires_at);

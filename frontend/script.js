@@ -159,7 +159,18 @@ const T = {
     "Welcome back":"Bun venit înapoi","Sign in to your verified account":"Conectează-te la contul tău verificat","Email":"Email","Password":"Parolă","No account yet?":"Nu ai cont încă?","Register free":"Înregistrează-te gratuit",
     "Create your account":"Creează-ți contul","Free for verified healthcare professionals":"Gratuit pentru profesioniști medicali verificați",
     "🔐 Verified access only.":"🔐 Doar acces verificat.","We verify credentials to keep the community clinically focused and ad-free for users.":"Verificăm credențialele pentru a menține comunitatea focalizată clinic și fără reclame pentru utilizatori.",
-    "I am a…":"Sunt…","Doctor":"Medic","Pharmacist":"Farmacist","Student":"Student","Full name":"Nume complet","Institutional email":"Email instituțional","At least 8 characters":"Cel puțin 8 caractere","Create free account":"Creează cont gratuit","Already registered?":"Ești deja înregistrat?",
+    "I am a…":"Sunt…","Doctor":"Medic","Pharmacist":"Farmacist","Student":"Student",
+    "First name":"Prenume","Last name":"Nume","Full name":"Nume complet","County":"Județ","Professional grade":"Grad profesional",
+    "Resident":"Rezident","Specialist":"Specialist","Primary specialist":"Medic primar",
+    "Medical specialty":"Specialitate medicală","Specialty / field":"Specialitate / domeniu",
+    "Stamp / professional ID (parafă)":"Parafă (cod profesional)",
+    "Send activation code by email":"Trimite codul de activare pe email",
+    "We sent a 6-digit code to your email.":"Am trimis un cod de 6 cifre pe email.",
+    "Activate account":"Activează contul","Edit details or resend code":"Modifică datele sau retrimite codul",
+    "6-digit access code":"Cod de acces (6 cifre)",
+    "Sign in with email and password (legacy)":"Conectare cu email și parolă (cont vechi)",
+    "Sign in with 6-digit code":"Conectare cu codul de 6 cifre",
+    "Institutional email":"Email instituțional","Already registered?":"Ești deja înregistrat?",
     "Pick your faculty, year, and subject. Upload your course, ask anything, test yourself — Praxis AI evaluates your level and guides you where to focus.":"Alege facultatea, anul și materia. Încarcă cursul, întreabă orice, testează-te — Praxis AI îți evaluează nivelul și te ghidează unde să aprofundezi.",
     "Choose faculty, year & subject":"Alege facultatea, anul și materia",
     "Faculty":"Facultate","Year of study":"Anul de studiu","Subject":"Materie",
@@ -388,6 +399,8 @@ function setLang(lang){
   if(typeof updateRezSel === 'function') updateRezSel();
   // Reload ticker in new language
   if(typeof loadTickerNews === 'function') loadTickerNews(lang);
+  if(document.getElementById('ovSignin')?.classList.contains('on')) applySigninMode();
+  if(document.getElementById('ovSignup')?.classList.contains('on')) updateSignupMedicFields();
 }
 document.addEventListener('click',(e)=>{if(!e.target.closest('.lang-wrap'))document.getElementById('langMenu').classList.remove('on');});
 
@@ -425,6 +438,21 @@ function openModal(which){
     const cb = document.getElementById(which==='signin' ? 'signinAgree' : 'signupAgree');
     if(cb) cb.checked = false;
     authAgreeChanged();
+  }
+  if(which==='signin'){
+    window.__SIGNIN_LEGACY__ = false;
+    const c=document.getElementById('signinLoginCode'); if(c) c.value='';
+    const em=document.getElementById('signinEmail'); if(em) em.value='';
+    const pw=document.getElementById('signinPassword'); if(pw) pw.value='';
+    applySigninMode();
+  }
+  if(which==='signup'){
+    const s1=document.getElementById('signupStep1'); const s2=document.getElementById('signupStep2');
+    if(s1) s1.style.display='block';
+    if(s2) s2.style.display='none';
+    const code=document.getElementById('signupCode'); if(code) code.value='';
+    initRoCountiesDatalist();
+    updateSignupMedicFields();
   }
 }
 function closeModal(){document.querySelectorAll('.ov').forEach(o=>o.classList.remove('on'));document.body.style.overflow='';}
@@ -525,10 +553,32 @@ function openLegal(which){
 function authAgreeChanged(){
   const s = document.getElementById('signinAgree');
   const sb = document.getElementById('signinBtn');
-  if(sb) sb.disabled = !(s && s.checked);
+  if(sb){
+    const ok = s && s.checked;
+    const legacy = !!window.__SIGNIN_LEGACY__;
+    let can = false;
+    if(ok){
+      if(legacy){
+        const em=(document.getElementById('signinEmail')?.value||'').trim();
+        const pw=document.getElementById('signinPassword')?.value||'';
+        can = !!(em && pw);
+      }else{
+        const raw=document.getElementById('signinLoginCode')?.value||'';
+        const digits=String(raw).replace(/\D/g,'');
+        can = digits.length===6;
+      }
+    }
+    sb.disabled = !can;
+  }
   const u = document.getElementById('signupAgree');
   const ub = document.getElementById('signupBtn');
   if(ub) ub.disabled = !(u && u.checked);
+  const uc = document.getElementById('signupCompleteBtn');
+  if(uc){
+    const raw=document.getElementById('signupCode')?.value||'';
+    const digits=String(raw).replace(/\D/g,'');
+    uc.disabled = !(u && u.checked && digits.length===6);
+  }
 }
 
 /* ============ AUTH (REAL) ============ */
@@ -917,27 +967,104 @@ async function authInit(){
   }
 }
 
+window.__SIGNIN_LEGACY__ = false;
+
+const RO_JUDETE = [
+  "Alba","Arad","Argeș","Bacău","Bihor","Bistrița-Năsăud","Botoșani","Brașov","Brăila","București","Buzău",
+  "Caraș-Severin","Călărași","Cluj","Constanța","Covasna","Dâmbovița","Dolj","Galați","Giurgiu","Gorj",
+  "Harghita","Hunedoara","Ialomița","Iași","Ilfov","Maramureș","Mehedinți","Mureș","Neamț","Olt","Prahova",
+  "Satu Mare","Sălaj","Sibiu","Suceava","Teleorman","Timiș","Tulcea","Vâlcea","Vaslui","Vrancea"
+];
+
+function initRoCountiesDatalist(){
+  const dl = document.getElementById('roCountiesList');
+  if(!dl || dl.dataset.filled) return;
+  dl.dataset.filled = '1';
+  RO_JUDETE.forEach((j)=>{
+    const o = document.createElement('option');
+    o.value = j;
+    dl.appendChild(o);
+  });
+}
+
+function applySigninMode(){
+  const leg = !!window.__SIGNIN_LEGACY__;
+  const codeB = document.getElementById('signinCodeBlock');
+  const legB = document.getElementById('signinLegacyBlock');
+  const forgot = document.getElementById('signinForgotLink');
+  const a = document.getElementById('signinToggleLegacy');
+  if(codeB) codeB.style.display = leg ? 'none' : 'block';
+  if(legB) legB.style.display = leg ? 'block' : 'none';
+  if(forgot) forgot.style.display = leg ? 'inline-block' : 'none';
+  if(a) a.textContent = leg ? tr('Sign in with 6-digit code') : tr('Sign in with email and password (legacy)');
+}
+
+function toggleLegacySignin(e){
+  if(e) e.preventDefault();
+  window.__SIGNIN_LEGACY__ = !window.__SIGNIN_LEGACY__;
+  applySigninMode();
+  authAgreeChanged();
+}
+
+function updateSignupMedicFields(){
+  const role = (document.querySelector('.role-btn.act')?.dataset?.role || 'doctor').toLowerCase();
+  const row = document.getElementById('signupMedicGradeRow');
+  const lab = document.getElementById('signupSpecialtyLabel');
+  if(row) row.style.display = role === 'doctor' ? 'block' : 'none';
+  if(lab){
+    lab.textContent = role === 'doctor' ? tr('Medical specialty') : tr('Specialty / field');
+  }
+}
+
+function signupBackToStep1(e){
+  if(e) e.preventDefault();
+  const s1 = document.getElementById('signupStep1');
+  const s2 = document.getElementById('signupStep2');
+  if(s1) s1.style.display = 'block';
+  if(s2) s2.style.display = 'none';
+  const c = document.getElementById('signupCode');
+  if(c) c.value = '';
+  authAgreeChanged();
+}
+
 async function login(){
   const agree = document.getElementById("signinAgree");
   if(agree && !agree.checked){
     alert(curLang==='ro' ? 'Te rugăm să accepți Termenii, GDPR și Cookies ca să continui.' : 'Please accept Terms, GDPR and Cookies to continue.');
     return;
   }
-  const email = (document.getElementById("signinEmail")?.value || "").trim();
-  const password = (document.getElementById("signinPassword")?.value || "");
-  if(!email || !password){ alert("Email and password required"); return; }
+  const legacy = !!window.__SIGNIN_LEGACY__;
+  let body;
+  if(legacy){
+    const email = (document.getElementById("signinEmail")?.value || "").trim();
+    const password = (document.getElementById("signinPassword")?.value || "");
+    if(!email || !password){
+      alert(curLang==='ro' ? 'Introduceți email și parola.' : 'Email and password required.');
+      return;
+    }
+    body = { email, password };
+  }else{
+    const raw = document.getElementById("signinLoginCode")?.value || "";
+    const loginCode = String(raw).replace(/\D/g, "");
+    if(loginCode.length !== 6){
+      alert(curLang==='ro' ? 'Introduceți codul de 6 cifre.' : 'Enter your 6-digit access code.');
+      return;
+    }
+    body = { loginCode };
+  }
   try{
     const r = await apiJson("/api/auth/login",{
       method:"POST",
       headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify(body)
     });
     // Spring returns LoginResponse (token + user fields flat)
     const token = r.token || r.jwt || r.accessToken;
     if(!token) throw new Error("Missing token from server");
     setAuthToken(token);
+    const emailHint = legacy ? (document.getElementById("signinEmail")?.value || "").trim() : "";
     const user = r.user ? r.user : {
-      email: r.email || email,
+      email: r.email || emailHint,
       fullName: r.fullName,
       firstName: r.firstName,
       lastName: r.lastName,
@@ -973,39 +1100,79 @@ function mapRoleToProvider(role){
   return "medic";
 }
 
-async function register(){
+async function registerStart(){
   const agree = document.getElementById("signupAgree");
   if(agree && !agree.checked){
     alert(curLang==='ro' ? 'Te rugăm să accepți Termenii, GDPR și Cookies ca să continui.' : 'Please accept Terms, GDPR and Cookies to continue.');
     return;
   }
-  const name = (document.getElementById("signupName")?.value || "").trim();
+  const firstName = (document.getElementById("signupFirstName")?.value || "").trim();
+  const lastName = (document.getElementById("signupLastName")?.value || "").trim();
+  const county = (document.getElementById("signupCounty")?.value || "").trim();
   const email = (document.getElementById("signupEmail")?.value || "").trim();
-  const password = (document.getElementById("signupPassword")?.value || "");
+  const specialty = (document.getElementById("signupSpecialty")?.value || "").trim();
   const parafa = (document.getElementById("signupParafa")?.value || "").trim();
   const role = (document.querySelector(".role-btn.act")?.dataset?.role || "doctor").toLowerCase();
-  if(!name || !email || !password || !parafa){ alert("Please fill all fields"); return; }
+  const providerType = mapRoleToProvider(role);
+  const medicGradeEl = document.getElementById("signupMedicGrade");
+  const medicGrade = providerType === "medic" ? String(medicGradeEl?.value || "specialist").trim() : null;
+  if(!firstName || !lastName || !county || !email || !parafa || !specialty){
+    alert(curLang==='ro' ? 'Completați toate câmpurile obligatorii.' : 'Please fill all required fields.');
+    return;
+  }
   try{
-    const nm = splitName(name);
-    const providerType = mapRoleToProvider(role);
-    // Spring requires medicGrade + specialty when providerType=medic.
-    const medicGrade = providerType === "medic" ? "rezident" : null;
-    const specialty = providerType === "medic" ? "Medicina interna" : null;
-    const r = await apiJson("/api/auth/register",{
+    await apiJson("/api/auth/register/start",{
       method:"POST",
       headers:{ "Content-Type":"application/json" },
       body: JSON.stringify({
         email,
-        password,
-        firstName: nm.firstName || "Doctor",
-        lastName: nm.lastName || "-",
-        phoneNumber: "",
+        firstName,
+        lastName,
+        county,
+        phoneNumber: null,
         parafa,
         providerType,
         medicGrade,
         specialty,
-        academicTitles: ""
+        academicTitles: null
       })
+    });
+    const s1 = document.getElementById("signupStep1");
+    const s2 = document.getElementById("signupStep2");
+    if(s1) s1.style.display = "none";
+    if(s2) s2.style.display = "block";
+    const hint = document.getElementById("signupCodeHint");
+    if(hint){
+      hint.textContent = (curLang==='ro'
+        ? ("Am trimis un cod de 6 cifre la " + email + ".")
+        : ("We sent a 6-digit code to " + email + "."));
+    }
+    const c = document.getElementById("signupCode");
+    if(c){ c.value = ""; c.focus(); }
+    authAgreeChanged();
+  }catch(e){
+    alert(e.message || (curLang==='ro' ? 'Nu s-a putut trimite codul.' : 'Could not send code.'));
+  }
+}
+
+async function registerComplete(){
+  const agree = document.getElementById("signupAgree");
+  if(agree && !agree.checked){
+    alert(curLang==='ro' ? 'Te rugăm să accepți Termenii, GDPR și Cookies ca să continui.' : 'Please accept Terms, GDPR and Cookies to continue.');
+    return;
+  }
+  const email = (document.getElementById("signupEmail")?.value || "").trim();
+  const raw = document.getElementById("signupCode")?.value || "";
+  const code = String(raw).replace(/\D/g, "");
+  if(!email || code.length !== 6){
+    alert(curLang==='ro' ? 'Introduceți codul de 6 cifre.' : 'Enter the 6-digit code.');
+    return;
+  }
+  try{
+    const r = await apiJson("/api/auth/register/complete",{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ email, code })
     });
     const token = r.token || r.jwt || r.accessToken;
     if(!token) throw new Error("Missing token from server");
@@ -1026,7 +1193,7 @@ async function register(){
     closeModal();
     goPage("consult");
   }catch(e){
-    alert(e.message || "Registration failed");
+    alert(e.message || (curLang==='ro' ? 'Activarea a eșuat.' : 'Activation failed.'));
   }
 }
 
@@ -1036,7 +1203,11 @@ function logout(){
   goPage("land");
 }
 
-function pickRole(btn){document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('act'));btn.classList.add('act');}
+function pickRole(btn){
+  document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('act'));
+  btn.classList.add('act');
+  updateSignupMedicFields();
+}
 
 setTimeout(()=>{ try{ authInit(); }catch(e){} }, 0);
 

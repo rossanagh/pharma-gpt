@@ -82,6 +82,43 @@ public class NotificationService {
         });
     }
 
+    public void sendRegistrationCodeEmail(String to, String code, int ttlMinutes) {
+        if (devLogCodes) {
+            log.warn("Registration code for {}: {}", to, code);
+        }
+        JavaMailSender mailSender = mailSenderProvider.getIfAvailable();
+        if (mailSender == null) {
+            if (mailProxyUrl != null && !mailProxyUrl.isBlank()) {
+                sendViaPhpProxy(to, code);
+            }
+            return;
+        }
+        CompletableFuture.runAsync(() -> {
+            try {
+                SimpleMailMessage msg = new SimpleMailMessage();
+                msg.setFrom(from);
+                msg.setTo(to);
+                msg.setSubject("MedicinEvidence — cod de activare cont");
+                msg.setText("""
+                    Bun venit pe MedicinEvidence.
+
+                    Codul tău de activare (6 cifre) este:
+
+                    %s
+
+                    Introdu acest cod în aplicație pentru a finaliza crearea contului. Codul expiră în %d minute.
+                    Dacă nu ai solicitat contul, ignoră acest mesaj.
+                    """.formatted(code, ttlMinutes));
+                mailSender.send(msg);
+            } catch (Exception e) {
+                log.error("Failed to send registration email to {}", to, e);
+                if (mailProxyUrl != null && !mailProxyUrl.isBlank()) {
+                    sendViaPhpProxy(to, code);
+                }
+            }
+        });
+    }
+
     private void sendViaPhpProxy(String to, String code) {
         CompletableFuture.runAsync(() -> {
             try {

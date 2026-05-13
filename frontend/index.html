@@ -2434,8 +2434,17 @@
     <div class="md-logo"><div class="logo-sq">ME</div><span>MedicinEvidence</span></div>
     <h3 data-t>Welcome back</h3>
     <p class="md-sub" data-t>Sign in to your verified account</p>
-    <label data-t>Email</label><input id="signinEmail" type="email" placeholder="you@hospital.eu" autocomplete="email">
-    <label data-t>Password</label><input id="signinPassword" type="password" placeholder="••••••••" autocomplete="current-password">
+    <div id="signinCodeBlock">
+      <label data-t>6-digit access code</label>
+      <input id="signinLoginCode" type="text" inputmode="numeric" maxlength="6" placeholder="123456" autocomplete="one-time-code" oninput="authAgreeChanged()">
+    </div>
+    <div id="signinLegacyBlock" style="display:none">
+      <label data-t>Email</label><input id="signinEmail" type="email" placeholder="you@hospital.eu" autocomplete="email" oninput="authAgreeChanged()">
+      <label data-t>Password</label><input id="signinPassword" type="password" placeholder="••••••••" autocomplete="current-password" oninput="authAgreeChanged()">
+    </div>
+    <p class="md-foot" style="margin:0 0 8px;font-size:13px">
+      <a href="#" id="signinToggleLegacy" onclick="toggleLegacySignin(event)" data-t>Sign in with email and password (legacy)</a>
+    </p>
     <div class="md-check">
       <label class="md-cb">
         <input type="checkbox" id="signinAgree" onchange="authAgreeChanged()">
@@ -2444,7 +2453,7 @@
     </div>
     <button class="md-btn" id="signinBtn" onclick="login()" data-t>Sign in</button>
     <div class="md-foot">
-      <a onclick="openModal('forgot')" style="display:inline-block;margin-bottom:8px" data-t>Forgot password?</a><br>
+      <a onclick="openModal('forgot')" id="signinForgotLink" style="display:none;margin-bottom:8px" data-t>Forgot password?</a><br>
       <span data-t>No account yet?</span> <a onclick="openModal('signup')" data-t>Register free</a>
     </div>
   </div>
@@ -2457,24 +2466,49 @@
     <h3 data-t>Create your account</h3>
     <p class="md-sub" data-t>Free for verified healthcare professionals</p>
     <div class="md-info"><strong data-t>🔐 Verified access only.</strong> <span data-t>We verify credentials to keep the community clinically focused and ad-free for users.</span></div>
-    <label data-t>I am a…</label>
-    <div class="role-grid">
-      <button class="role-btn act" data-role="doctor" onclick="pickRole(this)"><span class="ico">👨‍⚕️</span><span data-t>Doctor</span></button>
-      <button class="role-btn" data-role="pharmacist" onclick="pickRole(this)"><span class="ico">💊</span><span data-t>Pharmacist</span></button>
-      <button class="role-btn" data-role="student" onclick="pickRole(this)"><span class="ico">🎓</span><span data-t>Student</span></button>
+
+    <div id="signupStep1">
+      <label data-t>I am a…</label>
+      <div class="role-grid">
+        <button class="role-btn act" data-role="doctor" onclick="pickRole(this)"><span class="ico">👨‍⚕️</span><span data-t>Doctor</span></button>
+        <button class="role-btn" data-role="pharmacist" onclick="pickRole(this)"><span class="ico">💊</span><span data-t>Pharmacist</span></button>
+        <button class="role-btn" data-role="student" onclick="pickRole(this)"><span class="ico">🎓</span><span data-t>Student</span></button>
+      </div>
+      <label data-t>First name</label><input id="signupFirstName" type="text" placeholder="Ion" autocomplete="given-name">
+      <label data-t>Last name</label><input id="signupLastName" type="text" placeholder="Popescu" autocomplete="family-name">
+      <label data-t>County</label><input id="signupCounty" type="text" list="roCountiesList" placeholder="Timiș" autocomplete="address-level1">
+      <datalist id="roCountiesList"></datalist>
+      <label data-t>Institutional email</label><input id="signupEmail" type="email" placeholder="jane.doe@hospital.eu" autocomplete="email">
+      <div id="signupMedicGradeRow" style="display:none">
+        <label data-t>Professional grade</label>
+        <select id="signupMedicGrade">
+          <option value="rezident" data-t>Resident</option>
+          <option value="specialist" selected data-t>Specialist</option>
+          <option value="primar" data-t>Primary specialist</option>
+        </select>
+      </div>
+      <label id="signupSpecialtyLabel" data-t>Specialty / field</label><input id="signupSpecialty" type="text" placeholder="Cardiology / Clinical pharmacy…" autocomplete="organization-title">
+      <label data-t>Stamp / professional ID (parafă)</label><input id="signupParafa" type="text" placeholder="Ex: RO-123456" autocomplete="off">
+      <div class="md-check">
+        <label class="md-cb">
+          <input type="checkbox" id="signupAgree" onchange="authAgreeChanged()">
+          <span>Am citit și accept <a onclick="openLegal('terms')">Termenii</a>, <a onclick="openLegal('privacy')">GDPR</a> și <a onclick="openLegal('cookies')">Cookies</a>.</span>
+        </label>
+      </div>
+      <button class="md-btn" id="signupBtn" onclick="registerStart()" data-t>Send activation code by email</button>
     </div>
-    <label data-t>Full name</label><input id="signupName" type="text" placeholder="Dr. Jane Doe" autocomplete="name">
-    <label data-t>Institutional email</label><input id="signupEmail" type="email" placeholder="jane.doe@hospital.eu" autocomplete="email">
-    <label>Parafa (cod medic)</label><input id="signupParafa" type="text" placeholder="Ex: RO-123456" autocomplete="off">
-    <label data-t>Password</label><input id="signupPassword" type="password" placeholder="At least 8 characters" autocomplete="new-password">
-    <div class="md-check">
-      <label class="md-cb">
-        <input type="checkbox" id="signupAgree" onchange="authAgreeChanged()">
-        <span>Am citit și accept <a onclick="openLegal('terms')">Termenii</a>, <a onclick="openLegal('privacy')">GDPR</a> și <a onclick="openLegal('cookies')">Cookies</a>.</span>
-      </label>
+
+    <div id="signupStep2" style="display:none">
+      <p class="md-sub" id="signupCodeHint"></p>
+      <label data-t>6-digit code</label>
+      <input id="signupCode" type="text" inputmode="numeric" maxlength="6" placeholder="123456" autocomplete="one-time-code" oninput="authAgreeChanged()">
+      <button class="md-btn" id="signupCompleteBtn" onclick="registerComplete()" data-t>Activate account</button>
+      <div class="md-foot">
+        <a href="#" onclick="signupBackToStep1(event)" data-t>Edit details or resend code</a>
+      </div>
     </div>
-    <button class="md-btn" id="signupBtn" onclick="register()" data-t>Create free account</button>
-    <div class="md-foot"><span data-t>Already registered?</span> <a onclick="openModal('signin')" data-t>Sign in</a></div>
+
+    <div class="md-foot" id="signupFootAlways"><span data-t>Already registered?</span> <a onclick="openModal('signin')" data-t>Sign in</a></div>
   </div>
 </div>
 
@@ -2542,7 +2576,7 @@
   💬 <span class="txt">Chat</span>
 </button>
 
-<script src="script.js?v=20260507a"></script>
+<script src="script.js?v=20260507b"></script>
 
 </body>
 </html>

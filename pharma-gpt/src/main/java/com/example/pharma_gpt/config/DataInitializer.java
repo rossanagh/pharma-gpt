@@ -137,8 +137,31 @@ public class DataInitializer implements SmartInitializingSingleton {
         u.setMedicGrade(spec.medicGrade);
         u.setAcademicTitles(spec.academicTitles);
         u.setRole("ROLE_USER");
+        assignSeedLoginCodeAndCounty(u, spec.email);
         u.syncFullName();
         userRepository.save(u);
+    }
+
+    /** Cod de login unic (6 cifre) pentru dev/demo; județ implicit. */
+    private void assignSeedLoginCodeAndCounty(User u, String email) {
+        int base = Math.abs(email.hashCode() % 900000) + 100000;
+        for (int k = 0; k < 500; k++) {
+            String lc = String.format("%06d", (base + k) % 1000000);
+            if (userRepository.findByLoginCode(lc).isEmpty()) {
+                u.setLoginCode(lc);
+                break;
+            }
+        }
+        if (u.getLoginCode() == null || u.getLoginCode().isBlank()) {
+            for (int t = 0; t < 100; t++) {
+                String lc = String.format("%06d", (int) (Math.abs(System.nanoTime() + t * 7919L) % 1_000_000));
+                if (userRepository.findByLoginCode(lc).isEmpty()) {
+                    u.setLoginCode(lc);
+                    break;
+                }
+            }
+        }
+        u.setCounty("București");
     }
 
     private void seedForumPostsIfEmpty() {

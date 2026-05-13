@@ -20,7 +20,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByEmailIgnoreCase(String email);
 
-    Optional<User> findByParafa(String parafa);
+    Optional<User> findByLoginCode(String loginCode);
+
+    boolean existsByLoginCode(String loginCode);
 
     @Query("""
         select u from User u
