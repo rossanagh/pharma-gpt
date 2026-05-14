@@ -17,7 +17,7 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="alternate icon" href="favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="styles.css?v=20260506e">
+<link rel="stylesheet" href="styles.css?v=20260506f">
 
 </head>
 <body>
@@ -321,7 +321,7 @@
       <div class="mv6-modal-ov" id="mv6ModalOv" onclick="if(event.target===this)mv6ClosePatientModal()">
         <div class="mv6-modal" role="dialog" aria-modal="true">
           <h2 data-t>Patient context</h2>
-          <p class="mv6-m-intro" data-t>Enter demographics and clinical details for this visit, then tap Save.</p>
+          <p class="mv6-m-intro" data-t>Enter demographics and clinical details for this visit, then tap Save or OK.</p>
           <div class="mv6-mf"><label data-t>Patient name</label><input id="mv6PtNm" type="text" placeholder="e.g. John Doe"></div>
           <div class="mv6-mf-row">
             <div class="mv6-mf"><label data-t>Age / sex</label><input id="mv6PtAg" type="text" placeholder="e.g. 58, M"></div>
@@ -333,7 +333,8 @@
           <div class="mv6-mf"><label data-t>Phone (optional)</label><input id="mv6PtPh" type="tel" inputmode="tel" autocomplete="tel" placeholder="+40 …"></div>
           <div class="mv6-mfooter">
             <button type="button" class="mv6-m-cancel" onclick="mv6ClosePatientModal()" data-t>Cancel</button>
-            <button type="button" class="mv6-m-save mv6-m-save-primary" onclick="mv6SavePatient()" data-t>Save patient context</button>
+            <button type="button" class="mv6-m-save" onclick="mv6SavePatient()" data-t>Save patient context</button>
+            <button type="button" class="mv6-m-save mv6-m-save-primary mv6-m-ok" onclick="mv6SavePatient()" data-t>OK</button>
           </div>
         </div>
       </div>
@@ -2549,7 +2550,7 @@
   💬 <span class="txt">Chat</span>
 </button>
 
-<script src="script.js?v=20260506e"></script>
+<script src="script.js?v=20260506f"></script>
 
 </body>
 </html>

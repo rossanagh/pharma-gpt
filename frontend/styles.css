@@ -636,6 +636,7 @@ h1.headline em{font-style:italic;font-weight:400;display:block;background:linear
 #pg-consult .mv6-m-cancel{padding:8px 14px;border-radius:8px;border:1px solid var(--mv6-bd-m);background:#fff;font-size:13px;cursor:pointer;font-family:inherit;color:var(--mv6-ink-m);flex-shrink:0}
 #pg-consult .mv6-m-save{padding:8px 16px;border-radius:8px;border:none;background:var(--mv6-terra);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
 #pg-consult .mv6-m-save-primary{flex:1;min-width:140px;padding:10px 18px;font-size:14px}
+#pg-consult .mv6-m-ok{min-width:72px;font-size:15px;letter-spacing:0.02em}
 #pg-consult .mv6-toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--mv6-ink);color:#fff;padding:8px 16px;border-radius:8px;font-size:13px;opacity:0;transition:all .22s;z-index:10060;pointer-events:none;max-width:90vw;text-align:center}
 #pg-consult .mv6-toast.mv6-show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media(max-width:960px){
