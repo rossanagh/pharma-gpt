@@ -8,6 +8,4 @@ import java.util.Optional;
 public interface PendingRegistrationRepository extends JpaRepository<PendingRegistration, Long> {
 
     Optional<PendingRegistration> findByEmailIgnoreCase(String email);
-
-    void deleteByEmailIgnoreCase(String email);
 }
