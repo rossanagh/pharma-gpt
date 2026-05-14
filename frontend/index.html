@@ -17,7 +17,7 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="alternate icon" href="favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="styles.css?v=20260513c">
+<link rel="stylesheet" href="styles.css?v=20260514a">
 
 </head>
 <body>
@@ -164,34 +164,7 @@
 
 <!-- ============ CONSULTATION ============ -->
 <div class="pg" id="pg-consult">
-  <div class="app tutor-app">
-    <aside class="side">
-      <div class="side-greet">
-        <div class="role" data-t>Physician</div>
-        <h4><span id="sideGreetPrefix" data-t>Good morning,</span> <em id="sideGreetName">Doctor.</em></h4>
-      </div>
-      <div class="side-section">
-        <h5 data-t>Main</h5>
-        <a class="act" onclick="goPage('consult')"><span class="ico">🩺</span><span data-t>Consultation</span></a>
-        <a onclick="goPage('tools')"><span class="ico">🔧</span><span data-t>AI Tools</span></a>
-        <a onclick="goPage('guides')"><span class="ico">📋</span><span data-t>Guidelines</span></a>
-        <a onclick="goPage('drugs')"><span class="ico">💊</span><span data-t>Drug Database</span></a>
-      </div>
-      <div class="side-section">
-        <h5 data-t>Learning</h5>
-        <a onclick="goPage('tutor')"><span class="ico">🧠</span><span data-t>AI Tutor</span></a>
-        <a onclick="goPage('rez')"><span class="ico">🎓</span><span data-t>Rezidentiat</span></a>
-        <a onclick="goPage('rad')"><span class="ico">🩻</span><span data-t>Radiology</span></a>
-      </div>
-      <div class="side-section">
-        <h5 data-t>Quick actions</h5>
-        <a onclick="consultQuick('differential')"><span class="ico">🔍</span><span data-t>Differential Dx</span></a>
-        <a onclick="consultQuick('interactions')"><span class="ico">⚗️</span><span data-t>Drug interactions</span></a>
-        <a onclick="consultQuick('guidelines')"><span class="ico">📋</span><span data-t>Relevant guidelines</span></a>
-        <a onclick="consultQuick('dosing')"><span class="ico">💊</span><span data-t>Dosing & adjustments</span></a>
-        <a onclick="clearConsult()"><span class="ico">🗑️</span><span data-t>Clear consultation</span></a>
-      </div>
-    </aside>
+  <div class="app tutor-app tutor-app--consult-full">
     <main class="main" style="min-width:0">
 
       <!-- Consultation workspace (me-visit-v7 layout; no page hero header) -->
