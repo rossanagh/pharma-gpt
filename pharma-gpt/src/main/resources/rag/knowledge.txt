@@ -25,3 +25,8 @@ Hypertension & comorbidity: Choice of antihypertensive class depends on comorbid
 ---
 [RAG TEST radiology]:
 - Marker RAG_RAD_TEST_12345 confirms radiology excerpts are loaded in this knowledge file for retrieval tests.
+---
+[Landmark clinical trials — links for RAG-grounded answers]
+- SGLT2 CVOT — EMPA-REG OUTCOME (empagliflozin, T2DM with CVD): PMID 26378978 https://pubmed.ncbi.nlm.nih.gov/26378978/ · registry NCT01131676 https://clinicaltrials.gov/study/NCT01131676
+- SGLT2 — DECLARE-TIMI 58 (dapagliflozin): NCT01730534 https://clinicaltrials.gov/study/NCT01730534
+- AF anticoagulation — RE-LY (dabigatran vs warfarin): NCT00262600 https://clinicaltrials.gov/study/NCT00262600 · ARISTOTLE (apixaban vs warfarin): NCT00496769 https://clinicaltrials.gov/study/NCT00496769

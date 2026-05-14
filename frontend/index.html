@@ -17,7 +17,7 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="alternate icon" href="favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="styles.css?v=20260506g">
+<link rel="stylesheet" href="styles.css?v=20260506i">
 
 </head>
 <body>
@@ -198,11 +198,6 @@
                   <span data-t>New visit</span>
                 </button>
                 <label class="mv6-sa-btn" style="cursor:pointer">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
-                  <span data-t>Labs</span>
-                  <input type="file" accept=".pdf,.jpg,.png,.jpeg" multiple style="display:none" onchange="mv6HandleFiles(this.files)">
-                </label>
-                <label class="mv6-sa-btn" style="cursor:pointer">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
                   <span data-t>Lab reports (PDF)</span>
                   <input type="file" accept="application/pdf,.pdf" multiple style="display:none" onchange="mv6HandleLabPdf(this.files); this.value=''">
@@ -326,7 +321,7 @@
       <div class="mv6-modal-ov" id="mv6ModalOv" onclick="if(event.target===this)mv6ClosePatientModal()">
         <div class="mv6-modal" role="dialog" aria-modal="true">
           <h2 data-t>Patient context</h2>
-          <p class="mv6-m-intro" data-t>Enter demographics and clinical details for this visit, then tap Save or OK.</p>
+          <p class="mv6-m-intro" data-t>Enter demographics and clinical details for this visit, then tap Save.</p>
           <div class="mv6-mf"><label data-t>Patient name</label><input id="mv6PtNm" type="text" placeholder="e.g. John Doe"></div>
           <div class="mv6-mf-row">
             <div class="mv6-mf"><label data-t>Age / sex</label><input id="mv6PtAg" type="text" placeholder="e.g. 58, M"></div>
@@ -338,8 +333,7 @@
           <div class="mv6-mf"><label data-t>Phone (optional)</label><input id="mv6PtPh" type="tel" inputmode="tel" autocomplete="tel" placeholder="+40 …"></div>
           <div class="mv6-mfooter">
             <button type="button" class="mv6-m-cancel" onclick="mv6ClosePatientModal()" data-t>Cancel</button>
-            <button type="button" class="mv6-m-save" onclick="mv6SavePatient()" data-t>Save patient context</button>
-            <button type="button" class="mv6-m-save mv6-m-save-primary mv6-m-ok" onclick="mv6SavePatient()" data-t>OK</button>
+            <button type="button" class="mv6-m-save mv6-m-save-primary" onclick="mv6SavePatient()" data-t>Save patient context</button>
           </div>
         </div>
       </div>
@@ -2555,7 +2549,7 @@
   💬 <span class="txt">Chat</span>
 </button>
 
-<script src="script.js?v=20260506h"></script>
+<script src="script.js?v=20260506i"></script>
 
 </body>
 </html>

@@ -35,8 +35,14 @@ public class OpenAiService {
         - Use clear structure with headings when helpful: e.g. Overview; Mechanisms / pharmacology (if relevant);
           Clinical considerations; Drug interactions & monitoring; Limitations of evidence; Practical takeaway.
         - Prefer precise terminology, cautious language, and proportional detail (avoid fluff).
-        - When the knowledge base excerpts are provided below, ground your answer in them where applicable
+        - When knowledge base excerpts (RAG) are provided below, ground your answer in them where applicable
           and treat them as supporting context (not as a substitute for local protocols or labeling).
+        - If those excerpts mention clinical trials, cohort studies, registries, meta-analyses, or guidelines with
+          titles, NCT numbers, PMIDs, DOIs, or https URLs, surface that evidence explicitly: keep the same identifiers
+          and reproduce every link exactly as given. Add a short subsection **Studies / sources (with links)** (or
+          equivalent in the user's language) with markdown links [short label](https://...) when URLs exist; for PMID
+          or NCT only, use stable URLs (https://pubmed.ncbi.nlm.nih.gov/<PMID>/, https://clinicaltrials.gov/study/<NCT>/).
+          Do not invent URLs; if the excerpt has no link, cite the study name and identifier only.
         - If evidence is uncertain or patient-specific factors matter, state uncertainties explicitly.
 
         Language: respond in the same language as the user's latest message (match register and terminology).
@@ -273,7 +279,8 @@ public class OpenAiService {
         String ragSnippets = ragKnowledgeService.retrieveContext(ragQuery, ragMaxChunks);
         if (ragSnippets != null && !ragSnippets.isBlank()) {
             system = system.stripTrailing()
-                + "\n\nKnowledge base excerpts (RAG — use for terminology, RADS cues, follow-up anchors; cite bracket tags when used):\n"
+                + "\n\nKnowledge base excerpts (RAG — use for terminology, RADS cues, follow-up anchors; cite bracket tags when used). "
+                + "Carry every trial/study URL or NCT/PMID from these excerpts into your Sources section:\n"
                 + ragSnippets;
         }
 
@@ -331,7 +338,9 @@ public class OpenAiService {
         String rag = ragKnowledgeService.retrieveContext(question, ragMaxChunks);
         String system = ACADEMIC_STYLE;
         if (rag != null && !rag.isBlank()) {
-            system = system + "\n\nKnowledge base excerpts (RAG — use for grounding when relevant):\n" + rag;
+            system = system
+                + "\n\nKnowledge base excerpts (RAG — use for grounding when relevant; include studies with links per system instructions):\n"
+                + rag;
         }
 
         List<Map<String, String>> messages = new ArrayList<>();
