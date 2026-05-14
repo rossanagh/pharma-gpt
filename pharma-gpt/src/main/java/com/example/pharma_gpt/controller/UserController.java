@@ -64,7 +64,7 @@ public class UserController {
             return ResponseEntity.status(401).body(Map.of("error", "Neautentificat"));
         }
         Object principal = authentication.getPrincipal();
-        if (!(principal instanceof String email) || email.isBlank()) {
+        if (!(principal instanceof String email) || email.isBlank() || "anonymousUser".equals(email)) {
             return ResponseEntity.status(401).body(Map.of("error", "Neautentificat"));
         }
         return userRepository.findByEmailIgnoreCase(email)
@@ -79,7 +79,7 @@ public class UserController {
             return ResponseEntity.status(401).body(Map.of("error", "Neautentificat"));
         }
         Object principal = authentication.getPrincipal();
-        if (!(principal instanceof String email) || email.isBlank()) {
+        if (!(principal instanceof String email) || email.isBlank() || "anonymousUser".equals(email)) {
             return ResponseEntity.status(401).body(Map.of("error", "Neautentificat"));
         }
         return userRepository.findByEmailIgnoreCase(email)
@@ -121,7 +121,7 @@ public class UserController {
             return ResponseEntity.status(401).body(Map.of("error", "Neautentificat"));
         }
         Object principal = authentication.getPrincipal();
-        if (!(principal instanceof String email) || email.isBlank()) {
+        if (!(principal instanceof String email) || email.isBlank() || "anonymousUser".equals(email)) {
             return ResponseEntity.status(401).body(Map.of("error", "Neautentificat"));
         }
         if (file.isEmpty()) {
@@ -155,7 +155,7 @@ public class UserController {
             return ResponseEntity.status(401).build();
         }
         Object principal = authentication.getPrincipal();
-        if (!(principal instanceof String email) || email.isBlank()) {
+        if (!(principal instanceof String email) || email.isBlank() || "anonymousUser".equals(email)) {
             return ResponseEntity.status(401).build();
         }
         return userRepository.findByEmailIgnoreCase(email)
