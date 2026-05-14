@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.TransactionSystemException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -109,6 +110,15 @@ public class AuthController {
             return ResponseEntity.ok(Map.of("ok", true));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(400).body(Map.of("error", e.getMessage()));
+        } catch (IllegalStateException e) {
+            log.warn("register/start mail delivery failed for email={}: {}", req.email(), e.getMessage());
+            return ResponseEntity.status(503).body(Map.of("error", e.getMessage()));
+        } catch (TransactionSystemException e) {
+            log.error("register/start transaction error for email={}", req.email(), e);
+            return ResponseEntity.status(500).body(Map.of(
+                "error",
+                "Eroare la tranzacția bazei de date. Verifică logurile serverului sau schema Neon (pending_registrations)."
+            ));
         } catch (DataAccessException e) {
             log.error("register/start database error for email={}", req.email(), e);
             return ResponseEntity.status(500).body(Map.of(

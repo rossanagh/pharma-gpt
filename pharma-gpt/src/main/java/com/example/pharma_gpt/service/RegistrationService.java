@@ -6,13 +6,11 @@ import com.example.pharma_gpt.entity.PendingRegistration;
 import com.example.pharma_gpt.entity.User;
 import com.example.pharma_gpt.repository.PendingRegistrationRepository;
 import com.example.pharma_gpt.repository.UserRepository;
-import com.example.pharma_gpt.util.PersonNameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
@@ -27,6 +25,7 @@ public class RegistrationService {
 
     private final UserRepository userRepository;
     private final PendingRegistrationRepository pendingRepository;
+    private final PendingRegistrationPersistence pendingRegistrationPersistence;
     private final PasswordEncoder passwordEncoder;
     private final OtpService otpService;
     private final NotificationService notificationService;
@@ -40,12 +39,14 @@ public class RegistrationService {
     public RegistrationService(
         UserRepository userRepository,
         PendingRegistrationRepository pendingRepository,
+        PendingRegistrationPersistence pendingRegistrationPersistence,
         PasswordEncoder passwordEncoder,
         OtpService otpService,
         NotificationService notificationService
     ) {
         this.userRepository = userRepository;
         this.pendingRepository = pendingRepository;
+        this.pendingRegistrationPersistence = pendingRegistrationPersistence;
         this.passwordEncoder = passwordEncoder;
         this.otpService = otpService;
         this.notificationService = notificationService;
@@ -74,7 +75,10 @@ public class RegistrationService {
         }
     }
 
-    @Transactional
+    /**
+     * Fără @Transactional pe întreg fluxul: INSERT se comite într-o tranzacție REQUIRES_NEW înainte de email,
+     * astfel erorile SMTP nu fac rollback la pending_registrations și poți verifica rândul în Neon.
+     */
     public void startRegistration(RegisterStartRequest request) {
         String email = request.email().trim().toLowerCase(Locale.ROOT);
         if (userRepository.existsByEmailIgnoreCase(email)) {
@@ -82,35 +86,8 @@ public class RegistrationService {
         }
         validateStartProfile(request);
 
-        pendingRepository.deleteByEmailIgnoreCase(email);
-
         String code = generateUniqueOtpForPending();
-        PendingRegistration p = new PendingRegistration();
-        p.setEmail(email);
-        p.setFirstName(PersonNameUtils.formatPersonName(request.firstName()));
-        p.setLastName(PersonNameUtils.formatPersonName(request.lastName()));
-        p.setCounty(request.county().trim());
-        p.setPhoneNumber(request.phoneNumber() == null ? null : request.phoneNumber().trim());
-        p.setParafa(request.parafa().trim());
-        p.setProviderType(request.providerType().trim());
-        String pt = p.getProviderType();
-        if ("medic".equals(pt)) {
-            p.setMedicGrade(request.medicGrade().trim());
-            p.setSpecialty(request.specialty().trim());
-        } else {
-            p.setMedicGrade(null);
-            p.setSpecialty(request.specialty().trim());
-        }
-        if (request.academicTitles() != null && !request.academicTitles().isBlank()) {
-            p.setAcademicTitles(request.academicTitles().trim());
-        } else {
-            p.setAcademicTitles(null);
-        }
-        p.setPasswordHash(passwordEncoder.encode(request.password()));
-        p.setCodeHash(passwordEncoder.encode(code));
-        p.setExpiresAt(Instant.now().plus(Duration.ofMinutes(ttlMinutes)));
-        p.setAttempts(0);
-        pendingRepository.save(p);
+        pendingRegistrationPersistence.replacePending(request, email, code, ttlMinutes);
 
         notificationService.sendRegistrationCodeEmail(email, code, ttlMinutes);
     }

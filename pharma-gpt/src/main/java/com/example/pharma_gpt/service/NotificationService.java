@@ -82,65 +82,93 @@ public class NotificationService {
         });
     }
 
+    /**
+     * Trimite codul de înregistrare înainte de răspunsul HTTP, ca utilizatorul să primească mailul imediat
+     * și ca o eroare SMTP să nu lase contul „în curs” fără mesaj în inbox.
+     */
     public void sendRegistrationCodeEmail(String to, String code, int ttlMinutes) {
         if (devLogCodes) {
             log.warn("Registration code for {}: {}", to, code);
         }
         JavaMailSender mailSender = mailSenderProvider.getIfAvailable();
-        if (mailSender == null) {
-            if (mailProxyUrl != null && !mailProxyUrl.isBlank()) {
-                sendViaPhpProxy(to, code);
-            }
-            return;
-        }
-        CompletableFuture.runAsync(() -> {
+        boolean sent = false;
+        if (mailSender != null) {
             try {
-                SimpleMailMessage msg = new SimpleMailMessage();
-                msg.setFrom(from);
-                msg.setTo(to);
-                msg.setSubject("MedicinEvidence — cod de activare cont");
-                msg.setText("""
-                    Bun venit pe MedicinEvidence.
-
-                    Codul tău de activare (6 cifre) este:
-
-                    %s
-
-                    Introdu acest cod în aplicație pentru a finaliza crearea contului. Codul expiră în %d minute.
-                    Dacă nu ai solicitat contul, ignoră acest mesaj.
-                    """.formatted(code, ttlMinutes));
-                mailSender.send(msg);
+                sendRegistrationJavaMail(mailSender, to, code, ttlMinutes);
+                sent = true;
             } catch (Exception e) {
                 log.error("Failed to send registration email to {}", to, e);
-                if (mailProxyUrl != null && !mailProxyUrl.isBlank()) {
-                    sendViaPhpProxy(to, code);
-                }
             }
-        });
+        }
+        if (!sent && mailProxyUrl != null && !mailProxyUrl.isBlank()) {
+            sent = sendViaPhpProxySync(to, code);
+        }
+        if (!sent) {
+            if (devLogCodes) {
+                log.warn(
+                    "Registration email not delivered via SMTP/proxy; codul este doar în log (dev). "
+                        + "Pentru mail real setează SMTP_HOST sau PHARMA_MAIL_PROXY_URL."
+                );
+                return;
+            }
+            throw new IllegalStateException(
+                "Nu am putut trimite emailul de verificare. Verifică pe server variabilele SMTP_HOST / SMTP_PASS "
+                    + "sau proxy-ul PHARMA_MAIL_PROXY_URL, apoi încearcă din nou. Verifică și folderul Spam."
+            );
+        }
+    }
+
+    private void sendRegistrationJavaMail(
+        JavaMailSender mailSender,
+        String to,
+        String code,
+        int ttlMinutes
+    ) {
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setFrom(from);
+        msg.setTo(to);
+        msg.setSubject("MedicinEvidence — cod de activare cont");
+        msg.setText("""
+            Bun venit pe MedicinEvidence.
+
+            Codul tău de activare (6 cifre) este:
+
+            %s
+
+            Introdu acest cod în aplicație pentru a finaliza crearea contului. Codul expiră în %d minute.
+            Dacă nu ai solicitat contul, ignoră acest mesaj.
+            """.formatted(code, ttlMinutes));
+        mailSender.send(msg);
     }
 
     private void sendViaPhpProxy(String to, String code) {
-        CompletableFuture.runAsync(() -> {
-            try {
-                if (mailProxySecret == null || mailProxySecret.isBlank()) {
-                    log.error("Mail proxy is configured but pharma.mail.proxy-secret is missing.");
-                    return;
-                }
-                String body = "{\"to\":\"" + jsonEscape(to) + "\",\"code\":\"" + jsonEscape(code) + "\"}";
-                HttpRequest req = HttpRequest.newBuilder()
-                    .uri(URI.create(mailProxyUrl.trim()))
-                    .header("Content-Type", "application/json")
-                    .header("X-Proxy-Secret", mailProxySecret.trim())
-                    .POST(HttpRequest.BodyPublishers.ofString(body))
-                    .build();
-                HttpResponse<String> resp = http.send(req, HttpResponse.BodyHandlers.ofString());
-                if (resp.statusCode() < 200 || resp.statusCode() >= 300) {
-                    log.error("Mail proxy error (status={}): {}", resp.statusCode(), resp.body());
-                }
-            } catch (Exception e) {
-                log.error("Mail proxy request failed", e);
+        CompletableFuture.runAsync(() -> sendViaPhpProxySync(to, code));
+    }
+
+    /** @return true dacă răspunsul HTTP e 2xx */
+    private boolean sendViaPhpProxySync(String to, String code) {
+        try {
+            if (mailProxySecret == null || mailProxySecret.isBlank()) {
+                log.error("Mail proxy is configured but pharma.mail.proxy-secret is missing.");
+                return false;
             }
-        });
+            String body = "{\"to\":\"" + jsonEscape(to) + "\",\"code\":\"" + jsonEscape(code) + "\"}";
+            HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create(mailProxyUrl.trim()))
+                .header("Content-Type", "application/json")
+                .header("X-Proxy-Secret", mailProxySecret.trim())
+                .POST(HttpRequest.BodyPublishers.ofString(body))
+                .build();
+            HttpResponse<String> resp = http.send(req, HttpResponse.BodyHandlers.ofString());
+            if (resp.statusCode() < 200 || resp.statusCode() >= 300) {
+                log.error("Mail proxy error (status={}): {}", resp.statusCode(), resp.body());
+                return false;
+            }
+            return true;
+        } catch (Exception e) {
+            log.error("Mail proxy request failed", e);
+            return false;
+        }
     }
 
     private static String jsonEscape(String s) {

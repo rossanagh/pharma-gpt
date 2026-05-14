@@ -14,6 +14,8 @@ CREATE TABLE IF NOT EXISTS public.users (
   specialty TEXT,
   medic_grade TEXT,
   academic_titles TEXT,
+  county TEXT,
+  login_code VARCHAR(6),
   avatar_bytes BYTEA,
   avatar_content_type TEXT,
   role TEXT NOT NULL DEFAULT 'ROLE_USER',
