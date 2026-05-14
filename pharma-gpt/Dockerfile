@@ -13,6 +13,9 @@ RUN chmod +x mvnw && sed -i 's/\r$//' mvnw && ./mvnw -q -DskipTests package
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 COPY --from=builder /build/target/pharma-gpt-*.war app.war
-EXPOSE 8083
+# Render setează PORT (implicit 10000); EXPOSE e orientativ pentru scanare locală
+EXPOSE 8083 10000
 ENV SPRING_PROFILES_ACTIVE=prod
+# Compilare C1-only la pornire = cold start mai scurt (trade-off: peak JIT mai târziu)
+ENV JAVA_TOOL_OPTIONS="-XX:TieredStopAtLevel=1 -XX:MaxRAMPercentage=75.0"
 ENTRYPOINT ["java","-jar","/app/app.war"]
