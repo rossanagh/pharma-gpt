@@ -14,5 +14,6 @@ public record RegisterStartRequest(
     @NotBlank @Size(max = 50) String providerType,
     @Size(max = 50) String medicGrade,
     @Size(max = 120) String specialty,
-    @Size(max = 500) String academicTitles
+    @Size(max = 500) String academicTitles,
+    @NotBlank @Size(min = 8, max = 128) String password
 ) {}

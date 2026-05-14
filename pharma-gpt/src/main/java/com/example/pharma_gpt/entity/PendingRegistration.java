@@ -41,6 +41,10 @@ public class PendingRegistration {
     @Column(name = "academic_titles", length = 500)
     private String academicTitles;
 
+    /** Parolă aleasă la înregistrare (bcrypt); aplicată la cont după validarea codului din email */
+    @Column(name = "password_hash", length = 255)
+    private String passwordHash;
+
     @Column(name = "code_hash", nullable = false, length = 255)
     private String codeHash;
 
@@ -135,6 +139,14 @@ public class PendingRegistration {
 
     public void setAcademicTitles(String academicTitles) {
         this.academicTitles = academicTitles;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     public String getCodeHash() {

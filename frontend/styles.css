@@ -682,6 +682,18 @@ footer{background:var(--ink);color:var(--cream2);padding:56px 40px 28px}
 .md-cb a{color:var(--accent);font-weight:600;cursor:pointer}
 .md-cb a:hover{text-decoration:underline}
 
+.md.md-signup{max-width:720px;padding:32px 30px}
+.md.md-signup .md-info{margin-bottom:10px}
+.md.md-signup .signup-grid{display:grid;grid-template-columns:1fr 1fr;column-gap:18px;row-gap:4px;margin-top:4px;align-items:start}
+.md.md-signup .signup-grid .sg-field{min-width:0}
+.md.md-signup .signup-grid .sg-field > label{margin-top:0;margin-bottom:5px}
+.md.md-signup .signup-grid .sg-span-2{grid-column:1 / -1}
+.md.md-signup .md-check{margin-top:12px}
+@media (max-width:700px){
+  .md.md-signup{padding:28px 20px}
+  .md.md-signup .signup-grid{grid-template-columns:1fr}
+}
+
 .md-legal{max-width:920px}
 .legal-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;margin-bottom:14px}
 .legal-tab{padding:10px 14px;background:var(--cream);border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink2);font-weight:700;cursor:pointer;transition:all .15s;font-family:inherit}

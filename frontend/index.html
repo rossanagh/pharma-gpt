@@ -17,7 +17,7 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="alternate icon" href="favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="styles.css?v=20260507a">
+<link rel="stylesheet" href="styles.css?v=20260513c">
 
 </head>
 <body>
@@ -2460,7 +2460,7 @@
 </div>
 
 <div class="ov" id="ovSignup">
-  <div class="md">
+  <div class="md md-signup">
     <button class="md-close" onclick="closeModal()">×</button>
     <div class="md-logo"><div class="logo-sq">ME</div><span>MedicinEvidence</span></div>
     <h3 data-t>Create your account</h3>
@@ -2474,21 +2474,38 @@
         <button class="role-btn" data-role="pharmacist" onclick="pickRole(this)"><span class="ico">💊</span><span data-t>Pharmacist</span></button>
         <button class="role-btn" data-role="student" onclick="pickRole(this)"><span class="ico">🎓</span><span data-t>Student</span></button>
       </div>
-      <label data-t>First name</label><input id="signupFirstName" type="text" placeholder="Ion" autocomplete="given-name">
-      <label data-t>Last name</label><input id="signupLastName" type="text" placeholder="Popescu" autocomplete="family-name">
-      <label data-t>County</label><input id="signupCounty" type="text" list="roCountiesList" placeholder="Timiș" autocomplete="address-level1">
-      <datalist id="roCountiesList"></datalist>
-      <label data-t>Institutional email</label><input id="signupEmail" type="email" placeholder="jane.doe@hospital.eu" autocomplete="email">
-      <div id="signupMedicGradeRow" style="display:none">
-        <label data-t>Professional grade</label>
-        <select id="signupMedicGrade">
-          <option value="rezident" data-t>Resident</option>
-          <option value="specialist" selected data-t>Specialist</option>
-          <option value="primar" data-t>Primary specialist</option>
-        </select>
+      <div class="signup-grid">
+        <div class="sg-field">
+          <label data-t>First name</label><input id="signupFirstName" type="text" placeholder="Ion" autocomplete="given-name">
+        </div>
+        <div class="sg-field">
+          <label data-t>Last name</label><input id="signupLastName" type="text" placeholder="Popescu" autocomplete="family-name">
+        </div>
+        <div class="sg-field">
+          <label data-t>County</label><input id="signupCounty" type="text" list="roCountiesList" placeholder="Timiș" autocomplete="address-level1">
+        </div>
+        <div class="sg-field">
+          <label data-t>Institutional email</label><input id="signupEmail" type="email" placeholder="jane.doe@hospital.eu" autocomplete="email">
+        </div>
+        <datalist id="roCountiesList"></datalist>
+        <div class="sg-field sg-span-2" id="signupMedicGradeRow" style="display:none">
+          <label data-t>Professional grade</label>
+          <select id="signupMedicGrade">
+            <option value="rezident" data-t>Resident</option>
+            <option value="specialist" selected data-t>Specialist</option>
+            <option value="primar" data-t>Primary specialist</option>
+          </select>
+        </div>
+        <div class="sg-field sg-span-2">
+          <label id="signupSpecialtyLabel" data-t>Specialty / field</label><input id="signupSpecialty" type="text" placeholder="Cardiology / Clinical pharmacy…" autocomplete="organization-title">
+        </div>
+        <div class="sg-field">
+          <label data-t>Stamp / professional ID (parafă)</label><input id="signupParafa" type="text" placeholder="Ex: RO-123456" autocomplete="off">
+        </div>
+        <div class="sg-field">
+          <label data-t>Account password</label><input id="signupPassword" type="password" placeholder="At least 8 characters" autocomplete="new-password" oninput="authAgreeChanged()">
+        </div>
       </div>
-      <label id="signupSpecialtyLabel" data-t>Specialty / field</label><input id="signupSpecialty" type="text" placeholder="Cardiology / Clinical pharmacy…" autocomplete="organization-title">
-      <label data-t>Stamp / professional ID (parafă)</label><input id="signupParafa" type="text" placeholder="Ex: RO-123456" autocomplete="off">
       <div class="md-check">
         <label class="md-cb">
           <input type="checkbox" id="signupAgree" onchange="authAgreeChanged()">
@@ -2576,7 +2593,7 @@
   💬 <span class="txt">Chat</span>
 </button>
 
-<script src="script.js?v=20260507b"></script>
+<script src="script.js?v=20260513c"></script>
 
 </body>
 </html>

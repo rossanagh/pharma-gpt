@@ -171,6 +171,9 @@ const T = {
     "Sign in with email and password (legacy)":"Conectare cu email și parolă (cont vechi)",
     "Sign in with 6-digit code":"Conectare cu codul de 6 cifre",
     "Institutional email":"Email instituțional","Already registered?":"Ești deja înregistrat?",
+    "Account password":"Parolă cont",
+    "Please complete the following fields:":"Completează următoarele câmpuri:",
+    "Password (min. 8 characters)":"Parolă (min. 8 caractere)",
     "Pick your faculty, year, and subject. Upload your course, ask anything, test yourself — Praxis AI evaluates your level and guides you where to focus.":"Alege facultatea, anul și materia. Încarcă cursul, întreabă orice, testează-te — Praxis AI îți evaluează nivelul și te ghidează unde să aprofundezi.",
     "Choose faculty, year & subject":"Alege facultatea, anul și materia",
     "Faculty":"Facultate","Year of study":"Anul de studiu","Subject":"Materie",
@@ -1100,10 +1103,36 @@ function mapRoleToProvider(role){
   return "medic";
 }
 
+function signupStep1Missing(){
+  const firstName = (document.getElementById("signupFirstName")?.value || "").trim();
+  const lastName = (document.getElementById("signupLastName")?.value || "").trim();
+  const county = (document.getElementById("signupCounty")?.value || "").trim();
+  const email = (document.getElementById("signupEmail")?.value || "").trim();
+  const specialty = (document.getElementById("signupSpecialty")?.value || "").trim();
+  const parafa = (document.getElementById("signupParafa")?.value || "").trim();
+  const password = document.getElementById("signupPassword")?.value || "";
+  const role = (document.querySelector(".role-btn.act")?.dataset?.role || "doctor").toLowerCase();
+  const missing = [];
+  if(!firstName) missing.push(tr("First name"));
+  if(!lastName) missing.push(tr("Last name"));
+  if(!county) missing.push(tr("County"));
+  if(!email) missing.push(tr("Institutional email"));
+  if(!specialty) missing.push(role === "doctor" ? tr("Medical specialty") : tr("Specialty / field"));
+  if(!parafa) missing.push(tr("Stamp / professional ID (parafă)"));
+  if(!password || password.length < 8) missing.push(tr("Password (min. 8 characters)"));
+  return missing;
+}
+
 async function registerStart(){
   const agree = document.getElementById("signupAgree");
   if(agree && !agree.checked){
     alert(curLang==='ro' ? 'Te rugăm să accepți Termenii, GDPR și Cookies ca să continui.' : 'Please accept Terms, GDPR and Cookies to continue.');
+    return;
+  }
+  const missing = signupStep1Missing();
+  if(missing.length){
+    const head = tr("Please complete the following fields:");
+    alert(head + "\n• " + missing.join("\n• "));
     return;
   }
   const firstName = (document.getElementById("signupFirstName")?.value || "").trim();
@@ -1112,14 +1141,11 @@ async function registerStart(){
   const email = (document.getElementById("signupEmail")?.value || "").trim();
   const specialty = (document.getElementById("signupSpecialty")?.value || "").trim();
   const parafa = (document.getElementById("signupParafa")?.value || "").trim();
+  const password = document.getElementById("signupPassword")?.value || "";
   const role = (document.querySelector(".role-btn.act")?.dataset?.role || "doctor").toLowerCase();
   const providerType = mapRoleToProvider(role);
   const medicGradeEl = document.getElementById("signupMedicGrade");
   const medicGrade = providerType === "medic" ? String(medicGradeEl?.value || "specialist").trim() : null;
-  if(!firstName || !lastName || !county || !email || !parafa || !specialty){
-    alert(curLang==='ro' ? 'Completați toate câmpurile obligatorii.' : 'Please fill all required fields.');
-    return;
-  }
   try{
     await apiJson("/api/auth/register/start",{
       method:"POST",
@@ -1134,7 +1160,8 @@ async function registerStart(){
         providerType,
         medicGrade,
         specialty,
-        academicTitles: null
+        academicTitles: null,
+        password
       })
     });
     const s1 = document.getElementById("signupStep1");

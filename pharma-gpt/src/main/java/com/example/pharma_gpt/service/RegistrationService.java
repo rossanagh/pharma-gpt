@@ -16,7 +16,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 
 @Service
 public class RegistrationService {
@@ -107,6 +106,7 @@ public class RegistrationService {
         } else {
             p.setAcademicTitles(null);
         }
+        p.setPasswordHash(passwordEncoder.encode(request.password()));
         p.setCodeHash(passwordEncoder.encode(code));
         p.setExpiresAt(Instant.now().plus(Duration.ofMinutes(ttlMinutes)));
         p.setAttempts(0);
@@ -157,9 +157,14 @@ public class RegistrationService {
             throw new IllegalArgumentException("Cod indisponibil — solicitați un cod nou de pe email.");
         }
 
+        if (p.getPasswordHash() == null || p.getPasswordHash().isBlank()) {
+            pendingRepository.delete(p);
+            throw new IllegalArgumentException("Date de înregistrare incomplete. Începeți din nou cu „Trimite codul”.");
+        }
+
         User user = new User();
         user.setEmail(email);
-        user.setPassword(passwordEncoder.encode("LEGACY_UNUSED_" + UUID.randomUUID()));
+        user.setPassword(p.getPasswordHash());
         user.setFirstName(p.getFirstName());
         user.setLastName(p.getLastName());
         user.setCounty(p.getCounty());

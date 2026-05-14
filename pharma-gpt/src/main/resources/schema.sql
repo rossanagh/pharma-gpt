@@ -99,12 +99,16 @@ CREATE TABLE IF NOT EXISTS public.pending_registrations (
   medic_grade TEXT,
   specialty TEXT,
   academic_titles TEXT,
+  password_hash TEXT,
   code_hash TEXT NOT NULL,
   expires_at TIMESTAMPTZ NOT NULL,
   attempts INTEGER NOT NULL DEFAULT 0,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   CONSTRAINT uk_pending_registrations_email UNIQUE (email)
 );
+
+ALTER TABLE public.pending_registrations
+  ADD COLUMN IF NOT EXISTS password_hash TEXT;
 
 -- Note: avoid expression index on upper(email) — Hibernate 7 logs HHH000475 and spends time resolving it.
 CREATE INDEX IF NOT EXISTS idx_prc_target ON public.password_reset_codes (target_normalized);
