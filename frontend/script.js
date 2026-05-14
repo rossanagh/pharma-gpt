@@ -90,7 +90,7 @@ const T = {
     "OK":"OK",
     "Live":"Live",
     "Dictate or write about the patient — symptoms, history, plan. Use the microphone for live transcription (browser-supported), or ask the assistant for evidence-based answers.":"Dictă sau scrie despre pacient — simptome, istoric, plan. Folosește microfonul pentru transcriere live (dacă o suportă browserul) sau întreabă asistentul pentru răspunsuri bazate pe evidențe.",
-    "Transcribe visit":"Transcrie vizita","Labs":"Analize","Print":"Printează","Copy":"Copiază","New visit":"Consultație nouă","Edit":"Editează","Attached:":"Atașate:","Consultation":"Consultație","Dr.":"Dr.","Specialty:":"Specialitate:","Date:":"Data:","Time:":"Ora:","Visit #":"Nr. consultație:","Patient":"Pacient","Age / Sex":"Vârstă / Sex","Diagnosis":"Diagnostic",
+    "Transcribe visit":"Transcrie vizita","Labs":"Analize","Lab reports (PDF)":"Rapoarte analize (PDF)","Please use PDF format":"Folosiți fișiere PDF.","PDF too large (max 15 MB).":"PDF prea mare (max 15 MB).","Lab PDF loaded":"PDF analize încărcat","Very little text in PDF.":"Foarte puțin text extras din PDF.","Failed to read PDF":"Citirea PDF-ului a eșuat","Print":"Printează","Copy":"Copiază","New visit":"Consultație nouă","Edit":"Editează","Attached:":"Atașate:","Consultation":"Consultație","Dr.":"Dr.","Specialty:":"Specialitate:","Date:":"Data:","Time:":"Ora:","Visit #":"Nr. consultație:","Patient":"Pacient","Age / Sex":"Vârstă / Sex","Diagnosis":"Diagnostic",
     "Ambient recording":"Înregistrare ambientală","With inline evidence":"Cu evidențe inline","Name, age, medications":"Nume, vârstă, medicație","Recording…":"Înregistrare…","Transcribing…":"Se transcrie…","Transcription added to note":"Transcrierea a fost adăugată în notă","Transcription failed":"Transcrierea a eșuat","Paragraph":"Paragraf","Large heading":"Titlu mare","Small heading":"Titlu mic","words":"cuvinte","Dictate about the patient — evidence can appear inline in the editor, tailored to this case.":"Dictați despre pacient — evidențele pot apărea direct în editor, adaptate acestui caz.",
     "AI-assisted document — clinical responsibility remains with the treating physician.":"Document cu asistență AI — responsabilitatea clinică revine medicului curant.",
     "Drug interactions":"Interacțiuni medicamentoase","Dosing suggestions":"Dozaje recomandate","Copy note to next visit":"Copiază nota la consultația următoare","What questions are still open?":"Ce întrebări mai trebuie adresate?","Check contraindications":"Verifică contraindicații în plan","Enrich plan with evidence":"Îmbogățește planul cu dovezi",
@@ -2053,6 +2053,7 @@ var MV6_micStream = null, MV6_mediaRecorder = null, MV6_audioChunks = [];
 var MV6_fmtBound = false;
 var MV6_speechRec = null;
 var MV6_recMode = ''; // 'speech' | 'media' | ''
+var MV6_labPdfReports = []; // { name, text } — lab PDFs, text extracted in browser (pdf.js)
 
 function mv6PickMime(){
   const types = ['audio/webm;codecs=opus','audio/webm','audio/mp4'];
@@ -2419,6 +2420,31 @@ function MV6_patientCtxLines(){
   return o;
 }
 
+function mv6PushLabPdfSnippets(partsArr){
+  if(!Array.isArray(partsArr) || typeof MV6_labPdfReports === 'undefined' || !MV6_labPdfReports.length) return;
+  const maxPer = 6000;
+  MV6_labPdfReports.forEach(r=>{
+    const raw = (r.text || '').trim();
+    const body = raw.length ? (raw.length > maxPer ? raw.slice(0, maxPer) + '\n[...truncated...]' : raw) : '(no extractable text — PDF may be image-only)';
+    const nm = String(r.name || 'lab.pdf').replace(/"/g, "'");
+    partsArr.push('Attached lab PDF "'+nm+'":\n'+body);
+  });
+}
+
+async function mv6PdfToTextForLabs(file){
+  if(!window.pdfjsLib) throw new Error('pdfjs');
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({data:buf}).promise;
+  const maxPages = Math.min(pdf.numPages, 48);
+  let fullText = '';
+  for(let p = 1; p <= maxPages; p++){
+    const page = await pdf.getPage(p);
+    const content = await page.getTextContent();
+    fullText += content.items.map(it=>it.str).join(' ') + '\n\n';
+  }
+  return fullText.trim();
+}
+
 function mv6Toast(m){
   const t = document.getElementById('mv6Toast');
   if(!t){ alert(m); return; }
@@ -2632,11 +2658,51 @@ function mv6Qa(type){
   setTimeout(()=>mv6UpdateLastAi(escapeHtml(qaR[type]||'')), 600);
 }
 
+function mv6HandleLabPdf(fileList){
+  if(!fileList || !fileList.length) return;
+  const strip = document.getElementById('mv6FStrip');
+  if(!strip) return;
+  if(!window.pdfjsLib){
+    mv6Toast(tr('PDF reader not loaded. Please refresh the page.'));
+    return;
+  }
+  strip.classList.add('mv6-show');
+  void (async ()=>{
+    for(const file of Array.from(fileList)){
+      const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+      if(!isPdf){ mv6Toast(tr('Please use PDF format')); continue; }
+      if(file.size > 15*1024*1024){ mv6Toast(tr('PDF too large (max 15 MB).')); continue; }
+      const tag = document.createElement('div');
+      tag.className = 'mv6-ftag mv6-loading';
+      tag.textContent = '⏳ '+(file.name||'').substring(0,26);
+      strip.appendChild(tag);
+      try{
+        const text = await mv6PdfToTextForLabs(file);
+        MV6_labPdfReports.push({name: file.name, text: text || ''});
+        tag.classList.remove('mv6-loading');
+        tag.classList.add('mv6-done');
+        const n = (text || '').length;
+        tag.title = n + ' ' + tr('chars');
+        tag.textContent = '📄 '+(file.name||'').substring(0,26);
+        mv6Toast(n < 60 ? tr('Very little text in PDF.') : tr('Lab PDF loaded'));
+      }catch(_){
+        tag.remove();
+        mv6Toast(tr('Failed to read PDF'));
+      }
+    }
+  })();
+}
+
 function mv6HandleFiles(files){
   if(!files || !files.length) return;
   const strip = document.getElementById('mv6FStrip');
+  const arr = Array.from(files);
+  const pdfs = arr.filter(f=>f.type === 'application/pdf' || /\.pdf$/i.test(f.name));
+  const imgs = arr.filter(f=>f.type !== 'application/pdf' && !/\.pdf$/i.test(f.name));
+  if(pdfs.length) mv6HandleLabPdf(pdfs);
+  if(!imgs.length) return;
   if(strip) strip.classList.add('mv6-show');
-  Array.from(files).forEach(f=>{
+  imgs.forEach(f=>{
     const t = document.createElement('div');
     t.className = 'mv6-ftag mv6-loading';
     t.textContent = '⏳ '+f.name.substring(0,22);
@@ -2702,6 +2768,7 @@ function mv6NewVisit(silent){
     fs.classList.remove('mv6-show');
     fs.querySelectorAll('.mv6-ftag').forEach(x=>x.remove());
   }
+  MV6_labPdfReports = [];
   MV6_visitNr = 'ME-'+(new Date().getFullYear())+'-'+(Math.floor(Math.random()*9000)+1000);
   const phn = document.getElementById('mv6PhNr');
   if(phn) phn.textContent = MV6_visitNr;
@@ -2757,6 +2824,7 @@ function sendChat(){
   if(pc.smoking)ctxParts.push('Smoking: '+pc.smoking);if(pc.pregnancy)ctxParts.push('Pregnancy: '+pc.pregnancy);
   if(pc.investigations)ctxParts.push('Investigations: '+pc.investigations);if(pc.notes)ctxParts.push('Notes: '+pc.notes);
   MV6_patientCtxLines().forEach(t=>ctxParts.push(t));
+  mv6PushLabPdfSnippets(ctxParts);
   const edNote=document.getElementById('mv6Editor');
   if(edNote&&edNote.innerText.trim())ctxParts.push('Clinical note (excerpt): '+edNote.innerText.trim().slice(0,2500));
   let msgToSend=q;
@@ -2920,6 +2988,7 @@ function quickAction(type){
   const pc = gatherPatientContext();
   const ctx = [];
   MV6_patientCtxLines().forEach(l=>ctx.push(l));
+  mv6PushLabPdfSnippets(ctx);
   if(pc.age) ctx.push(`Age: ${pc.age}`);
   if(pc.sex) ctx.push(`Sex: ${pc.sex}`);
   if(pc.egfr) ctx.push(`eGFR: ${pc.egfr}`);
@@ -2968,6 +3037,7 @@ function sendFromPanel(){
     const parts = MV6_patientCtxLines();
     const note = document.getElementById('mv6Editor').innerText.trim();
     if(note) parts.push('Clinical note:\n'+note);
+    mv6PushLabPdfSnippets(parts);
     if(!parts.length){ alert(tr('Enter patient context on the left, then ask your clinical question. Every response is tailored and cited.')); return; }
     const prompt = `Analyze the complete patient profile. Identify top clinical priorities, missing guideline-based therapies, contraindications, monitoring, and next steps.\n\n=== PATIENT CONTEXT ===\n${parts.join('\n')}`;
     const inp = document.getElementById('mv6AskIn')||document.getElementById('chatIn')||document.getElementById('chatInput');
@@ -2985,6 +3055,7 @@ function sendFromPanel(){
   if(ctx.conds) parts.push('Conditions: '+ctx.conds);
   if(meds.length) parts.push('Medications: '+meds.join(', '));
   if(ctx.allergies) parts.push('Allergies: '+ctx.allergies);
+  mv6PushLabPdfSnippets(parts);
   const prompt = `Analyze the complete patient profile. Identify top clinical priorities, missing guideline-based therapies, contraindications, monitoring, and next steps.\n\n=== PATIENT CONTEXT ===\n${parts.join('\n')}`;
   const inp=document.getElementById('mv6AskIn')||document.getElementById('chatIn') || document.getElementById('chatInput');
   if(inp){ inp.value = prompt; if(inp.id==='mv6AskIn') mv6AutoResize(inp); }
@@ -3082,6 +3153,12 @@ function downloadConsultationPdf(){
   const pc = gatherPatientContext();
   const rows = formatPatientContextForPdf(pc);
   const mv6Extra = (typeof MV6_patientCtxLines==='function') ? MV6_patientCtxLines().map(l=>['Patient record', l]) : [];
+  if(typeof MV6_labPdfReports !== 'undefined' && MV6_labPdfReports.length){
+    MV6_labPdfReports.forEach(r=>{
+      const sn = (r.text || '').trim().slice(0, 2000);
+      mv6Extra.push(['Lab PDF', (r.name || 'report.pdf') + (sn ? ': ' + sn + (r.text.length > 2000 ? '…' : '') : '')]);
+    });
+  }
   const allRows = rows.length ? rows.concat(mv6Extra) : (mv6Extra.length ? mv6Extra : rows);
   doc.setFont('helvetica','bold'); doc.setFontSize(12);
   doc.text('Patient summary', margin, y); y += 14;
