@@ -15,6 +15,8 @@ import com.example.pharma_gpt.service.PasswordResetService;
 import com.example.pharma_gpt.service.RegistrationService;
 import com.example.pharma_gpt.util.PersonNameUtils;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +28,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
     private static final List<String> ALLOWED_PROVIDER = List.of(
         "medic", "farmacist", "student", "asistent_medical", "asistent_farmacist"
@@ -105,6 +109,7 @@ public class AuthController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(400).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
+            log.error("register/start failed for email={}", req.email(), e);
             return ResponseEntity.status(500).body(Map.of("error", "Eroare la trimiterea codului. Încercați din nou."));
         }
     }
@@ -117,6 +122,9 @@ public class AuthController {
             return ResponseEntity.ok(buildLoginResponse(token, user));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(400).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            log.error("register/complete failed for email={}", req.email(), e);
+            return ResponseEntity.status(500).body(Map.of("error", "Eroare la activarea contului. Încercați din nou."));
         }
     }
 

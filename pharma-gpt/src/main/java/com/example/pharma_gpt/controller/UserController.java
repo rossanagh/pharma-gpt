@@ -60,7 +60,13 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<?> me(Authentication authentication) {
-        String email = (String) authentication.getPrincipal();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body(Map.of("error", "Neautentificat"));
+        }
+        Object principal = authentication.getPrincipal();
+        if (!(principal instanceof String email) || email.isBlank()) {
+            return ResponseEntity.status(401).body(Map.of("error", "Neautentificat"));
+        }
         return userRepository.findByEmailIgnoreCase(email)
             .<ResponseEntity<?>>map(u -> ResponseEntity.ok(toProfileResponse(u)))
             .orElse(ResponseEntity.status(404).body(Map.of("error", "User not found")));
@@ -69,7 +75,13 @@ public class UserController {
     @PutMapping("/me")
     public ResponseEntity<?> updateMe(Authentication authentication,
                                      @Valid @RequestBody UpdateProfileRequest request) {
-        String email = (String) authentication.getPrincipal();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body(Map.of("error", "Neautentificat"));
+        }
+        Object principal = authentication.getPrincipal();
+        if (!(principal instanceof String email) || email.isBlank()) {
+            return ResponseEntity.status(401).body(Map.of("error", "Neautentificat"));
+        }
         return userRepository.findByEmailIgnoreCase(email)
             .<ResponseEntity<?>>map(u -> {
                 u.setFirstName(PersonNameUtils.formatPersonName(request.firstName()));
@@ -105,7 +117,13 @@ public class UserController {
     @PostMapping(value = "/me/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadAvatar(Authentication authentication,
                                           @RequestPart("file") MultipartFile file) throws Exception {
-        String email = (String) authentication.getPrincipal();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body(Map.of("error", "Neautentificat"));
+        }
+        Object principal = authentication.getPrincipal();
+        if (!(principal instanceof String email) || email.isBlank()) {
+            return ResponseEntity.status(401).body(Map.of("error", "Neautentificat"));
+        }
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Fișier invalid"));
         }
@@ -133,7 +151,13 @@ public class UserController {
 
     @GetMapping("/me/avatar")
     public ResponseEntity<byte[]> getAvatar(Authentication authentication) {
-        String email = (String) authentication.getPrincipal();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).build();
+        }
+        Object principal = authentication.getPrincipal();
+        if (!(principal instanceof String email) || email.isBlank()) {
+            return ResponseEntity.status(401).build();
+        }
         return userRepository.findByEmailIgnoreCase(email)
             .filter(u -> u.getAvatarBytes() != null && u.getAvatarBytes().length > 0)
             .map(u -> ResponseEntity.ok()

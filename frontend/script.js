@@ -948,7 +948,11 @@ async function apiJson(path, opts){
   let data = null;
   try{ data = await res.json(); }catch(e){}
   if(!res.ok){
-    const msg = data?.error || data?.message || `HTTP ${res.status}`;
+    let msg = data?.error || data?.message || `HTTP ${res.status}`;
+    if(data?.details && typeof data.details === "object"){
+      const lines = Object.entries(data.details).map(([k,v])=>`${k}: ${v}`);
+      if(lines.length) msg += "\n" + lines.join("\n");
+    }
     throw new Error(msg);
   }
   return data;
