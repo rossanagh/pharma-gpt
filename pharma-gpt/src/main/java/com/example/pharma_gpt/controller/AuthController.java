@@ -17,6 +17,7 @@ import com.example.pharma_gpt.util.PersonNameUtils;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -108,6 +109,12 @@ public class AuthController {
             return ResponseEntity.ok(Map.of("ok", true));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(400).body(Map.of("error", e.getMessage()));
+        } catch (DataAccessException e) {
+            log.error("register/start database error for email={}", req.email(), e);
+            return ResponseEntity.status(500).body(Map.of(
+                "error",
+                "Eroare la salvarea înregistrării (bază de date). Verifică în Neon că există coloana password_hash pe pending_registrations sau logurile Render pentru detaliu."
+            ));
         } catch (Exception e) {
             log.error("register/start failed for email={}", req.email(), e);
             return ResponseEntity.status(500).body(Map.of("error", "Eroare la trimiterea codului. Încercați din nou."));
