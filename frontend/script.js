@@ -83,7 +83,13 @@ const T = {
     "Physician":"Medic","Main":"Principal","Drug Database":"Bază Medicamente","Learning":"Învățare",
     "Clinical":"Consultație","consultation.":"clinică.","Patient context → personalised evidence-based guidance (streaming AI)":"Context pacient → ghidaj personalizat bazat pe evidențe (AI streaming)",
     "Patient context":"Context pacient",
-    "Transcribe visit":"Transcrie vizita","Generate note":"Generează notă","Labs":"Analize","Print":"Printează","Copy":"Copiază","New visit":"Consultație nouă","Edit":"Editează","Attached:":"Atașate:","Consultation":"Consultație","Dr.":"Dr.","Specialty:":"Specialitate:","Date:":"Data:","Time:":"Ora:","Visit #":"Nr. consultație:","Patient":"Pacient","Age / Sex":"Vârstă / Sex","Diagnosis":"Diagnostic",
+    "Open to enter patient data — tap Save when done.":"Deschide pentru a introduce datele pacientului — apoi apasă Salvează.",
+    "Enter demographics and clinical details for this visit, then tap Save.":"Completează demografia și detaliile clinice pentru această consultație, apoi apasă Salvează.",
+    "Phone (optional)":"Telefon (opțional)",
+    "Save patient context":"Salvează context pacient",
+    "Live":"Live",
+    "Dictate or write about the patient — symptoms, history, plan. Use the microphone for live transcription (browser-supported), or ask the assistant for evidence-based answers.":"Dictă sau scrie despre pacient — simptome, istoric, plan. Folosește microfonul pentru transcriere live (dacă o suportă browserul) sau întreabă asistentul pentru răspunsuri bazate pe evidențe.",
+    "Transcribe visit":"Transcrie vizita","Labs":"Analize","Print":"Printează","Copy":"Copiază","New visit":"Consultație nouă","Edit":"Editează","Attached:":"Atașate:","Consultation":"Consultație","Dr.":"Dr.","Specialty:":"Specialitate:","Date:":"Data:","Time:":"Ora:","Visit #":"Nr. consultație:","Patient":"Pacient","Age / Sex":"Vârstă / Sex","Diagnosis":"Diagnostic",
     "Ambient recording":"Înregistrare ambientală","With inline evidence":"Cu evidențe inline","Name, age, medications":"Nume, vârstă, medicație","Recording…":"Înregistrare…","Transcribing…":"Se transcrie…","Transcription added to note":"Transcrierea a fost adăugată în notă","Transcription failed":"Transcrierea a eșuat","Paragraph":"Paragraf","Large heading":"Titlu mare","Small heading":"Titlu mic","words":"cuvinte","Dictate about the patient — evidence can appear inline in the editor, tailored to this case.":"Dictați despre pacient — evidențele pot apărea direct în editor, adaptate acestui caz.",
     "AI-assisted document — clinical responsibility remains with the treating physician.":"Document cu asistență AI — responsabilitatea clinică revine medicului curant.",
     "Drug interactions":"Interacțiuni medicamentoase","Dosing suggestions":"Dozaje recomandate","Copy note to next visit":"Copiază nota la consultația următoare","What questions are still open?":"Ce întrebări mai trebuie adresate?","Check contraindications":"Verifică contraindicații în plan","Enrich plan with evidence":"Îmbogățește planul cu dovezi",
@@ -156,19 +162,6 @@ const T = {
     "Platform":"Platformă","Privacy Policy":"Politică Confidențialitate","Terms of Use":"Termeni de Utilizare","Cookies":"Cookie-uri",
     "By signing in you agree to our":"Prin conectare confirmi că ai luat la cunoștință documentele noastre:",
     "By registering you agree to our":"Prin înregistrare confirmi că ai luat la cunoștință documentele noastre:",
-    "Consultation workspace — how it works":"Spațiul de consultație — cum funcționează",
-    "1. At registration — your clinical profile":"1. La înregistrare — îți setezi profilul clinic",
-    "Register with your professional identifier (e.g. NPI or national ID / parafă) and pick your specialty. The taxonomy spans 160+ medical specialties so the assistant stays in your context — not anonymous boilerplate.":"Te înregistrezi cu identificatorul profesional (ex. NPI sau cod național / parafă) și alegi specialitatea. Taxonomia acoperă peste 160 de specialități medicale, astfel încât asistentul rămâne în contextul tău — nu răspunsuri anonime și generice.",
-    "2. Before the visit — patient on file":"2. Înainte de consultație — pacientul în dosar",
-    "Per patient you keep demographics, questions, documents and visits together. Upload or paste documents where supported so key details can be extracted. Adding a phone number enables patient-communication features as they roll out.":"Pentru fiecare pacient păstrezi demografia, întrebările, documentele și vizitele la un loc. Încarci sau lipești documente acolo unde e suportat, ca detaliile relevante să poată fi extrase. Adăugând un număr de telefon, activezi funcțiile de comunicare cu pacientul pe măsură ce devin disponibile.",
-    "3. During the visit — microphone":"3. În timpul consultației — microfonul",
-    "Ambient transcription follows the visit while you talk. Evidence from guidelines and literature can enrich Assessment & Plan directly in your documentation flow in near real time — minimal clicking, maximum flow.":"Transcrierea ambientală urmărește consultația în timp ce vorbești. Evidența din ghiduri și literatură poate îmbogăți secțiunea de evaluare și plan direct în fluxul de documentare, aproape în timp real — minimum de clicuri, flux maxim.",
-    "4. Answers — Quick vs Deep":"4. Răspunsurile — Quick vs Deep",
-    "Quick consult: fast answers with journal-grade citations in seconds. Deep consult: multi-source synthesis for complex cases. Citations stay inline and tappable where links exist — straight to the primary study (e.g. NEJM, JAMA).":"Quick Consult: răspuns rapid, cu citații de nivel revistă, în câteva secunde. Deep Consult: sinteză multi-sursă pentru cazuri complexe. Citațiile rămân inline și pot fi apăsate acolo unde există link — direct spre studiul primar (ex. NEJM, JAMA).",
-    "5. After the visit — clinical note":"5. După consultație — notă clinică",
-    "The editor holds the note you refine and sign. Further questions in the assistant carry patient + visit context automatically so you do not re-type the whole story.":"Editorul conține nota pe care o rafinezi și o semnezi. Întrebările ulterioare în asistent poartă automat contextul pacientului și al vizitei, fără să rescrii tot istoricul.",
-    "6. Dotflows — your shortcuts":"6. Dotflows — scurtături personalizate",
-    "Save structured workflows — prior authorizations, post-visit summaries, teaching chalk-talk outlines. Shape the answer: tables vs bullets, brief vs deep, plus clinical framing (paediatrics, inpatient, primary care). Type a period (.) to surface saved shortcuts.":"Salvezi fluxuri structurate — autorizări prealabile, rezumate post-vizită, outline-uri de chalk talk didactic. Controlezi forma răspunsului: tabele vs bullet, scurt vs detaliat, plus nuanțare clinică (pediatrie, spitalizare, medicină de familie). Tastezi punct (.) pentru a vedea scurtăturile salvate.",
     "Evidence-based clinical decision support for verified healthcare professionals across Europe.":"Suport decizional clinic bazat pe evidențe pentru profesioniști medicali verificați din toată Europa.",
     "© 2026 MedicinEvidence. All rights reserved. Clinical information for healthcare professionals only — not medical advice.":"© 2026 MedicinEvidence. Toate drepturile rezervate. Informații clinice doar pentru profesioniști medicali — nu constituie sfat medical.",
     "Welcome back":"Bun venit înapoi","Sign in to your verified account":"Conectează-te la contul tău verificat","Email":"Email","Password":"Parolă","No account yet?":"Nu ai cont încă?","Register free":"Înregistrează-te gratuit",
@@ -2052,11 +2045,13 @@ function filterGuides(cat){
   if(badge) badge.textContent = visible || document.querySelectorAll('.gcard').length;
 }
 /* --- Consultation UI (me-visit-v7 + Whisper) --- */
-var MV6_pt = { nm:'', ag:'', sp:'Internal Medicine', dx:'', al:'', md:'' };
+var MV6_pt = { nm:'', ag:'', sp:'Internal Medicine', dx:'', al:'', md:'', ph:'' };
 var MV6_visitNr = '';
 var MV6_recInt = null, MV6_recSec = 0, MV6_isRec = false;
 var MV6_micStream = null, MV6_mediaRecorder = null, MV6_audioChunks = [];
 var MV6_fmtBound = false;
+var MV6_speechRec = null;
+var MV6_recMode = ''; // 'speech' | 'media' | ''
 
 function mv6PickMime(){
   const types = ['audio/webm;codecs=opus','audio/webm','audio/mp4'];
@@ -2074,6 +2069,144 @@ function mv6WhisperLangIso(){
   return 'en';
 }
 
+function mv6SpeechRecognitionCtor(){
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+}
+
+function mv6SpeechLangTag(){
+  if(typeof curLang !== 'undefined'){
+    if(curLang === 'ro') return 'ro-RO';
+    if(curLang === 'de') return 'de-DE';
+    if(curLang === 'fr') return 'fr-FR';
+    if(curLang === 'it') return 'it-IT';
+    if(curLang === 'es') return 'es-ES';
+  }
+  return 'en-US';
+}
+
+function mv6SpeechAppendFinalChunk(piece){
+  const t = (piece || '').trim();
+  if(!t) return;
+  const editor = document.getElementById('mv6Editor');
+  if(!editor) return;
+  document.getElementById('mv6VoiceLiveLine')?.remove();
+  if(!editor.textContent.trim()) editor.innerHTML = '';
+  const p = document.createElement('p');
+  p.textContent = t;
+  editor.appendChild(p);
+  const live = document.createElement('p');
+  live.id = 'mv6VoiceLiveLine';
+  live.className = 'mv6-voice-live';
+  live.setAttribute('aria-live','polite');
+  live.textContent = '\u00a0';
+  editor.appendChild(live);
+  if(typeof mv6EditorInput === 'function') mv6EditorInput();
+}
+
+function mv6VoiceLiveSet(interim){
+  const editor = document.getElementById('mv6Editor');
+  if(!editor) return;
+  let live = document.getElementById('mv6VoiceLiveLine');
+  if(!live || !editor.contains(live)){
+    if(!editor.textContent.trim()) editor.innerHTML = '';
+    live = document.createElement('p');
+    live.id = 'mv6VoiceLiveLine';
+    live.className = 'mv6-voice-live';
+    live.setAttribute('aria-live','polite');
+    editor.appendChild(live);
+  }
+  const s = (interim || '').trim();
+  live.textContent = s || '\u00a0';
+  if(typeof mv6EditorInput === 'function') mv6EditorInput();
+}
+
+function mv6SpeechCommitPendingInterim(){
+  const live = document.getElementById('mv6VoiceLiveLine');
+  if(!live) return false;
+  const t = (live.textContent || '').replace(/\u00a0/g,' ').trim();
+  live.remove();
+  if(!t) return false;
+  const editor = document.getElementById('mv6Editor');
+  if(!editor) return false;
+  if(!editor.textContent.trim()) editor.innerHTML = '';
+  const p = document.createElement('p');
+  p.textContent = t;
+  editor.appendChild(p);
+  if(typeof mv6EditorInput === 'function') mv6EditorInput();
+  return true;
+}
+
+function mv6RemoveVoiceLiveLineOnly(){
+  document.getElementById('mv6VoiceLiveLine')?.remove();
+}
+
+function mv6SpeechAttachHandlers(rec, Ctor){
+  rec.onresult = (event)=>{
+    let interim = '';
+    for(let i = event.resultIndex; i < event.results.length; i++){
+      const row = event.results[i];
+      const piece = (row[0] && row[0].transcript) ? String(row[0].transcript) : '';
+      if(row.isFinal) mv6SpeechAppendFinalChunk(piece);
+      else interim += piece;
+    }
+    mv6VoiceLiveSet(interim);
+  };
+  rec.onerror = (e)=>{
+    const err = e && e.error;
+    if(err === 'not-allowed') mv6Toast(tr('Microphone access denied'));
+    else if(err && err !== 'aborted' && err !== 'no-speech') mv6Toast(tr('Transcription failed'));
+  };
+  rec.onend = ()=>{
+    MV6_speechRec = null;
+    if(!MV6_isRec || MV6_recMode !== 'speech') return;
+    try{
+      const r2 = new Ctor();
+      r2.continuous = true;
+      r2.interimResults = true;
+      r2.lang = mv6SpeechLangTag();
+      r2.maxAlternatives = 1;
+      mv6SpeechAttachHandlers(r2, Ctor);
+      MV6_speechRec = r2;
+      r2.start();
+    }catch(_){ MV6_recMode = ''; }
+  };
+}
+
+function mv6StopSpeechRecognition(){
+  if(!MV6_speechRec) return;
+  try{
+    const r = MV6_speechRec;
+    MV6_speechRec = null;
+    r.onend = null;
+    r.stop();
+  }catch(_){
+    MV6_speechRec = null;
+  }
+  if(MV6_recMode === 'speech') MV6_recMode = '';
+}
+
+function mv6TryStartLiveSpeech(){
+  const Ctor = mv6SpeechRecognitionCtor();
+  if(!Ctor) return false;
+  mv6StopSpeechRecognition();
+  const rec = new Ctor();
+  rec.continuous = true;
+  rec.interimResults = true;
+  rec.lang = mv6SpeechLangTag();
+  rec.maxAlternatives = 1;
+  mv6SpeechAttachHandlers(rec, Ctor);
+  try{
+    rec.start();
+    MV6_speechRec = rec;
+    MV6_recMode = 'speech';
+    return true;
+  }catch(_){
+    MV6_speechRec = null;
+    MV6_recMode = '';
+    return false;
+  }
+}
+
 function mv6AppendTranscriptToEditor(text){
   const editor = document.getElementById('mv6Editor');
   if(!editor || !text) return;
@@ -2089,6 +2222,8 @@ function mv6AppendTranscriptToEditor(text){
 }
 
 function mv6DiscardMicRecording(){
+  mv6StopSpeechRecognition();
+  mv6RemoveVoiceLiveLineOnly();
   const mr = MV6_mediaRecorder;
   const stream = MV6_micStream;
   MV6_audioChunks = [];
@@ -2163,6 +2298,9 @@ async function mv6StartMicRecording(){
     mv6Toast(tr('Voice transcription requires HTTPS (or localhost).'));
     return false;
   }
+  try{
+    if(mv6TryStartLiveSpeech()) return true;
+  }catch(_){}
   if(!window.MediaRecorder){
     mv6Toast(tr('Voice transcription is not supported in this browser. Try Chrome or Edge.'));
     return false;
@@ -2175,6 +2313,7 @@ async function mv6StartMicRecording(){
     MV6_mediaRecorder = new MediaRecorder(MV6_micStream, opts);
     MV6_mediaRecorder.ondataavailable = (e)=>{ if(e.data && e.data.size > 0) MV6_audioChunks.push(e.data); };
     MV6_mediaRecorder.start(400);
+    MV6_recMode = 'media';
     return true;
   }catch(_){
     mv6Toast(tr('Microphone access denied'));
@@ -2275,6 +2414,7 @@ function MV6_patientCtxLines(){
   if(p.md) o.push('Medications: '+p.md);
   if(p.al) o.push('Allergies: '+p.al);
   if(p.sp) o.push('Specialty: '+p.sp);
+  if(p.ph) o.push('Phone: '+p.ph);
   return o;
 }
 
@@ -2320,6 +2460,8 @@ function mv6OpenPatientModal(){
   document.getElementById('mv6PtDx').value = MV6_pt.dx||'';
   document.getElementById('mv6PtAl').value = MV6_pt.al||'';
   document.getElementById('mv6PtMd').value = MV6_pt.md||'';
+  const phEl = document.getElementById('mv6PtPh');
+  if(phEl) phEl.value = MV6_pt.ph||'';
   ov.classList.add('mv6-on');
 }
 
@@ -2329,23 +2471,26 @@ function mv6ClosePatientModal(){
 }
 
 function mv6SavePatient(){
+  const phIn = document.getElementById('mv6PtPh');
   MV6_pt = {
     nm: document.getElementById('mv6PtNm').value.trim(),
     ag: document.getElementById('mv6PtAg').value.trim(),
     sp: document.getElementById('mv6PtSp').value.trim() || 'Internal Medicine',
     dx: document.getElementById('mv6PtDx').value.trim(),
     al: document.getElementById('mv6PtAl').value.trim(),
-    md: document.getElementById('mv6PtMd').value.trim()
+    md: document.getElementById('mv6PtMd').value.trim(),
+    ph: phIn ? phIn.value.trim() : ''
   };
   const strip = document.getElementById('mv6PtStrip');
-  if(MV6_pt.nm && strip){
-    document.getElementById('mv6PsNm').textContent = MV6_pt.nm;
-    document.getElementById('mv6PsDet').textContent = [MV6_pt.ag, MV6_pt.dx].filter(Boolean).join(' · ');
+  const hasAny = [MV6_pt.nm, MV6_pt.ag, MV6_pt.dx, MV6_pt.al, MV6_pt.md, MV6_pt.ph].some(x => x && String(x).trim());
+  if(hasAny && strip){
+    document.getElementById('mv6PsNm').textContent = MV6_pt.nm || '—';
+    document.getElementById('mv6PsDet').textContent = [MV6_pt.ag, MV6_pt.dx, MV6_pt.ph].filter(Boolean).join(' · ');
     const w = document.getElementById('mv6PsWarn');
     if(MV6_pt.al){ w.textContent = '⚠ '+MV6_pt.al; w.style.display = ''; }
     else { w.style.display = 'none'; }
     strip.classList.add('mv6-show');
-    document.getElementById('mv6PhNm').textContent = MV6_pt.nm;
+    document.getElementById('mv6PhNm').textContent = MV6_pt.nm || '—';
     document.getElementById('mv6PhAg').textContent = MV6_pt.ag;
     document.getElementById('mv6PhDx').textContent = MV6_pt.dx;
     document.getElementById('mv6PhSp').textContent = MV6_pt.sp;
@@ -2417,35 +2562,27 @@ async function mv6ToggleRec(){
       MV6_isRec = false;
       mv6RecUiStopped();
       mv6DiscardMicRecording();
+    } else if(sub && MV6_recMode === 'speech'){
+      const sp = document.createElement('span');
+      sp.style.cssText = 'font-size:11px;font-weight:600;margin-left:8px;opacity:.88';
+      sp.setAttribute('data-t','Live');
+      sp.textContent = tr('Live');
+      sub.appendChild(sp);
     }
   } else {
     if(MV6_recInt){ clearInterval(MV6_recInt); MV6_recInt = null; }
     mv6RecUiStopped();
-    await mv6StopMicAndTranscribe();
+    if(MV6_recMode === 'speech'){
+      const ed = document.getElementById('mv6Editor');
+      const wcBefore = ed ? (ed.innerText || '').trim().length : 0;
+      mv6SpeechCommitPendingInterim();
+      mv6StopSpeechRecognition();
+      const wcAfter = ed ? (ed.innerText || '').trim().length : 0;
+      mv6Toast(tr(wcAfter > wcBefore ? 'Transcription added to note' : 'Recording stopped'));
+    } else {
+      await mv6StopMicAndTranscribe();
+    }
   }
-}
-
-function mv6MkEv(src, cls, txt){
-  const d = document.createElement('div');
-  d.className = 'mv6-ev-cite';
-  d.innerHTML = '<div class="mv6-ev-source">'+escapeHtml(src)+' · '+escapeHtml(cls)+'</div>'+escapeHtml(txt)+'<button type="button" class="mv6-ev-x" onclick="this.parentElement.remove()">✕</button>';
-  return d;
-}
-
-function mv6InjectEvidence(){
-  const ed = document.getElementById('mv6Editor');
-  if(!ed) return;
-  ed.appendChild(mv6MkEv('ESC 2021 HFrEF', 'Class I', 'Quadruple therapy (RAASi, beta-blocker, MRA, SGLT2i) reduces CV mortality when tolerated.'));
-}
-
-function mv6GenerateNote(){
-  const ed = document.getElementById('mv6Editor');
-  if(!ed || !ed.textContent.trim()){ mv6Toast(tr('Note empty — write or record first')); return; }
-  mv6AddBubble('ai', '', true);
-  setTimeout(()=>{
-    mv6UpdateLastAi(escapeHtml(tr('Note enriched with guideline references — review and edit before signing.')));
-    mv6InjectEvidence();
-  }, 900);
 }
 
 function mv6RunInteractiuni(){

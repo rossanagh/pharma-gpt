@@ -17,7 +17,7 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="alternate icon" href="favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="styles.css?v=20260506b">
+<link rel="stylesheet" href="styles.css?v=20260506e">
 
 </head>
 <body>
@@ -167,36 +167,6 @@
   <div class="app tutor-app tutor-app--consult-full">
     <main class="main" style="min-width:0">
 
-      <section class="mv6-consult-guide" aria-labelledby="mv6ConsultGuideH">
-        <h2 id="mv6ConsultGuideH" class="mv6-cg-h" data-t>Consultation workspace — how it works</h2>
-        <div class="mv6-cg-grid">
-          <div class="mv6-cg-item">
-            <strong data-t>1. At registration — your clinical profile</strong>
-            <span data-t>Register with your professional identifier (e.g. NPI or national ID / parafă) and pick your specialty. The taxonomy spans 160+ medical specialties so the assistant stays in your context — not anonymous boilerplate.</span>
-          </div>
-          <div class="mv6-cg-item">
-            <strong data-t>2. Before the visit — patient on file</strong>
-            <span data-t>Per patient you keep demographics, questions, documents and visits together. Upload or paste documents where supported so key details can be extracted. Adding a phone number enables patient-communication features as they roll out.</span>
-          </div>
-          <div class="mv6-cg-item">
-            <strong data-t>3. During the visit — microphone</strong>
-            <span data-t>Ambient transcription follows the visit while you talk. Evidence from guidelines and literature can enrich Assessment & Plan directly in your documentation flow in near real time — minimal clicking, maximum flow.</span>
-          </div>
-          <div class="mv6-cg-item">
-            <strong data-t>4. Answers — Quick vs Deep</strong>
-            <span data-t>Quick consult: fast answers with journal-grade citations in seconds. Deep consult: multi-source synthesis for complex cases. Citations stay inline and tappable where links exist — straight to the primary study (e.g. NEJM, JAMA).</span>
-          </div>
-          <div class="mv6-cg-item">
-            <strong data-t>5. After the visit — clinical note</strong>
-            <span data-t>The editor holds the note you refine and sign. Further questions in the assistant carry patient + visit context automatically so you do not re-type the whole story.</span>
-          </div>
-          <div class="mv6-cg-item">
-            <strong data-t>6. Dotflows — your shortcuts</strong>
-            <span data-t>Save structured workflows — prior authorizations, post-visit summaries, teaching chalk-talk outlines. Shape the answer: tables vs bullets, brief vs deep, plus clinical framing (paediatrics, inpatient, primary care). Type a period (.) to surface saved shortcuts.</span>
-          </div>
-        </div>
-      </section>
-
       <!-- Consultation workspace (me-visit-v7 layout; no page hero header) -->
       <div class="mv6-root" id="mv6Root">
         <div class="mv6-shell">
@@ -212,22 +182,13 @@
                     <div class="mv6-ac-sub" id="mv6RecSub" data-t>Ambient recording</div>
                   </div>
                 </button>
-                <button type="button" class="mv6-ac-card" onclick="mv6GenerateNote()">
-                  <div class="mv6-ac-ico">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-                  </div>
-                  <div>
-                    <div class="mv6-ac-label" data-t>Generate note</div>
-                    <div class="mv6-ac-sub" data-t>With inline evidence</div>
-                  </div>
-                </button>
                 <button type="button" class="mv6-ac-card" onclick="mv6OpenPatientModal()">
                   <div class="mv6-ac-ico">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                   </div>
                   <div>
                     <div class="mv6-ac-label" data-t>Patient context</div>
-                    <div class="mv6-ac-sub" data-t>Name, age, medications</div>
+                    <div class="mv6-ac-sub" data-t>Open to enter patient data — tap Save when done.</div>
                   </div>
                 </button>
               </div>
@@ -322,7 +283,7 @@
                   </div>
                   <div class="mv6-note-eye"><strong id="mv6NoteLbl" data-t>Consultation</strong> · <span id="mv6NoteDate">—</span></div>
                   <div id="mv6Editor" class="mv6-editor" contenteditable="true" spellcheck="false"
-                    data-placeholder="Dictate or write about the patient — symptoms, history, plan. Guideline-linked evidence can appear inline in this note when you use Generate note or the assistant."
+                    data-placeholder="Dictate or write about the patient — symptoms, history, plan. Use the microphone for live transcription (browser-supported), or ask the assistant for evidence-based answers."
                     oninput="mv6EditorInput()"
                   ></div>
                 </div>
@@ -360,6 +321,7 @@
       <div class="mv6-modal-ov" id="mv6ModalOv" onclick="if(event.target===this)mv6ClosePatientModal()">
         <div class="mv6-modal" role="dialog" aria-modal="true">
           <h2 data-t>Patient context</h2>
+          <p class="mv6-m-intro" data-t>Enter demographics and clinical details for this visit, then tap Save.</p>
           <div class="mv6-mf"><label data-t>Patient name</label><input id="mv6PtNm" type="text" placeholder="e.g. John Doe"></div>
           <div class="mv6-mf-row">
             <div class="mv6-mf"><label data-t>Age / sex</label><input id="mv6PtAg" type="text" placeholder="e.g. 58, M"></div>
@@ -368,9 +330,10 @@
           <div class="mv6-mf"><label data-t>Diagnosis / reason</label><input id="mv6PtDx" type="text" placeholder="e.g. HTA + T2DM"></div>
           <div class="mv6-mf"><label data-t>Allergies / warnings</label><input id="mv6PtAl" type="text" placeholder="e.g. Penicillin"></div>
           <div class="mv6-mf"><label data-t>Current medication</label><input id="mv6PtMd" type="text" placeholder="e.g. Ramipril 5mg, Metformin 1g bid"></div>
+          <div class="mv6-mf"><label data-t>Phone (optional)</label><input id="mv6PtPh" type="tel" inputmode="tel" autocomplete="tel" placeholder="+40 …"></div>
           <div class="mv6-mfooter">
             <button type="button" class="mv6-m-cancel" onclick="mv6ClosePatientModal()" data-t>Cancel</button>
-            <button type="button" class="mv6-m-save" onclick="mv6SavePatient()" data-t>Save</button>
+            <button type="button" class="mv6-m-save mv6-m-save-primary" onclick="mv6SavePatient()" data-t>Save patient context</button>
           </div>
         </div>
       </div>
@@ -2586,7 +2549,7 @@
   💬 <span class="txt">Chat</span>
 </button>
 
-<script src="script.js?v=20260506b"></script>
+<script src="script.js?v=20260506e"></script>
 
 </body>
 </html>
