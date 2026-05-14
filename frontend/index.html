@@ -17,7 +17,7 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="alternate icon" href="favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="styles.css?v=20260514a">
+<link rel="stylesheet" href="styles.css?v=20260506b">
 
 </head>
 <body>
@@ -166,6 +166,36 @@
 <div class="pg" id="pg-consult">
   <div class="app tutor-app tutor-app--consult-full">
     <main class="main" style="min-width:0">
+
+      <section class="mv6-consult-guide" aria-labelledby="mv6ConsultGuideH">
+        <h2 id="mv6ConsultGuideH" class="mv6-cg-h" data-t>Consultation workspace — how it works</h2>
+        <div class="mv6-cg-grid">
+          <div class="mv6-cg-item">
+            <strong data-t>1. At registration — your clinical profile</strong>
+            <span data-t>Register with your professional identifier (e.g. NPI or national ID / parafă) and pick your specialty. The taxonomy spans 160+ medical specialties so the assistant stays in your context — not anonymous boilerplate.</span>
+          </div>
+          <div class="mv6-cg-item">
+            <strong data-t>2. Before the visit — patient on file</strong>
+            <span data-t>Per patient you keep demographics, questions, documents and visits together. Upload or paste documents where supported so key details can be extracted. Adding a phone number enables patient-communication features as they roll out.</span>
+          </div>
+          <div class="mv6-cg-item">
+            <strong data-t>3. During the visit — microphone</strong>
+            <span data-t>Ambient transcription follows the visit while you talk. Evidence from guidelines and literature can enrich Assessment & Plan directly in your documentation flow in near real time — minimal clicking, maximum flow.</span>
+          </div>
+          <div class="mv6-cg-item">
+            <strong data-t>4. Answers — Quick vs Deep</strong>
+            <span data-t>Quick consult: fast answers with journal-grade citations in seconds. Deep consult: multi-source synthesis for complex cases. Citations stay inline and tappable where links exist — straight to the primary study (e.g. NEJM, JAMA).</span>
+          </div>
+          <div class="mv6-cg-item">
+            <strong data-t>5. After the visit — clinical note</strong>
+            <span data-t>The editor holds the note you refine and sign. Further questions in the assistant carry patient + visit context automatically so you do not re-type the whole story.</span>
+          </div>
+          <div class="mv6-cg-item">
+            <strong data-t>6. Dotflows — your shortcuts</strong>
+            <span data-t>Save structured workflows — prior authorizations, post-visit summaries, teaching chalk-talk outlines. Shape the answer: tables vs bullets, brief vs deep, plus clinical framing (paediatrics, inpatient, primary care). Type a period (.) to surface saved shortcuts.</span>
+          </div>
+        </div>
+      </section>
 
       <!-- Consultation workspace (me-visit-v7 layout; no page hero header) -->
       <div class="mv6-root" id="mv6Root">
@@ -2418,12 +2448,7 @@
     <p class="md-foot" style="margin:0 0 8px;font-size:13px">
       <a href="#" id="signinToggleLegacy" onclick="toggleLegacySignin(event)" data-t>Sign in with email and password (legacy)</a>
     </p>
-    <div class="md-check">
-      <label class="md-cb">
-        <input type="checkbox" id="signinAgree" onchange="authAgreeChanged()">
-        <span>Am citit și accept <a onclick="openLegal('terms')">Termenii</a>, <a onclick="openLegal('privacy')">GDPR</a> și <a onclick="openLegal('cookies')">Cookies</a>.</span>
-      </label>
-    </div>
+    <p class="md-legal-hint"><span data-t>By signing in you agree to our</span> <a onclick="openLegal('terms')" data-t>Terms of Use</a> · <a onclick="openLegal('privacy')" data-t>Privacy Policy</a> · <a onclick="openLegal('cookies')" data-t>Cookies</a>.</p>
     <button class="md-btn" id="signinBtn" onclick="login()" data-t>Sign in</button>
     <div class="md-foot">
       <a onclick="openModal('forgot')" id="signinForgotLink" style="display:none;margin-bottom:8px" data-t>Forgot password?</a><br>
@@ -2479,12 +2504,7 @@
           <label data-t>Account password</label><input id="signupPassword" type="password" placeholder="At least 8 characters" autocomplete="new-password" oninput="authAgreeChanged()">
         </div>
       </div>
-      <div class="md-check">
-        <label class="md-cb">
-          <input type="checkbox" id="signupAgree" onchange="authAgreeChanged()">
-          <span>Am citit și accept <a onclick="openLegal('terms')">Termenii</a>, <a onclick="openLegal('privacy')">GDPR</a> și <a onclick="openLegal('cookies')">Cookies</a>.</span>
-        </label>
-      </div>
+      <p class="md-legal-hint"><span data-t>By registering you agree to our</span> <a onclick="openLegal('terms')" data-t>Terms of Use</a> · <a onclick="openLegal('privacy')" data-t>Privacy Policy</a> · <a onclick="openLegal('cookies')" data-t>Cookies</a>.</p>
       <button class="md-btn" id="signupBtn" onclick="registerStart()" data-t>Send activation code by email</button>
     </div>
 
@@ -2566,7 +2586,7 @@
   💬 <span class="txt">Chat</span>
 </button>
 
-<script src="script.js?v=20260513d"></script>
+<script src="script.js?v=20260506b"></script>
 
 </body>
 </html>

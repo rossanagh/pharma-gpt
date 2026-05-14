@@ -153,7 +153,22 @@ const T = {
     "Guidelines-backed":"Susținut de ghiduri","Recommendations link to evidence":"Recomandările au link către evidență",
     "Clinical disclaimer:":"Aviz clinic:",
     "Radiology AI provides decision-support only. It is not a substitute for formal radiological interpretation by a licensed radiologist. All findings must be clinically correlated and verified.":"AI-ul radiologic oferă doar suport pentru decizii. Nu înlocuiește interpretarea radiologică formală de către un radiolog autorizat. Toate constatările trebuie corelate clinic și verificate.",
-    "Platform":"Platformă","Privacy Policy":"Politică Confidențialitate","Terms of Use":"Termeni de Utilizare",
+    "Platform":"Platformă","Privacy Policy":"Politică Confidențialitate","Terms of Use":"Termeni de Utilizare","Cookies":"Cookie-uri",
+    "By signing in you agree to our":"Prin conectare confirmi că ai luat la cunoștință documentele noastre:",
+    "By registering you agree to our":"Prin înregistrare confirmi că ai luat la cunoștință documentele noastre:",
+    "Consultation workspace — how it works":"Spațiul de consultație — cum funcționează",
+    "1. At registration — your clinical profile":"1. La înregistrare — îți setezi profilul clinic",
+    "Register with your professional identifier (e.g. NPI or national ID / parafă) and pick your specialty. The taxonomy spans 160+ medical specialties so the assistant stays in your context — not anonymous boilerplate.":"Te înregistrezi cu identificatorul profesional (ex. NPI sau cod național / parafă) și alegi specialitatea. Taxonomia acoperă peste 160 de specialități medicale, astfel încât asistentul rămâne în contextul tău — nu răspunsuri anonime și generice.",
+    "2. Before the visit — patient on file":"2. Înainte de consultație — pacientul în dosar",
+    "Per patient you keep demographics, questions, documents and visits together. Upload or paste documents where supported so key details can be extracted. Adding a phone number enables patient-communication features as they roll out.":"Pentru fiecare pacient păstrezi demografia, întrebările, documentele și vizitele la un loc. Încarci sau lipești documente acolo unde e suportat, ca detaliile relevante să poată fi extrase. Adăugând un număr de telefon, activezi funcțiile de comunicare cu pacientul pe măsură ce devin disponibile.",
+    "3. During the visit — microphone":"3. În timpul consultației — microfonul",
+    "Ambient transcription follows the visit while you talk. Evidence from guidelines and literature can enrich Assessment & Plan directly in your documentation flow in near real time — minimal clicking, maximum flow.":"Transcrierea ambientală urmărește consultația în timp ce vorbești. Evidența din ghiduri și literatură poate îmbogăți secțiunea de evaluare și plan direct în fluxul de documentare, aproape în timp real — minimum de clicuri, flux maxim.",
+    "4. Answers — Quick vs Deep":"4. Răspunsurile — Quick vs Deep",
+    "Quick consult: fast answers with journal-grade citations in seconds. Deep consult: multi-source synthesis for complex cases. Citations stay inline and tappable where links exist — straight to the primary study (e.g. NEJM, JAMA).":"Quick Consult: răspuns rapid, cu citații de nivel revistă, în câteva secunde. Deep Consult: sinteză multi-sursă pentru cazuri complexe. Citațiile rămân inline și pot fi apăsate acolo unde există link — direct spre studiul primar (ex. NEJM, JAMA).",
+    "5. After the visit — clinical note":"5. După consultație — notă clinică",
+    "The editor holds the note you refine and sign. Further questions in the assistant carry patient + visit context automatically so you do not re-type the whole story.":"Editorul conține nota pe care o rafinezi și o semnezi. Întrebările ulterioare în asistent poartă automat contextul pacientului și al vizitei, fără să rescrii tot istoricul.",
+    "6. Dotflows — your shortcuts":"6. Dotflows — scurtături personalizate",
+    "Save structured workflows — prior authorizations, post-visit summaries, teaching chalk-talk outlines. Shape the answer: tables vs bullets, brief vs deep, plus clinical framing (paediatrics, inpatient, primary care). Type a period (.) to surface saved shortcuts.":"Salvezi fluxuri structurate — autorizări prealabile, rezumate post-vizită, outline-uri de chalk talk didactic. Controlezi forma răspunsului: tabele vs bullet, scurt vs detaliat, plus nuanțare clinică (pediatrie, spitalizare, medicină de familie). Tastezi punct (.) pentru a vedea scurtăturile salvate.",
     "Evidence-based clinical decision support for verified healthcare professionals across Europe.":"Suport decizional clinic bazat pe evidențe pentru profesioniști medicali verificați din toată Europa.",
     "© 2026 MedicinEvidence. All rights reserved. Clinical information for healthcare professionals only — not medical advice.":"© 2026 MedicinEvidence. Toate drepturile rezervate. Informații clinice doar pentru profesioniști medicali — nu constituie sfat medical.",
     "Welcome back":"Bun venit înapoi","Sign in to your verified account":"Conectează-te la contul tău verificat","Email":"Email","Password":"Parolă","No account yet?":"Nu ai cont încă?","Register free":"Înregistrează-te gratuit",
@@ -415,7 +430,7 @@ function goPage(p){
   document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('act'));
   const tab=document.querySelector('.ntab[data-p="'+p+'"]');
   if(tab)tab.classList.add('act');
-  window.scrollTo({top:0,behavior:'smooth'});
+  window.scrollTo({ top: 0, behavior: "auto" });
   if(p==='consult'){
     if(typeof mv6PrimeDates==='function') mv6PrimeDates();
     if(typeof mv6SyncPrintHeader==='function') mv6SyncPrintHeader();
@@ -438,8 +453,7 @@ function openModal(which){
     const em=document.getElementById('fpEmail'); if(em) em.focus();
   }
   if(which==='signin' || which==='signup'){
-    const cb = document.getElementById(which==='signin' ? 'signinAgree' : 'signupAgree');
-    if(cb) cb.checked = false;
+    refreshSigninSignupBindings();
     authAgreeChanged();
   }
   if(which==='signin'){
@@ -553,34 +567,65 @@ function openLegal(which){
   legalPick(which || 'privacy');
 }
 
+function userFromLoginPayload(r, emailFallback){
+  return {
+    email: r.email || emailFallback,
+    fullName: r.fullName,
+    firstName: r.firstName,
+    lastName: r.lastName,
+    providerType: r.providerType,
+    medicGrade: r.medicGrade,
+    specialty: r.specialty,
+    academicTitles: r.academicTitles,
+    parafa: r.parafa,
+    name: r.fullName || [r.firstName, r.lastName].filter(Boolean).join(" ").trim()
+  };
+}
+
+function hydrateMeInBackground(){
+  void fetchMeFresh().then((u)=>{
+    if(!u || !authToken()) return;
+    __DM__.me = { ...(__DM__.me || {}), ...u };
+    __ME_USER__ = __DM__.me;
+  });
+}
+
+function refreshSigninSignupBindings(){
+  const s1 = document.getElementById("signupStep1");
+  if(s1 && !s1.dataset.authInputBound){
+    s1.dataset.authInputBound = "1";
+    s1.addEventListener("input", ()=>authAgreeChanged());
+    s1.addEventListener("change", ()=>authAgreeChanged());
+  }
+}
+
 function authAgreeChanged(){
-  const s = document.getElementById('signinAgree');
   const sb = document.getElementById('signinBtn');
   if(sb){
-    const ok = s && s.checked;
     const legacy = !!window.__SIGNIN_LEGACY__;
     let can = false;
-    if(ok){
-      if(legacy){
-        const em=(document.getElementById('signinEmail')?.value||'').trim();
-        const pw=document.getElementById('signinPassword')?.value||'';
-        can = !!(em && pw);
-      }else{
-        const raw=document.getElementById('signinLoginCode')?.value||'';
-        const digits=String(raw).replace(/\D/g,'');
-        can = digits.length===6;
-      }
+    if(legacy){
+      const em=(document.getElementById('signinEmail')?.value||'').trim();
+      const pw=document.getElementById('signinPassword')?.value||'';
+      can = !!(em && pw);
+    }else{
+      const raw=document.getElementById('signinLoginCode')?.value||'';
+      const digits=String(raw).replace(/\D/g,'');
+      can = digits.length===6;
     }
     sb.disabled = !can;
   }
-  const u = document.getElementById('signupAgree');
   const ub = document.getElementById('signupBtn');
-  if(ub) ub.disabled = !(u && u.checked);
+  if(ub){
+    const s1 = document.getElementById('signupStep1');
+    const onStep1 = s1 && s1.style.display !== 'none';
+    ub.disabled = onStep1 ? (signupStep1Missing().length > 0) : true;
+  }
   const uc = document.getElementById('signupCompleteBtn');
   if(uc){
     const raw=document.getElementById('signupCode')?.value||'';
     const digits=String(raw).replace(/\D/g,'');
-    uc.disabled = !(u && u.checked && digits.length===6);
+    uc.disabled = digits.length !== 6;
   }
 }
 
@@ -958,19 +1003,25 @@ async function apiJson(path, opts){
   return data;
 }
 
-async function authInit(){
+function authInit(){
   const t = authToken();
   if(!t){ setAuthUI(null); return; }
-  try{
-    // Spring backend: /api/users/me
-    const me = await apiJson("/api/users/me",{ method:"GET", headers: authHeaders() });
-    const u = me.user || me;
-    __DM__.me = u || null;
-    setAuthUI(u);
-  }catch(e){
-    setAuthToken("");
-    __DM__.me = null;
-    setAuthUI(null);
+  const run = async ()=>{
+    try{
+      const me = await apiJson("/api/users/me",{ method:"GET", headers: authHeaders() });
+      const u = me.user || me;
+      __DM__.me = u || null;
+      setAuthUI(u);
+    }catch(e){
+      setAuthToken("");
+      __DM__.me = null;
+      setAuthUI(null);
+    }
+  };
+  if(typeof requestIdleCallback === "function"){
+    requestIdleCallback(()=>{ void run(); }, { timeout: 800 });
+  }else{
+    setTimeout(()=>{ void run(); }, 0);
   }
 }
 
@@ -1035,11 +1086,6 @@ function signupBackToStep1(e){
 }
 
 async function login(){
-  const agree = document.getElementById("signinAgree");
-  if(agree && !agree.checked){
-    alert(curLang==='ro' ? 'Te rugăm să accepți Termenii, GDPR și Cookies ca să continui.' : 'Please accept Terms, GDPR and Cookies to continue.');
-    return;
-  }
   const legacy = !!window.__SIGNIN_LEGACY__;
   let body;
   if(legacy){
@@ -1070,22 +1116,12 @@ async function login(){
     if(!token) throw new Error("Missing token from server");
     setAuthToken(token);
     const emailHint = legacy ? (document.getElementById("signinEmail")?.value || "").trim() : "";
-    const user = r.user ? r.user : {
-      email: r.email || emailHint,
-      fullName: r.fullName,
-      firstName: r.firstName,
-      lastName: r.lastName,
-      providerType: r.providerType,
-      role: r.role,
-      parafa: r.parafa,
-      name: r.fullName || [r.firstName, r.lastName].filter(Boolean).join(" ").trim()
-    };
-    // Always load canonical profile after login (includes id/email/etc.)
-    const fresh = await fetchMeFresh();
-    __DM__.me = fresh || user;
-    setAuthUI(__DM__.me);
+    const user = r.user ? r.user : userFromLoginPayload(r, emailHint);
+    __DM__.me = user;
+    setAuthUI(user);
     closeModal();
     goPage("consult");
+    hydrateMeInBackground();
   }catch(e){
     alert(e.message || "Login failed");
   }
@@ -1128,11 +1164,6 @@ function signupStep1Missing(){
 }
 
 async function registerStart(){
-  const agree = document.getElementById("signupAgree");
-  if(agree && !agree.checked){
-    alert(curLang==='ro' ? 'Te rugăm să accepți Termenii, GDPR și Cookies ca să continui.' : 'Please accept Terms, GDPR and Cookies to continue.');
-    return;
-  }
   const missing = signupStep1Missing();
   if(missing.length){
     const head = tr("Please complete the following fields:");
@@ -1187,11 +1218,6 @@ async function registerStart(){
 }
 
 async function registerComplete(){
-  const agree = document.getElementById("signupAgree");
-  if(agree && !agree.checked){
-    alert(curLang==='ro' ? 'Te rugăm să accepți Termenii, GDPR și Cookies ca să continui.' : 'Please accept Terms, GDPR and Cookies to continue.');
-    return;
-  }
   const email = (document.getElementById("signupEmail")?.value || "").trim();
   const raw = document.getElementById("signupCode")?.value || "";
   const code = String(raw).replace(/\D/g, "");
@@ -1208,21 +1234,12 @@ async function registerComplete(){
     const token = r.token || r.jwt || r.accessToken;
     if(!token) throw new Error("Missing token from server");
     setAuthToken(token);
-    const user = r.user ? r.user : {
-      email: r.email || email,
-      fullName: r.fullName,
-      firstName: r.firstName,
-      lastName: r.lastName,
-      providerType: r.providerType,
-      role: r.role,
-      parafa: r.parafa,
-      name: r.fullName || [r.firstName, r.lastName].filter(Boolean).join(" ").trim()
-    };
-    const fresh = await fetchMeFresh();
-    __DM__.me = fresh || user;
-    setAuthUI(__DM__.me);
+    const user = r.user ? r.user : userFromLoginPayload(r, email);
+    __DM__.me = user;
+    setAuthUI(user);
     closeModal();
     goPage("consult");
+    hydrateMeInBackground();
   }catch(e){
     alert(e.message || (curLang==='ro' ? 'Activarea a eșuat.' : 'Activation failed.'));
   }
@@ -1238,9 +1255,10 @@ function pickRole(btn){
   document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('act'));
   btn.classList.add('act');
   updateSignupMedicFields();
+  authAgreeChanged();
 }
 
-setTimeout(()=>{ try{ authInit(); }catch(e){} }, 0);
+setTimeout(()=>{ try{ refreshSigninSignupBindings(); authInit(); }catch(e){} }, 0);
 
 /* ============ FORGOT PASSWORD ============ */
 async function requestPasswordReset(){
