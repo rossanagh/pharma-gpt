@@ -23,7 +23,7 @@ public class NotificationService {
         .followRedirects(HttpClient.Redirect.NORMAL)
         .build();
 
-    @Value("${pharma.mail.from:no-reply@medicinevidence.com}")
+    @Value("${pharma.mail.from:contact@medicinevidence.com}")
     private String from;
 
     @Value("${pharma.reset.dev-log-codes:true}")
