@@ -17,7 +17,7 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="alternate icon" href="favicon.svg" type="image/svg+xml">
 
-<link rel="stylesheet" href="styles.css?v=20260506i">
+<link rel="stylesheet" href="styles.css?v=20260515a">
 
 </head>
 <body>
@@ -290,27 +290,31 @@
               </div>
             </div>
             <div class="mv6-right-panel">
-              <div class="mv6-ask-area">
-                <div class="mv6-ask-box">
-                  <textarea class="mv6-ask-in" id="mv6AskIn" rows="1" data-tph="Ask about this case…" placeholder="Ask about this case…" onkeydown="mv6AskKey(event)" oninput="mv6AutoResize(this)"></textarea>
-                  <button type="button" class="mv6-ask-btn" onclick="sendChat()" aria-label="Send">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                  </button>
-                </div>
-              </div>
-              <div class="mv6-quick-actions">
-                <button type="button" class="mv6-qa" onclick="mv6RunInteractiuni()"><div class="mv6-qa-ico mv6-danger">⚠</div><span data-t>Drug interactions</span></button>
-                <button type="button" class="mv6-qa" onclick="mv6RunDozaje()"><div class="mv6-qa-ico mv6-info">⚕</div><span data-t>Dosing suggestions</span></button>
-                <div class="mv6-qa-divider"></div>
-                <button type="button" class="mv6-qa" onclick="mv6Qa('forward')"><div class="mv6-qa-ico">↗</div><span data-t>Copy note to next visit</span></button>
-                <button type="button" class="mv6-qa" onclick="mv6Qa('questions')"><div class="mv6-qa-ico">?</div><span data-t>What questions are still open?</span></button>
-                <button type="button" class="mv6-qa" onclick="mv6Qa('contra')"><div class="mv6-qa-ico">✓</div><span data-t>Check contraindications</span></button>
-                <button type="button" class="mv6-qa" onclick="mv6Qa('evidence')"><div class="mv6-qa-ico">+</div><span data-t>Enrich plan with evidence</span></button>
-              </div>
               <div class="mv6-chat-scroll" id="mv6ChatScroll">
                 <div class="mv6-empty-hint" id="mv6EmptyHint">
                   <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#B5583C" stroke-width="1"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-                  <p data-t>Dictate about the patient — evidence can appear inline in the editor, tailored to this case.</p>
+                  <p data-t>Ask about this case — answers appear here with evidence and links when available.</p>
+                </div>
+              </div>
+              <div class="mv6-panel-foot">
+                <div class="mv6-quick-actions">
+                  <div class="mv6-quick-head" data-t>Suggested prompts</div>
+                  <div class="mv6-quick-chips">
+                    <button type="button" class="mv6-qa mv6-qa-chip mv6-qa-warn" onclick="mv6RunInteractiuni()"><span data-t>Drug interactions</span></button>
+                    <button type="button" class="mv6-qa mv6-qa-chip" onclick="mv6RunDozaje()"><span data-t>Dosing suggestions</span></button>
+                    <button type="button" class="mv6-qa mv6-qa-chip" onclick="mv6Qa('forward')"><span data-t>Copy note to next visit</span></button>
+                    <button type="button" class="mv6-qa mv6-qa-chip" onclick="mv6Qa('questions')"><span data-t>What questions are still open?</span></button>
+                    <button type="button" class="mv6-qa mv6-qa-chip" onclick="mv6Qa('contra')"><span data-t>Check contraindications</span></button>
+                    <button type="button" class="mv6-qa mv6-qa-chip" onclick="mv6Qa('evidence')"><span data-t>Enrich plan with evidence</span></button>
+                  </div>
+                </div>
+                <div class="mv6-ask-area">
+                  <div class="mv6-ask-box">
+                    <textarea class="mv6-ask-in" id="mv6AskIn" rows="1" data-tph="Ask about this case…" placeholder="Ask about this case…" onkeydown="mv6AskKey(event)" oninput="mv6AutoResize(this)"></textarea>
+                    <button type="button" class="mv6-ask-btn" onclick="sendChat()" aria-label="Send">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -2549,7 +2553,7 @@
   💬 <span class="txt">Chat</span>
 </button>
 
-<script src="script.js?v=20260506i"></script>
+<script src="script.js?v=20260515a"></script>
 
 </body>
 </html>
