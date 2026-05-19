@@ -308,6 +308,57 @@ function ragRetrieve($queryText, $topK = 4) {
     return $out;
 }
 
+/** Extract study/trial links from RAG chunk text for the consult UI. */
+function ragExtractStudiesFromText(string $text): array {
+    $studies = [];
+    $seen = [];
+    $add = function (string $title, string $url) use (&$studies, &$seen): void {
+        $url = trim(rtrim($url, ".,;·\t"));
+        if ($url === '' || isset($seen[$url])) {
+            return;
+        }
+        $seen[$url] = true;
+        $title = trim(preg_replace('/\s+/', ' ', $title));
+        if ($title === '') {
+            $title = $url;
+        }
+        if (mb_strlen($title, 'UTF-8') > 110) {
+            $title = mb_substr($title, 0, 107, 'UTF-8') . '…';
+        }
+        $studies[] = ['title' => $title, 'url' => $url];
+    };
+
+    if (preg_match_all('/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/i', $text, $m, PREG_SET_ORDER)) {
+        foreach ($m as $row) {
+            $add($row[1], $row[2]);
+        }
+    }
+    foreach (preg_split('/\r?\n/', $text) as $line) {
+        if (!preg_match('#(https?://\S+)#i', $line, $um)) {
+            continue;
+        }
+        $url = rtrim($um[1], ".,;·\t");
+        $before = trim((string)preg_replace('#https?://.*$#i', '', $line));
+        $before = preg_replace('/^[-•]\s*/u', '', $before);
+        $before = preg_replace('/\s*·\s*PMID.*$/i', '', $before);
+        $before = preg_replace('/\s*PMID[:\s]*\d+.*$/i', '', $before);
+        $before = preg_replace('/\s*registry.*$/i', '', $before);
+        $add($before !== '' ? $before : $url, $url);
+    }
+    if (preg_match_all('/\bPMID[:\s]*(\d{6,9})\b/i', $text, $m)) {
+        foreach ($m[1] as $pmid) {
+            $add('PubMed ' . $pmid, 'https://pubmed.ncbi.nlm.nih.gov/' . $pmid . '/');
+        }
+    }
+    if (preg_match_all('/\b(NCT\d{8,11})\b/i', $text, $m)) {
+        foreach ($m[1] as $nct) {
+            $add($nct, 'https://clinicaltrials.gov/study/' . $nct);
+        }
+    }
+
+    return array_slice($studies, 0, 8);
+}
+
 // ============ SYSTEM PROMPT BY MODE ============
 function buildSystemPrompt($mode, $input, $langName) {
     // Allow caller to pass a custom system prompt (e.g. from guides AI)
@@ -424,6 +475,7 @@ if ($mode === 'vision' && !empty($input['image_base64'])) {
 
 // ============ APPLY RAG TO ALL MODES ============
 // Build a retrieval query from the latest user content + optional patient context.
+$ragStudiesForClient = [];
 $ragEnabled = true;
 if (array_key_exists('rag', $input)) {
     $ragEnabled = (bool)$input['rag'];
@@ -455,7 +507,9 @@ if ($ragEnabled) {
     }
 
     $chunks = ragRetrieve($qText, 4);
+    $ragStudiesForClient = [];
     if (!empty($chunks)) {
+        $ragStudiesForClient = ragExtractStudiesFromText(implode("\n", $chunks));
         $ragBlock = "\n\nREFERENCE EXCERPTS (use as grounding; cite bracket tags when used; carry trial/study URLs into **Studies / sources (with links)**):\n";
         foreach ($chunks as $idx => $ch) {
             $n = $idx + 1;
@@ -521,6 +575,12 @@ if ($stream) {
     @ini_set('implicit_flush', 1);
     while (ob_get_level() > 0) ob_end_flush();
     ob_implicit_flush(true);
+
+    if (!empty($ragStudiesForClient)) {
+        echo "event: rag_studies\n";
+        echo "data: " . json_encode(['studies' => $ragStudiesForClient], JSON_UNESCAPED_UNICODE) . "\n\n";
+        @flush();
+    }
 
     $ch = curl_init($apiUrl);
     curl_setopt_array($ch, [

@@ -1661,19 +1661,41 @@ function mv6ExtractStudyLinks(text){
   let m;
   const mdRe = /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/gi;
   while((m = mdRe.exec(text))) add(m[1], m[2]);
-  const urlRe = /https?:\/\/(?:pubmed\.ncbi\.nlm\.nih\.gov\/\d+|clinicaltrials\.gov\/study\/NCT\d+)/gi;
+  for(const line of text.split(/\n/)){
+    const um = line.match(/(https?:\/\/\S+)/i);
+    if(!um) continue;
+    const url = um[1].replace(/[.,;·]+$/,'');
+    let before = line.split(/https?:\/\//i)[0].replace(/^[-•]\s*/,'').trim();
+    before = before.replace(/\s*·\s*PMID.*$/i,'').replace(/\s*PMID[:\s]*\d+.*$/i,'').replace(/\s*registry.*$/i,'');
+    add(before || url, url);
+  }
+  const urlRe = /https?:\/\/[^\s<>\)\]"]+/gi;
   while((m = urlRe.exec(text))) add(m[0], m[0]);
   const pmidRe = /\bPMID[:\s]*(\d{6,9})\b/gi;
   while((m = pmidRe.exec(text))) add('PubMed '+m[1], 'https://pubmed.ncbi.nlm.nih.gov/'+m[1]+'/');
   const nctRe = /\b(NCT\d{8,11})\b/gi;
   while((m = nctRe.exec(text))) add(m[1], 'https://clinicaltrials.gov/study/'+m[1]);
-  return out;
+  return out.slice(0, 8);
 }
 
-function mv6AppendStudiesStrip(msgEl, fullText){
-  if(!msgEl || !fullText) return;
-  const studies = mv6ExtractStudyLinks(fullText);
-  if(!studies.length) return;
+function mv6MergeStudies(...lists){
+  const out = [];
+  const seen = new Set();
+  for(const list of lists){
+    if(!list) continue;
+    for(const s of list){
+      const url = (typeof s === 'string') ? s : (s.url || '');
+      if(!url || seen.has(url)) continue;
+      seen.add(url);
+      const title = (typeof s === 'string') ? s : (s.title || url);
+      out.push({ title: String(title).trim().slice(0,120), url });
+    }
+  }
+  return out.slice(0, 8);
+}
+
+function mv6RenderStudiesStrip(msgEl, studies){
+  if(!msgEl || !studies || !studies.length) return;
   msgEl.querySelector('.mv6-studies-strip')?.remove();
   const links = studies.map(s=>'<a class="mv6-study-link" href="'+escapeHtml(s.url)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(s.title)+'</a>').join('');
   msgEl.insertAdjacentHTML('beforeend',
@@ -1681,8 +1703,18 @@ function mv6AppendStudiesStrip(msgEl, fullText){
   );
 }
 
+function mv6SyncStudiesStrip(msgEl, fullText, ragStudies){
+  if(!msgEl) return;
+  const merged = mv6MergeStudies(ragStudies || [], mv6ExtractStudyLinks(fullText || ''));
+  if(!merged.length) return;
+  mv6RenderStudiesStrip(msgEl, merged);
+}
+
+function mv6AppendStudiesStrip(msgEl, fullText){
+  mv6SyncStudiesStrip(msgEl, fullText, []);
+}
 /* ============ SSE STREAMING PARSER ============ */
-async function streamClaudeAPI(payload, onToken, onDone, onError){
+async function streamClaudeAPI(payload, onToken, onDone, onError, onRagStudies){
   try {
     const resp = await fetch('ai.php', {
       method:'POST',
@@ -1715,6 +1747,10 @@ async function streamClaudeAPI(payload, onToken, onDone, onError){
         if(!data) continue;
         try{
           const obj = JSON.parse(data);
+          if(evt === 'rag_studies' && Array.isArray(obj.studies)){
+            onRagStudies && onRagStudies(obj.studies);
+            continue;
+          }
           if(obj.type === 'content_block_delta' && obj.delta && obj.delta.type === 'text_delta'){
             onToken && onToken(obj.delta.text);
           } else if(Array.isArray(obj.choices) && obj.choices[0] && obj.choices[0].delta){
@@ -2875,23 +2911,39 @@ function sendChat(){
   }
   chatHistory.push({role:'user',content:msgToSend});
   let fullText='';
+  let ragStudies=[];
+  let lastStudiesSync=0;
   const bubble=document.getElementById('bubble_'+msgId);
+  const mv6MsgEl=()=>document.getElementById('msg_'+msgId);
+  const syncMv6Studies=()=>{
+    if(!isMv6) return;
+    mv6SyncStudiesStrip(mv6MsgEl(), fullText, ragStudies);
+    body.scrollTop=body.scrollHeight;
+  };
   streamClaudeAPI({mode:'chat',lang:curLang,messages:chatHistory,patient_context:ctxParts.length?{raw:ctxParts.join(' | ')}:{}},
-    (token)=>{if(!bubble)return;if(fullText==='')bubble.innerHTML='';fullText+=token;bubble.innerHTML=md2html(fullText);body.scrollTop=body.scrollHeight;},
+    (token)=>{
+      if(!bubble) return;
+      if(fullText==='') bubble.innerHTML='';
+      fullText+=token;
+      bubble.innerHTML=md2html(fullText);
+      body.scrollTop=body.scrollHeight;
+      if(isMv6){
+        const now=Date.now();
+        if(now-lastStudiesSync>350){ lastStudiesSync=now; syncMv6Studies(); }
+      }
+    },
     ()=>{
       if(!bubble)return;
       if(fullText==='')bubble.innerHTML='<em style="opacity:.6">(empty)</em>';
       else{
         chatHistory.push({role:'assistant',content:fullText});
-        if(isMv6){
-          const msg=document.getElementById('msg_'+msgId);
-          mv6AppendStudiesStrip(msg, fullText);
-        }
+        if(isMv6) syncMv6Studies();
       }
       if(btn)btn.disabled=false;
       body.scrollTop=body.scrollHeight;
     },
-    (err)=>{if(bubble)bubble.innerHTML='<div style="color:#B91C1C"><strong>Error:</strong> '+escapeHtml(err)+'</div>';if(btn)btn.disabled=false;}
+    (err)=>{if(bubble)bubble.innerHTML='<div style="color:#B91C1C"><strong>Error:</strong> '+escapeHtml(err)+'</div>';if(btn)btn.disabled=false;},
+    (studies)=>{ ragStudies=studies||[]; syncMv6Studies(); }
   );
 }
 
