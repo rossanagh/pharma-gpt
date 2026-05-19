@@ -622,6 +622,7 @@ h1.headline em{font-style:italic;font-weight:400;display:block;background:linear
 #pg-consult .mv6-chat-bubble p:last-child{margin-bottom:0}
 #pg-consult .mv6-chat-bubble ul,#pg-consult .mv6-chat-bubble ol{margin:.4em 0 .6em;padding-left:1.25em}
 #pg-consult .mv6-chat-bubble a{color:var(--mv6-terra-d);text-decoration:underline;text-underline-offset:2px}
+#pg-consult .mv6-studies-slot{min-height:0}
 #pg-consult .mv6-chat-msg .mv6-studies-strip{margin-top:10px;padding:10px 12px 12px;border:1px solid var(--mv6-terra-border);background:var(--mv6-terra-pale);border-radius:10px}
 #pg-consult .mv6-studies-title{font-size:10px;font-weight:700;letter-spacing:.35px;text-transform:uppercase;color:var(--mv6-terra);margin-bottom:8px}
 #pg-consult .mv6-studies-links{display:flex;flex-direction:column;gap:6px}

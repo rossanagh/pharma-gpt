@@ -1696,11 +1696,17 @@ function mv6MergeStudies(...lists){
 
 function mv6RenderStudiesStrip(msgEl, studies){
   if(!msgEl || !studies || !studies.length) return;
-  msgEl.querySelector('.mv6-studies-strip')?.remove();
+  const slot = msgEl.querySelector('.mv6-studies-slot') || msgEl;
+  slot.querySelector('.mv6-studies-strip')?.remove();
   const links = studies.map(s=>'<a class="mv6-study-link" href="'+escapeHtml(s.url)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(s.title)+'</a>').join('');
-  msgEl.insertAdjacentHTML('beforeend',
+  slot.insertAdjacentHTML('beforeend',
     '<div class="mv6-studies-strip"><div class="mv6-studies-title" data-t>Clinical studies</div><div class="mv6-studies-links">'+links+'</div></div>'
   );
+  const strip = slot.querySelector('.mv6-studies-strip');
+  if(strip){
+    strip.scrollIntoView({ block:'nearest', behavior:'smooth' });
+    if(typeof applyTranslations==='function') applyTranslations(strip);
+  }
 }
 
 function mv6SyncStudiesStrip(msgEl, fullText, ragStudies){
@@ -2874,7 +2880,7 @@ function sendChat(){
   body.scrollTop=body.scrollHeight;
   const msgId='ai_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
   if(isMv6){
-    body.insertAdjacentHTML('beforeend','<div class="mv6-chat-msg" id="msg_'+msgId+'" data-mv6-role="ai"><div class="mv6-chat-role">MedicinEvidence AI</div><div class="mv6-chat-bubble" id="bubble_'+msgId+'"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>');
+    body.insertAdjacentHTML('beforeend','<div class="mv6-chat-msg" id="msg_'+msgId+'" data-mv6-role="ai"><div class="mv6-chat-role">MedicinEvidence AI</div><div class="mv6-chat-bubble" id="bubble_'+msgId+'"><div class="typing-dots"><span></span><span></span><span></span></div></div><div class="mv6-studies-slot"></div></div>');
   }else{
     const isDemo2=!!document.querySelector('#pg-consult .c2-chat-card');
     if(isDemo2){
@@ -2912,7 +2918,6 @@ function sendChat(){
   chatHistory.push({role:'user',content:msgToSend});
   let fullText='';
   let ragStudies=[];
-  let lastStudiesSync=0;
   const bubble=document.getElementById('bubble_'+msgId);
   const mv6MsgEl=()=>document.getElementById('msg_'+msgId);
   const syncMv6Studies=()=>{
@@ -2927,10 +2932,6 @@ function sendChat(){
       fullText+=token;
       bubble.innerHTML=md2html(fullText);
       body.scrollTop=body.scrollHeight;
-      if(isMv6){
-        const now=Date.now();
-        if(now-lastStudiesSync>350){ lastStudiesSync=now; syncMv6Studies(); }
-      }
     },
     ()=>{
       if(!bubble)return;
@@ -2943,7 +2944,7 @@ function sendChat(){
       body.scrollTop=body.scrollHeight;
     },
     (err)=>{if(bubble)bubble.innerHTML='<div style="color:#B91C1C"><strong>Error:</strong> '+escapeHtml(err)+'</div>';if(btn)btn.disabled=false;},
-    (studies)=>{ ragStudies=studies||[]; syncMv6Studies(); }
+    (studies)=>{ ragStudies=studies||[]; }
   );
 }
 
