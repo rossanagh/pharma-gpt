@@ -376,3 +376,10 @@ RAG NOTES (how to write knowledge):
 - Loading component...
 - Loading component...
 - Loading component...
+---
+[Landmark clinical trials — links for RAG-grounded answers]
+- SGLT2 CVOT — EMPA-REG OUTCOME (empagliflozin, T2DM with CVD): PMID 26378978 https://pubmed.ncbi.nlm.nih.gov/26378978/ · registry NCT01131676 https://clinicaltrials.gov/study/NCT01131676
+- SGLT2 — DECLARE-TIMI 58 (dapagliflozin): NCT01730534 https://clinicaltrials.gov/study/NCT01730534
+- HF — DAPA-HF (dapagliflozin in HFrEF): PMID 31535829 https://pubmed.ncbi.nlm.nih.gov/31535829/
+- AF anticoagulation — RE-LY (dabigatran vs warfarin): NCT00262600 https://clinicaltrials.gov/study/NCT00262600 · ARISTOTLE (apixaban vs warfarin): NCT00496769 https://clinicaltrials.gov/study/NCT00496769
+- Hypertension — SPRINT (intensive BP): PMID 26551272 https://pubmed.ncbi.nlm.nih.gov/26551272/

@@ -93,6 +93,7 @@ const T = {
     "Ambient recording":"Înregistrare ambientală","With inline evidence":"Cu evidențe inline","Name, age, medications":"Nume, vârstă, medicație","Recording…":"Înregistrare…","Transcribing…":"Se transcrie…","Transcription added to note":"Transcrierea a fost adăugată în notă","Transcription failed":"Transcrierea a eșuat","Paragraph":"Paragraf","Large heading":"Titlu mare","Small heading":"Titlu mic","words":"cuvinte","Dictate about the patient — evidence can appear inline in the editor, tailored to this case.":"Dictați despre pacient — evidențele pot apărea direct în editor, adaptate acestui caz.",
     "AI-assisted document — clinical responsibility remains with the treating physician.":"Document cu asistență AI — responsabilitatea clinică revine medicului curant.",
     "Suggested prompts":"Sugestii rapide","Ask about this case — answers appear here with evidence and links when available.":"Întreabă despre acest caz — răspunsurile apar aici, cu dovezi și linkuri când sunt disponibile.",
+    "Clinical studies":"Studii clinice","Studies / sources":"Studii / surse",
     "Drug interactions":"Interacțiuni medicamentoase","Dosing suggestions":"Dozaje recomandate","Copy note to next visit":"Copiază nota la consultația următoare","What questions are still open?":"Ce întrebări mai trebuie adresate?","Check contraindications":"Verifică contraindicații în plan","Enrich plan with evidence":"Îmbogățește planul cu dovezi",
     "Write in the note on the left —":"Scrie în nota din stânga —","then ask the assistant here for":"apoi întreabă asistentul aici pentru","evidence-based answers":"răspunsuri bazate pe dovezi","for this case.":"pentru acest caz.",
     "Patient name":"Nume pacient","Cancel":"Anulează","Save":"Salvează","Current medication":"Medicație actuală","Diagnosis / reason":"Diagnostic / Motiv","Allergies / warnings":"Alergii / Atenționări",
@@ -1620,6 +1621,10 @@ Be motivating, specific, and actionable. Max 400 words.`;
 }
 function md2html(text){
   let h = escapeHtml(text);
+  // markdown links [label](url) — before bare-url pass
+  h = h.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+  // bare https URLs (PubMed, trials, guidelines)
+  h = h.replace(/(^|[\s(])((https?:\/\/)[^\s<)\]]+)/g,(m,pre,url)=>pre+'<a href="'+url+'" target="_blank" rel="noopener noreferrer">'+url+'</a>');
   // headings
   h = h.replace(/^### (.+)$/gm,'<h3>$1</h3>');
   h = h.replace(/^## (.+)$/gm,'<h2>$1</h2>');
@@ -1633,7 +1638,7 @@ function md2html(text){
   // bullets
   h = h.replace(/^[-•]\s+(.+)$/gm,'<li>$1</li>');
   h = h.replace(/(<li>.*?<\/li>\n?)+/gs,m=>'<ul>'+m+'</ul>');
-  // inline citations in brackets
+  // inline citations in brackets (not already links)
   h = h.replace(/\[([A-Z][A-Z0-9 \/.+-]+?(?:\s?\d{4})?)\]/g,'<span class="cite">$1</span>');
   // paragraphs — split blank lines
   h = h.split(/\n\n+/).map(block=>{
@@ -1641,6 +1646,39 @@ function md2html(text){
     return '<p>'+block.replace(/\n/g,'<br>')+'</p>';
   }).join('\n');
   return h;
+}
+
+function mv6ExtractStudyLinks(text){
+  const out = [];
+  const seen = new Set();
+  const add = (title, url)=>{
+    const u = (url||'').trim().replace(/[.,;]+$/,'');
+    if(!u || seen.has(u)) return;
+    seen.add(u);
+    out.push({ title: (title||u).trim().slice(0,120), url: u });
+  };
+  if(!text) return out;
+  let m;
+  const mdRe = /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/gi;
+  while((m = mdRe.exec(text))) add(m[1], m[2]);
+  const urlRe = /https?:\/\/(?:pubmed\.ncbi\.nlm\.nih\.gov\/\d+|clinicaltrials\.gov\/study\/NCT\d+)/gi;
+  while((m = urlRe.exec(text))) add(m[0], m[0]);
+  const pmidRe = /\bPMID[:\s]*(\d{6,9})\b/gi;
+  while((m = pmidRe.exec(text))) add('PubMed '+m[1], 'https://pubmed.ncbi.nlm.nih.gov/'+m[1]+'/');
+  const nctRe = /\b(NCT\d{8,11})\b/gi;
+  while((m = nctRe.exec(text))) add(m[1], 'https://clinicaltrials.gov/study/'+m[1]);
+  return out;
+}
+
+function mv6AppendStudiesStrip(msgEl, fullText){
+  if(!msgEl || !fullText) return;
+  const studies = mv6ExtractStudyLinks(fullText);
+  if(!studies.length) return;
+  msgEl.querySelector('.mv6-studies-strip')?.remove();
+  const links = studies.map(s=>'<a class="mv6-study-link" href="'+escapeHtml(s.url)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(s.title)+'</a>').join('');
+  msgEl.insertAdjacentHTML('beforeend',
+    '<div class="mv6-studies-strip"><div class="mv6-studies-title" data-t>Clinical studies</div><div class="mv6-studies-links">'+links+'</div></div>'
+  );
 }
 
 /* ============ SSE STREAMING PARSER ============ */
@@ -2840,7 +2878,19 @@ function sendChat(){
   const bubble=document.getElementById('bubble_'+msgId);
   streamClaudeAPI({mode:'chat',lang:curLang,messages:chatHistory,patient_context:ctxParts.length?{raw:ctxParts.join(' | ')}:{}},
     (token)=>{if(!bubble)return;if(fullText==='')bubble.innerHTML='';fullText+=token;bubble.innerHTML=md2html(fullText);body.scrollTop=body.scrollHeight;},
-    ()=>{if(!bubble)return;if(fullText==='')bubble.innerHTML='<em style="opacity:.6">(empty)</em>';else chatHistory.push({role:'assistant',content:fullText});if(btn)btn.disabled=false;},
+    ()=>{
+      if(!bubble)return;
+      if(fullText==='')bubble.innerHTML='<em style="opacity:.6">(empty)</em>';
+      else{
+        chatHistory.push({role:'assistant',content:fullText});
+        if(isMv6){
+          const msg=document.getElementById('msg_'+msgId);
+          mv6AppendStudiesStrip(msg, fullText);
+        }
+      }
+      if(btn)btn.disabled=false;
+      body.scrollTop=body.scrollHeight;
+    },
     (err)=>{if(bubble)bubble.innerHTML='<div style="color:#B91C1C"><strong>Error:</strong> '+escapeHtml(err)+'</div>';if(btn)btn.disabled=false;}
   );
 }

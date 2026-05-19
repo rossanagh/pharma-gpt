@@ -326,7 +326,10 @@ function buildSystemPrompt($mode, $input, $langName) {
             $sys = $base . "You are in CONSULTATION mode for a clinician. "
                 . "Tailor answers to patient context if provided. "
                 . "Mention renal/hepatic adjustments when relevant for dosing. "
-                . "End complex answers with a **Key citations** line. ";
+                . "When RAG excerpts mention clinical trials, guidelines, or papers with URLs/PMID/NCT, include them in a final section "
+                . "**Studies / sources (with links)** with markdown links [short label](https://...) for every URL from the excerpts. "
+                . "Do not invent URLs; use stable PubMed (https://pubmed.ncbi.nlm.nih.gov/PMID/) or ClinicalTrials.gov links when only NCT/PMID is given. "
+                . "Also end complex answers with a **Key citations** line when helpful. ";
             if (!empty($input['patient_context'])) {
                 $pc = $input['patient_context'];
                 $ctx = "\n\nPATIENT CONTEXT:\n";
@@ -453,7 +456,7 @@ if ($ragEnabled) {
 
     $chunks = ragRetrieve($qText, 4);
     if (!empty($chunks)) {
-        $ragBlock = "\n\nREFERENCE EXCERPTS (use as grounding; cite bracket tags when used):\n";
+        $ragBlock = "\n\nREFERENCE EXCERPTS (use as grounding; cite bracket tags when used; carry trial/study URLs into **Studies / sources (with links)**):\n";
         foreach ($chunks as $idx => $ch) {
             $n = $idx + 1;
             $ragBlock .= "\n[Excerpt $n]\n" . $ch . "\n";
